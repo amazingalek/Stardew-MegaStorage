@@ -20,7 +20,9 @@ Recipe:
 
 # Compatibility
 Requires SMAPI.
+
 Supports multiplayers and controllers.
+
 Chests Anywhere: compatible, but viewing Large Chest and Magic Chest through Chests Anywhere will show only 3 rows.
 
 # Is this safe?
