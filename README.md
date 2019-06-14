@@ -6,7 +6,7 @@ Adds Large Chests and Magic Chests to Stardew Valley.
 Capacity: 72 items (6 rows).
 
 Recipe:
-* 50 Wood
+* 100 Wood
 * 1 Copper Bar
 * 1 Iron Bar
  
@@ -14,9 +14,9 @@ Recipe:
 Infinite scrollable capacity.
 
 Recipe:
-* 50 Wood
-* 1 Gold Bar
-* 1 Iridium Bar
+* 200 Wood
+* 10 Solar Essense
+* 10 Void Essense
 
 # Compatibility
 Requires SMAPI.
