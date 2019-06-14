@@ -20,8 +20,8 @@ Recipe:
 
 # Compatibility
 * Requires SMAPI.
-* Harmony is not used.
 * Supports multiplayers and controllers.
+* Harmony is not used.
 * Chests Anywhere: compatible, but opening Large Chest and Magic Chest through Chests Anywhere will show them as normal chests.
 
 # Is this safe?
