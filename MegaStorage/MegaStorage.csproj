@@ -43,6 +43,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ItemIds.cs" />
     <Compile Include="Persistence\FarmhandInventorySaver.cs" />
     <Compile Include="UI\MagicItemGrabMenu.cs" />
     <Compile Include="NiceChestFactory.cs" />
