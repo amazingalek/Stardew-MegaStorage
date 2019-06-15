@@ -57,14 +57,14 @@ namespace MegaStorage.UI
         {
             UpButton = new ClickableTextureComponent(
                 new Rectangle(xPositionOnScreen + 768 + 32, yPositionOnScreen - 32, 64, 64), Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12, -1, -1), 1f, false)
+                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12), 1f)
             {
                 myID = 88,
                 downNeighborID = 89
             };
             DownButton = new ClickableTextureComponent(
                 new Rectangle(xPositionOnScreen + 768 + 32, yPositionOnScreen + 256, 64, 64),
-                Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11, -1, -1), 1f, false)
+                Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11), 1f)
             {
                 myID = 89,
                 upNeighborID = 88
@@ -159,7 +159,7 @@ namespace MegaStorage.UI
             ReceiveLeftClickBase(x, y, !destroyItemOnClick);
             if (chestColorPicker != null)
             {
-                chestColorPicker.receiveLeftClick(x, y, true);
+                chestColorPicker.receiveLeftClick(x, y);
                 if (SourceItem is Chest chest)
                     chest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
             }
@@ -198,14 +198,14 @@ namespace MegaStorage.UI
                 {
                     heldItem = null;
                     Game1.player.canUnderstandDwarves = true;
-                    Poof = new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 320, 64, 64), 50f, 8, 0, new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
+                    Poof = CreatePoof(x, y);
                     Game1.playSound("fireball");
                 }
                 else if (heldItem is Object obj2 && obj2.ParentSheetIndex == 102)
                 {
                     heldItem = null;
                     Game1.player.foundArtifact(102, 1);
-                    Poof = new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 320, 64, 64), 50f, 8, 0, new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
+                    Poof = CreatePoof(x, y);
                     Game1.playSound("fireball");
                 }
                 else if (heldItem is Object obj3 && obj3.IsRecipe)
@@ -217,13 +217,13 @@ namespace MegaStorage.UI
                             Game1.player.cookingRecipes.Add(key, 0);
                         else
                             Game1.player.craftingRecipes.Add(key, 0);
-                        Poof = new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 320, 64, 64), 50f, 8, 0, new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
+                        Poof = CreatePoof(x, y);
                         Game1.playSound("newRecipe");
                     }
                     catch (Exception ex) { }
                     heldItem = null;
                 }
-                else if (Game1.player.addItemToInventoryBool(heldItem, false))
+                else if (Game1.player.addItemToInventoryBool(heldItem))
                 {
                     heldItem = null;
                     Game1.playSound("coin");
@@ -258,7 +258,7 @@ namespace MegaStorage.UI
                 if (heldItem == null || isWithinBounds(x, y) || !heldItem.canBeTrashed())
                     return;
                 Game1.playSound("throwDownITem");
-                Game1.createItemDebris(heldItem, Game1.player.getStandingPosition(), Game1.player.FacingDirection, null, -1);
+                Game1.createItemDebris(heldItem, Game1.player.getStandingPosition(), Game1.player.FacingDirection);
                 inventory.onAddItem?.Invoke(heldItem, Game1.player);
                 heldItem = null;
             }
@@ -271,7 +271,7 @@ namespace MegaStorage.UI
                 trashCan?.containsPoint(x, y);
             if (okButton != null && okButton.containsPoint(x, y) && readyToClose())
             {
-                exitThisMenu(true);
+                exitThisMenu();
                 if (Game1.currentLocation.currentEvent != null)
                     ++Game1.currentLocation.currentEvent.CurrentCommand;
                 Game1.playSound("bigDeSelect");
@@ -308,7 +308,7 @@ namespace MegaStorage.UI
                 {
                     heldItem = null;
                     Game1.player.canUnderstandDwarves = true;
-                    Poof = new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 320, 64, 64), 50f, 8, 0, new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
+                    Poof = CreatePoof(x, y);
                     Game1.playSound("fireball");
                 }
                 else if (heldItem is Object obj2 && obj2.IsRecipe)
@@ -320,17 +320,15 @@ namespace MegaStorage.UI
                             Game1.player.cookingRecipes.Add(key, 0);
                         else
                             Game1.player.craftingRecipes.Add(key, 0);
-                        Poof = new TemporaryAnimatedSprite("TileSheets\\animations", new Rectangle(0, 320, 64, 64), 50f, 8, 0, new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
+                        Poof = CreatePoof(x, y);
                         Game1.playSound("newRecipe");
                     }
-                    catch (Exception ex)
-                    {
-                    }
+                    catch (Exception ex) { }
                     heldItem = null;
                 }
                 else
                 {
-                    if (!Game1.player.addItemToInventoryBool(heldItem, false))
+                    if (!Game1.player.addItemToInventoryBool(heldItem))
                         return;
                     heldItem = null;
                     Game1.playSound("coin");
@@ -347,6 +345,13 @@ namespace MegaStorage.UI
                     return;
                 heldItem = null;
             }
+        }
+
+        private TemporaryAnimatedSprite CreatePoof(int x, int y)
+        {
+            return new TemporaryAnimatedSprite("TileSheets/animations", 
+                new Rectangle(0, 320, 64, 64), 50f, 8, 0, 
+                new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
         }
 
         private void FixItemDupeBug()
