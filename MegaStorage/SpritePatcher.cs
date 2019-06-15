@@ -19,6 +19,8 @@ namespace MegaStorage
             _monitor = monitor;
         }
 
+        public static string SpriteSheetName => "TileSheets/Craftables";
+
         public Texture2D Patch()
         {
             ExpandSpriteSheet();

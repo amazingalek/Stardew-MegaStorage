@@ -35,14 +35,7 @@ namespace MegaStorage
             new ItemPatcher(Helper, Monitor).Patch();
         }
 
-        public bool CanLoad<T>(IAssetInfo asset)
-        {
-            return asset.AssetNameEquals("TileSheets/Craftables");
-        }
-
-        public T Load<T>(IAssetInfo asset)
-        {
-            return (T)(object)_patchedSpriteSheet;
-        }
+        public bool CanLoad<T>(IAssetInfo asset) => asset.AssetNameEquals(SpritePatcher.SpriteSheetName);
+        public T Load<T>(IAssetInfo asset) => (T)(object)_patchedSpriteSheet;
     }
 }
