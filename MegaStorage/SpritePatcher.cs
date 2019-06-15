@@ -7,7 +7,9 @@ namespace MegaStorage
 {
     public class SpritePatcher
     {
+        public static string SpriteSheetName = "TileSheets/Craftables";
         private const int NewHeight = 4000;
+
         private Texture2D _patchedSpriteSheet;
 
         private readonly IModHelper _modHelper;
@@ -18,8 +20,6 @@ namespace MegaStorage
             _modHelper = modHelper;
             _monitor = monitor;
         }
-
-        public static string SpriteSheetName => "TileSheets/Craftables";
 
         public Texture2D Patch()
         {
