@@ -21,9 +21,8 @@ Recipe:
 # Compatibility
 * Requires [SMAPI](https://smapi.io/).
 * Supports multiplayers and controllers.
-* Chests Anywhere: compatible, but opening Large Chest and Magic Chest through Chests Anywhere will show them as normal chests.
-* Json Assets: compatible.
-* Harmony is not used.
+* Compatible with Automate and Json Assets.
+* Partially compatible with Chests Anywhere. It works, but opening Large Chest and Magic Chest through Chests Anywhere will show them as normal chests.
 
 # Is this safe?
 Before saving, all Large Chests and Magic Chests are converted to normal chests. After saving, they are converted back. This makes sure your items aren't lost, even if uninstalling this mod. Normal chests actually have infinite capacity, it's only when adding items one at a time they are limited to 36 capacity.
