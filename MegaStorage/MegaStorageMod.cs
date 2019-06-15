@@ -1,4 +1,5 @@
 ﻿using MegaStorage.Persistence;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
@@ -10,7 +11,7 @@ namespace MegaStorage
         public static IMonitor Logger;
         public static IReflectionHelper Reflection;
 
-        private SpritePatcher _spritePatcher;
+        private Texture2D _patchedSpriteSheet;
 
         public override void Entry(IModHelper modHelper)
         {
@@ -18,8 +19,7 @@ namespace MegaStorage
             ModHelper = modHelper;
             Logger = Monitor;
             Reflection = modHelper.Reflection;
-            _spritePatcher = new SpritePatcher(Helper, Monitor);
-            _spritePatcher.Patch();
+            _patchedSpriteSheet = new SpritePatcher(Helper, Monitor).Patch();
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }
 
@@ -42,7 +42,7 @@ namespace MegaStorage
 
         public T Load<T>(IAssetInfo asset)
         {
-            return (T)(object)_spritePatcher.PatchedSpriteSheet;
+            return (T)(object)_patchedSpriteSheet;
         }
     }
 }

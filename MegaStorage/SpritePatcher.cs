@@ -8,7 +8,7 @@ namespace MegaStorage
     public class SpritePatcher
     {
         private const int NewHeight = 4000;
-        public Texture2D PatchedSpriteSheet { get; private set; }
+        private Texture2D _patchedSpriteSheet;
 
         private readonly IModHelper _modHelper;
         private readonly IMonitor _monitor;
@@ -19,13 +19,14 @@ namespace MegaStorage
             _monitor = monitor;
         }
 
-        public void Patch()
+        public Texture2D Patch()
         {
             ExpandSpriteSheet();
             foreach (var niceChest in NiceChestFactory.NiceChests)
             {
                 CopySprite(niceChest.SpritePath, niceChest.ParentSheetIndex);
             }
+            return _patchedSpriteSheet;
         }
 
         private void ExpandSpriteSheet()
@@ -38,8 +39,8 @@ namespace MegaStorage
             var data = new Color[originalSize];
             Game1.bigCraftableSpriteSheet.GetData(data);
             var originalRect = new Rectangle(0, 0, originalWidth, originalHeight);
-            PatchedSpriteSheet = new Texture2D(Game1.graphics.GraphicsDevice, originalWidth, NewHeight);
-            PatchedSpriteSheet.SetData(0, originalRect, data, 0, originalSize);
+            _patchedSpriteSheet = new Texture2D(Game1.graphics.GraphicsDevice, originalWidth, NewHeight);
+            _patchedSpriteSheet.SetData(0, originalRect, data, 0, originalSize);
         }
 
         private void CopySprite(string spritePath, int destinationId)
@@ -53,7 +54,7 @@ namespace MegaStorage
             var destinationRect = Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, destinationId, 16, 32);
             destinationRect.Width = sprite.Width;
             _monitor.VerboseLog($"Destination rect: ({destinationRect.X}, {destinationRect.Y}) - ({destinationRect.Width}, {destinationRect.Height})");
-            PatchedSpriteSheet.SetData(0, destinationRect, data, 0, count);
+            _patchedSpriteSheet.SetData(0, destinationRect, data, 0, count);
         }
 
     }
