@@ -7,14 +7,14 @@ namespace MegaStorage
     public class MegaStorageMod : Mod
     {
         public static IModHelper ModHelper;
-        //public static IMonitor Logger;
+        public static IMonitor Logger;
         public static IReflectionHelper Reflection;
 
         public override void Entry(IModHelper modHelper)
         {
             Monitor.VerboseLog("Entry of MegaStorageMod");
             ModHelper = modHelper;
-            //Logger = Monitor;
+            Logger = Monitor;
             Reflection = modHelper.Reflection;
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }

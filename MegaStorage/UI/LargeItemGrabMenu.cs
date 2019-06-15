@@ -285,10 +285,10 @@ namespace MegaStorage.UI
                 heldItem = ItemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
-                    var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && i.ParentSheetIndex == heldItem.ParentSheetIndex);
+                    var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && IsSameItem(i, heldItem));
                     if (itemInChest == null)
                     {
-                        var itemInNiceChest = NiceChest.items.Single(i => i.ParentSheetIndex == heldItem.ParentSheetIndex && i.Stack <= 1);
+                        var itemInNiceChest = NiceChest.items.Single(i => IsSameItem(i, heldItem));
                         var index = NiceChest.items.IndexOf(itemInNiceChest);
                         NiceChest.items[index] = null;
                     }
@@ -344,6 +344,23 @@ namespace MegaStorage.UI
                     return;
                 heldItem = null;
             }
+        }
+
+        private bool IsSameItem(Item item, Item other)
+        {
+            if (item.ParentSheetIndex != other.ParentSheetIndex || item is Object && !(other is Object) || !(item is Object) && other is Object)
+            {
+                return false;
+            }
+            if (item is ColoredObject coloredObject && other is ColoredObject otherColoredObject && !coloredObject.color.Value.Equals(otherColoredObject.color.Value))
+            {
+                return false;
+            }
+            if (item is Object itemObject && other is Object otherObject && (itemObject.bigCraftable.Value != otherObject.bigCraftable.Value || itemObject.Quality != otherObject.Quality))
+            {
+                return false;
+            }
+            return item.Name.Equals(other.Name);
         }
 
         public override void draw(SpriteBatch b)
