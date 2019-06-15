@@ -118,23 +118,32 @@ namespace MegaStorage.UI
                 item.upNeighborID = 53910 + 60 + i;
             }
 
-            ItemsToGrabMenu.inventory[0 * 12 + 11].rightNeighborID = 88; // up arrow
-            ItemsToGrabMenu.inventory[1 * 12 + 11].rightNeighborID = 88; // up arrow
-            ItemsToGrabMenu.inventory[2 * 12 + 11].rightNeighborID = 27346; // color picker
-            ItemsToGrabMenu.inventory[3 * 12 + 11].rightNeighborID = 106; // organize
-            ItemsToGrabMenu.inventory[4 * 12 + 11].rightNeighborID = 89; // down arrow
-            ItemsToGrabMenu.inventory[5 * 12 + 11].rightNeighborID = 89; // down arrow
+            var right0 = ItemsToGrabMenu.inventory[0 * 12 + 11];
+            var right1 = ItemsToGrabMenu.inventory[1 * 12 + 11];
+            var right2 = ItemsToGrabMenu.inventory[2 * 12 + 11];
+            var right3 = ItemsToGrabMenu.inventory[3 * 12 + 11];
+            var right4 = ItemsToGrabMenu.inventory[4 * 12 + 11];
+            var right5 = ItemsToGrabMenu.inventory[5 * 12 + 11];
 
-            colorPickerToggleButton.leftNeighborID = ItemsToGrabMenu.inventory[2 * 12 + 11].myID;
+            right0.rightNeighborID = 88; // up arrow
+            right1.rightNeighborID = 88; // up arrow
+            right2.rightNeighborID = 27346; // color picker
+            right3.rightNeighborID = 106; // organize
+            right4.rightNeighborID = 89; // down arrow
+            right5.rightNeighborID = 89; // down arrow
+
+            colorPickerToggleButton.leftNeighborID = right2.myID;
             colorPickerToggleButton.upNeighborID = UpButton.myID;
-            organizeButton.leftNeighborID = ItemsToGrabMenu.inventory[3 * 12 + 11].myID;
+
+            organizeButton.leftNeighborID = right3.myID;
             organizeButton.downNeighborID = DownButton.myID;
 
             UpButton.rightNeighborID = colorPickerToggleButton.myID;
+            UpButton.leftNeighborID = right0.myID;
+
             DownButton.rightNeighborID = organizeButton.myID;
-            DownButton.leftNeighborID = ItemsToGrabMenu.inventory[4 * 12 + 11].myID;
-            DownButton.downNeighborID = ItemsToGrabMenu.inventory[5 * 12 + 11].myID;
-            UpButton.leftNeighborID = ItemsToGrabMenu.inventory[0 * 12 + 11].myID;
+            DownButton.leftNeighborID = right4.myID;
+            DownButton.downNeighborID = right5.myID;
 
             populateClickableComponentList();
             snapToDefaultClickableComponent();
@@ -285,13 +294,7 @@ namespace MegaStorage.UI
                 heldItem = ItemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
-                    var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && IsSameItem(i, heldItem));
-                    if (itemInChest == null)
-                    {
-                        var itemInNiceChest = NiceChest.items.Single(i => IsSameItem(i, heldItem));
-                        var index = NiceChest.items.IndexOf(itemInNiceChest);
-                        NiceChest.items[index] = null;
-                    }
+                    FixItemDupeBug();
                     behaviorOnItemGrab(heldItem, Game1.player);
                     if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
                         ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
@@ -344,6 +347,15 @@ namespace MegaStorage.UI
                     return;
                 heldItem = null;
             }
+        }
+
+        private void FixItemDupeBug()
+        {
+            var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && IsSameItem(i, heldItem));
+            if (itemInChest != null) return;
+                        var itemInNiceChest = NiceChest.items.Single(i => IsSameItem(i, heldItem));
+            var index = NiceChest.items.IndexOf(itemInNiceChest);
+            NiceChest.items[index] = null;
         }
 
         private bool IsSameItem(Item item, Item other)
