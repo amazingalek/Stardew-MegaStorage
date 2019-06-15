@@ -4,11 +4,13 @@ using StardewModdingAPI.Events;
 
 namespace MegaStorage
 {
-    public class MegaStorageMod : Mod
+    public class MegaStorageMod : Mod, IAssetLoader
     {
         public static IModHelper ModHelper;
         public static IMonitor Logger;
         public static IReflectionHelper Reflection;
+
+        private SpritePatcher _spritePatcher;
 
         public override void Entry(IModHelper modHelper)
         {
@@ -16,12 +18,13 @@ namespace MegaStorage
             ModHelper = modHelper;
             Logger = Monitor;
             Reflection = modHelper.Reflection;
+            _spritePatcher = new SpritePatcher(Helper, Monitor);
+            _spritePatcher.Patch();
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            new SpritePatcher(Helper, Monitor).Patch();
             new SaveManager(Helper, Monitor, new ISaver[]
             {
                 new InventorySaver(Helper, Monitor),
@@ -32,5 +35,14 @@ namespace MegaStorage
             new ItemPatcher(Helper, Monitor).Patch();
         }
 
+        public bool CanLoad<T>(IAssetInfo asset)
+        {
+            return asset.AssetNameEquals("TileSheets/Craftables");
+        }
+
+        public T Load<T>(IAssetInfo asset)
+        {
+            return (T)(object)_spritePatcher.PatchedSpriteSheet;
+        }
     }
 }
