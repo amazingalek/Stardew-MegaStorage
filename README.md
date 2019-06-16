@@ -20,10 +20,12 @@ Recipe:
 
 # Configuration
 Recipes are configurable in config.json. The format is pairs of item IDs and how many of that item to use. Default:
+```
 {
   "LargeChestRecipe": "388 100 334 1 335 1",
-  "MagicChestRecipe": "388 200 768 10 769 10"
+  "MagicChestRecipe": "388 200 768 10 769 10"  
 }
+```
 
 # Compatibility
 * Requires [SMAPI](https://smapi.io/).
