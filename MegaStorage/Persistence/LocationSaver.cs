@@ -34,7 +34,7 @@ namespace MegaStorage.Persistence
                 var niceChestPositions = location.objects.Pairs.Where(x => x.Value is NiceChest).ToDictionary(pair => pair.Key, pair => (NiceChest)pair.Value);
                 if (!niceChestPositions.Any())
                     continue;
-                var locationName = location.uniqueName.Value ?? location.Name;
+                var locationName = location.uniqueName?.Value ?? location.Name;
                 _locationNiceChests.Add(location, niceChestPositions);
                 foreach (var niceChestPosition in niceChestPositions)
                 {
@@ -99,7 +99,7 @@ namespace MegaStorage.Persistence
             var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value));
             foreach (var location in locations)
             {
-                var locationName = location.uniqueName.Value ?? location.Name;
+                var locationName = location.uniqueName?.Value ?? location.Name;
                 var niceChestsInLocation = saveData.DeserializedChests.Where(x => x.LocationName == locationName);
                 foreach (var deserializedChest in niceChestsInLocation)
                 {
