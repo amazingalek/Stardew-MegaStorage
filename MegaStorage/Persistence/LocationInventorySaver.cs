@@ -28,7 +28,7 @@ namespace MegaStorage.Persistence
             _monitor.VerboseLog("LocationInventorySaver: HideAndSaveNiceChests");
             _locationInventoryNiceChests = new Dictionary<GameLocation, Dictionary<Vector2, Dictionary<int, NiceChest>>>();
             var deserializedChests = new List<DeserializedChest>();
-            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value));
+            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
             foreach (var location in locations)
             {
                 var chestPositions = location.objects.Pairs.Where(x => x.Value is Chest).ToDictionary(pair => pair.Key, pair => (Chest)pair.Value);
@@ -111,7 +111,7 @@ namespace MegaStorage.Persistence
                 _monitor.VerboseLog("Nothing to load");
                 return;
             }
-            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value));
+            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
             foreach (var location in locations)
             {
                 var locationName = location.uniqueName?.Value ?? location.Name;
