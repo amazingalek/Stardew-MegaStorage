@@ -5,7 +5,7 @@ using MegaStorage.Models;
 using StardewValley;
 using Object = StardewValley.Object;
 
-namespace MegaStorage
+namespace MegaStorage.Mapping
 {
     public static class NiceChestFactory
     {

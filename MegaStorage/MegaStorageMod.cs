@@ -1,5 +1,4 @@
 ﻿using MegaStorage.Persistence;
-using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
@@ -30,7 +29,7 @@ namespace MegaStorage
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            new ItemPatcher(Helper, Monitor).Patch();
+            new ItemPatcher(Helper, Monitor).Start();
         }
 
     }

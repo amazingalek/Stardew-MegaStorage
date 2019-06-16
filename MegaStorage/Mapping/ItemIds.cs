@@ -1,4 +1,4 @@
-﻿namespace MegaStorage.Models
+﻿namespace MegaStorage.Mapping
 {
     public static class ItemIds
     {

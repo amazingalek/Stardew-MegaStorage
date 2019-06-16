@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using MegaStorage.Mapping;
 using MegaStorage.Models;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -17,7 +18,7 @@ namespace MegaStorage
             _monitor = monitor;
         }
 
-        public void Patch()
+        public void Start()
         {
             _modHelper.Events.Player.InventoryChanged += OnInventoryChanged;
             _modHelper.Events.World.ObjectListChanged += OnObjectListChanged;
