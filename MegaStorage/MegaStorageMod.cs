@@ -1,4 +1,5 @@
-﻿using MegaStorage.Persistence;
+﻿using MegaStorage.Models;
+using MegaStorage.Persistence;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
@@ -18,6 +19,7 @@ namespace MegaStorage
             Reflection = modHelper.Reflection;
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             modHelper.Content.AssetLoaders.Add(new SpritePatcher(modHelper, Monitor));
+            modHelper.ReadConfig<Config>();
             new SaveManager(Helper, Monitor, new ISaver[]
             {
                 new InventorySaver(Helper, Monitor),

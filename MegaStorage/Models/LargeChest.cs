@@ -1,5 +1,4 @@
-﻿using MegaStorage.Mapping;
-using MegaStorage.UI;
+﻿using MegaStorage.UI;
 using StardewValley;
 
 namespace MegaStorage.Models
@@ -12,7 +11,7 @@ namespace MegaStorage.Models
         public override int ItemId => 816;
         public override ChestType ChestType => ChestType.LargeChest;
         public override string SpritePath => "Resources/MagicChest.png";
-        public override string RecipeString => $"{ItemIds.Wood} 100 {ItemIds.CopperBar} 1 {ItemIds.IronBar} 1/Home/{ItemId}/true/null";
+        public override string RecipeString => $"{Config.Instance.LargeChestRecipe}/Home/{ItemId}/true/null";
         public override string BigCraftableInfo => $"{ItemName}/0/-300/Crafting -9/{Description}/true/true/0";
 
         protected override LargeItemGrabMenu CreateItemGrabMenu() => new LargeItemGrabMenu(this);
