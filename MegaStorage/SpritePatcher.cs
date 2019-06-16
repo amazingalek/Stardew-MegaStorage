@@ -1,24 +1,38 @@
-﻿using Microsoft.Xna.Framework;
+﻿using MegaStorage.Mapping;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 
 namespace MegaStorage
 {
-    public class SpritePatcher
+    public class SpritePatcher : IAssetLoader
     {
-        public static string SpriteSheetName = "TileSheets/Craftables";
+        private const string SpriteSheetName = "TileSheets/Craftables";
         private const int NewHeight = 4000;
-
-        private Texture2D _patchedSpriteSheet;
 
         private readonly IModHelper _modHelper;
         private readonly IMonitor _monitor;
+        private Texture2D _patchedSpriteSheet;
 
         public SpritePatcher(IModHelper modHelper, IMonitor monitor)
         {
             _modHelper = modHelper;
             _monitor = monitor;
+        }
+
+        public bool CanLoad<T>(IAssetInfo asset)
+        {
+            return asset.AssetNameEquals(SpriteSheetName);
+        }
+
+        public T Load<T>(IAssetInfo asset)
+        {
+            if (_patchedSpriteSheet == null)
+            {
+                _patchedSpriteSheet = Patch();
+            }
+            return (T)(object)_patchedSpriteSheet;
         }
 
         public Texture2D Patch()
@@ -33,10 +47,12 @@ namespace MegaStorage
 
         private void ExpandSpriteSheet()
         {
-            _monitor.VerboseLog("Expanding spritesheet");
+            _monitor.VerboseLog("Expanding sprite sheet");
+            if (Game1.bigCraftableSpriteSheet == null)
+                return;
             var originalWidth = Game1.bigCraftableSpriteSheet.Width;
             var originalHeight = Game1.bigCraftableSpriteSheet.Height;
-            if (originalHeight >= NewHeight) return;
+            //if (originalHeight >= NewHeight) return;
             var originalSize = originalWidth * originalHeight;
             var data = new Color[originalSize];
             Game1.bigCraftableSpriteSheet.GetData(data);

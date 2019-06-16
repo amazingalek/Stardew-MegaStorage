@@ -1,4 +1,5 @@
-﻿using MegaStorage.UI;
+﻿using MegaStorage.Mapping;
+using MegaStorage.UI;
 using StardewValley;
 
 namespace MegaStorage.Models
