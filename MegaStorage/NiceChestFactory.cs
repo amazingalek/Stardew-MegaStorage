@@ -23,8 +23,7 @@ namespace MegaStorage
         public static bool IsNiceChest(Item item)
         {
             if (!(item is Object)) return false;
-            var obj = (Object) item;
-            if (!obj.bigCraftable.Value) return false;
+            if (!((Object)item).bigCraftable.Value) return false;
             return NiceChests.Any(x => x.ItemId == item.ParentSheetIndex);
         }
 
