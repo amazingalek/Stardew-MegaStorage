@@ -30,7 +30,7 @@ Recipes are configurable in config.json. The format is pairs of item IDs and how
 # Compatibility
 * Requires [SMAPI](https://smapi.io/).
 * Supports multiplayers and controllers.
-* Compatible with Automate and Json Assets.
+* Compatible with Automate and mods for Json Assets and Content Loader.
 * Partially compatible with Chests Anywhere. It works, but opening Large Chest and Magic Chest through Chests Anywhere will show them as normal chests.
 
 # Is this safe?
