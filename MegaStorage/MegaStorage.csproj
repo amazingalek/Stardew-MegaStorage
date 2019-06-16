@@ -46,7 +46,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Mapping\ItemIds.cs" />
     <Compile Include="Models\Config.cs" />
     <Compile Include="Persistence\FarmhandInventorySaver.cs" />
     <Compile Include="UI\MagicItemGrabMenu.cs" />

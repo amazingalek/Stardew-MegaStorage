@@ -9,7 +9,6 @@ namespace MegaStorage
 {
     public class SpritePatcher : IAssetEditor
     {
-        private const string SpriteSheetName = "TileSheets/Craftables";
         private const int NewHeight = 4000;
 
         private readonly IModHelper _modHelper;
@@ -23,7 +22,7 @@ namespace MegaStorage
 
         public bool CanEdit<T>(IAssetInfo asset)
         {
-            return asset.AssetNameEquals(SpriteSheetName);
+            return asset.AssetNameEquals("TileSheets/Craftables");
         }
 
         public void Edit<T>(IAssetData asset)
