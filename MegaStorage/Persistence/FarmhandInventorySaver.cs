@@ -73,6 +73,8 @@ namespace MegaStorage.Persistence
                     var inventoryIndex = niceChestIndex.Key;
                     var niceChest = niceChestIndex.Value;
                     _monitor.VerboseLog($"Re-adding: {niceChest.Name} ({inventoryIndex})");
+                    if (!Game1.otherFarmers.ContainsKey(playerId))
+                        continue;
                     var player = Game1.otherFarmers.Single(x => x.Key == playerId).Value;
                     player.Items[inventoryIndex] = niceChest;
                 }

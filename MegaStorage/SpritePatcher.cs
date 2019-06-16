@@ -33,10 +33,11 @@ namespace MegaStorage
 
         private void ExpandSpriteSheet()
         {
-            _monitor.VerboseLog("Expanding spritesheet");
+            _monitor.VerboseLog("Expanding sprite sheet");
+            if (Game1.bigCraftableSpriteSheet == null) return;
             var originalWidth = Game1.bigCraftableSpriteSheet.Width;
             var originalHeight = Game1.bigCraftableSpriteSheet.Height;
-            if (originalHeight >= NewHeight) return;
+            //if (originalHeight >= NewHeight) return;
             var originalSize = originalWidth * originalHeight;
             var data = new Color[originalSize];
             Game1.bigCraftableSpriteSheet.GetData(data);

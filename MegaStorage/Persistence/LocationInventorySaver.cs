@@ -28,7 +28,8 @@ namespace MegaStorage.Persistence
             _monitor.VerboseLog("LocationInventorySaver: HideAndSaveNiceChests");
             _locationInventoryNiceChests = new Dictionary<GameLocation, Dictionary<Vector2, Dictionary<int, NiceChest>>>();
             var deserializedChests = new List<DeserializedChest>();
-            foreach (var location in Game1.locations)
+            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value));
+            foreach (var location in locations)
             {
                 var chestPositions = location.objects.Pairs.Where(x => x.Value is Chest).ToDictionary(pair => pair.Key, pair => (Chest)pair.Value);
                 if (!chestPositions.Any())
@@ -42,12 +43,13 @@ namespace MegaStorage.Persistence
                     if (!niceChestsInChest.Any())
                         continue;
                     var niceChestIndexes = new Dictionary<int, NiceChest>();
+                    var locationName = location.uniqueName.Value ?? location.Name;
                     foreach (var niceChest in niceChestsInChest)
                     {
                         var index = chest.items.IndexOf(niceChest);
                         chest.items[index] = niceChest.ToChest();
                         niceChestIndexes.Add(index, niceChest);
-                        var deserializedChest = niceChest.ToDeserializedChest(location.Name, position, index);
+                        var deserializedChest = niceChest.ToDeserializedChest(locationName, position, index);
                         _monitor.VerboseLog($"Hiding and saving: {deserializedChest}");
                         deserializedChests.Add(deserializedChest);
                     }
@@ -109,9 +111,11 @@ namespace MegaStorage.Persistence
                 _monitor.VerboseLog("Nothing to load");
                 return;
             }
-            foreach (var location in Game1.locations)
+            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value));
+            foreach (var location in locations)
             {
-                var niceChestsInLocation = saveData.DeserializedChests.Where(x => x.LocationName == location.Name);
+                var locationName = location.uniqueName.Value ?? location.Name;
+                var niceChestsInLocation = saveData.DeserializedChests.Where(x => x.LocationName == locationName);
                 foreach (var deserializedChest in niceChestsInLocation)
                 {
                     var position = new Vector2(deserializedChest.PositionX, deserializedChest.PositionY);

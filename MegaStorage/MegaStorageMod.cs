@@ -19,12 +19,7 @@ namespace MegaStorage
             ModHelper = modHelper;
             Logger = Monitor;
             Reflection = modHelper.Reflection;
-            _patchedSpriteSheet = new SpritePatcher(Helper, Monitor).Patch();
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
-        }
-
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
-        {
             new SaveManager(Helper, Monitor, new ISaver[]
             {
                 new InventorySaver(Helper, Monitor),
@@ -32,10 +27,22 @@ namespace MegaStorage
                 new LocationSaver(Helper, Monitor),
                 new LocationInventorySaver(Helper, Monitor)
             }).Start();
+        }
+
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
             new ItemPatcher(Helper, Monitor).Patch();
         }
 
         public bool CanLoad<T>(IAssetInfo asset) => asset.AssetNameEquals(SpritePatcher.SpriteSheetName);
-        public T Load<T>(IAssetInfo asset) => (T)(object)_patchedSpriteSheet;
+        public T Load<T>(IAssetInfo asset)
+        {
+            if (_patchedSpriteSheet == null)
+            {
+                _patchedSpriteSheet = new SpritePatcher(Helper, Monitor).Patch();
+            }
+            return (T)(object)_patchedSpriteSheet;
+        }
+
     }
 }
