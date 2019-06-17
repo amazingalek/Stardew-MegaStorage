@@ -23,6 +23,7 @@ namespace MegaStorage.Models
         
         protected abstract LargeItemGrabMenu CreateItemGrabMenu();
 
+        private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
 
         private readonly IReflectedField<int> _currentLidFrameReflected;
@@ -40,6 +41,7 @@ namespace MegaStorage.Models
             _currentLidFrameReflected = MegaStorageMod.Reflection.GetField<int>(this, "currentLidFrame");
             startingLidFrame.Value = ItemId + 1;
             name = ItemName;
+            _sprite = MegaStorageMod.ModHelper.Content.Load<Texture2D>(SpritePath);
             _spriteBW = MegaStorageMod.ModHelper.Content.Load<Texture2D>(SpriteBWPath);
         }
 
@@ -196,14 +198,14 @@ namespace MegaStorage.Models
         {
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
-                spriteBatch.Draw(Game1.bigCraftableSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex, 16, 32), tint.Value * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
-                spriteBatch.Draw(Game1.bigCraftableSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, CurrentLidFrame, 16, 32), tint.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
+                spriteBatch.Draw(_sprite, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), tint.Value * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
+                spriteBatch.Draw(_sprite, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(_sprite, CurrentLidFrame - ParentSheetIndex, 16, 32), tint.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
             }
             else
             {
                 spriteBatch.Draw(_spriteBW, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(_spriteBW, 0, 16, 32), playerChoiceColor.Value * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
                 spriteBatch.Draw(Game1.bigCraftableSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 20)), new Rectangle(0, 725, 16, 11), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
-                spriteBatch.Draw(Game1.bigCraftableSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet,  (CurrentLidFrame - ParentSheetIndex) + 176, 16, 32), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, 176 + (CurrentLidFrame - ParentSheetIndex), 16, 32), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
                 spriteBatch.Draw(_spriteBW, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(_spriteBW, CurrentLidFrame - ParentSheetIndex, 16, 32), playerChoiceColor.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
             }
         }
