@@ -10,7 +10,8 @@ namespace MegaStorage.Models
         public override int Capacity => 72;
         public override int ItemId => 816;
         public override ChestType ChestType => ChestType.LargeChest;
-        public override string SpritePath => "Resources/MagicChest.png";
+        public override string SpritePath => "Sprites/MagicChest.png";
+        public override string SpriteBWPath => "Sprites/MagicChestBW.png";
         public override string RecipeString => $"{Config.Instance.LargeChestRecipe}/Home/{ItemId}/true/null";
         public override string BigCraftableInfo => $"{ItemName}/0/-300/Crafting -9/{Description}/true/true/0";
 
