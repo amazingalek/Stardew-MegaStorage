@@ -12,6 +12,7 @@ namespace MegaStorage.Models
         public override ChestType ChestType => ChestType.LargeChest;
         public override string SpritePath => "Sprites/LargeChest.png";
         public override string SpriteBWPath => "Sprites/LargeChestBW.png";
+        public override string SpriteBracesPath => "Sprites/LargeChestBraces.png";
         public override string RecipeString => $"{Config.Instance.LargeChestRecipe}/Home/{ItemId}/true/null";
         public override string BigCraftableInfo => $"{ItemName}/0/-300/Crafting -9/{Description}/true/true/0";
 

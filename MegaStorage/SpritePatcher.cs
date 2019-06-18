@@ -56,9 +56,9 @@ namespace MegaStorage
         {
             var sprite = _modHelper.Content.Load<Texture2D>(niceChest.SpritePath);
             var destinationRect = Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, niceChest.ParentSheetIndex, 16, 32);
+            destinationRect.Width = sprite.Width;
             _monitor.VerboseLog($"Destination rect: ({destinationRect.X}, {destinationRect.Y}) - ({destinationRect.Width}, {destinationRect.Height})");
-            var sourceRect = new Rectangle(0, 0, 16, 32);
-            assetImage.PatchImage(sprite, targetArea: destinationRect, sourceArea: sourceRect);
+            assetImage.PatchImage(sprite, targetArea: destinationRect);
         }
 
     }
