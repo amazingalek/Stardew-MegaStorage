@@ -7,30 +7,32 @@ Capacity: 72 items (6 rows).
 
 Recipe:
 * 100 Wood
-* 1 Copper Bar
-* 1 Iron Bar
+* 5 Copper Bar
+* 5 Iron Bar
  
 # Magic Chest
 Infinite scrollable capacity. Might add filters/categories and searching in the future.
 
 Recipe:
-* 200 Wood
-* 10 Solar Essense
-* 10 Void Essense
+* 100 Hardwood
+* 5 Gold Bar
+* 5 Iridium Bar
+* 50 Solar Essence
+* 50 Void Essence
 
 # Configuration
 Recipes are configurable in config.json. The format is pairs of item IDs and how many of that item to use. Default:
 ```
 {
-  "LargeChestRecipe": "388 100 334 1 335 1",
-  "MagicChestRecipe": "388 200 768 10 769 10"  
+  "LargeChestRecipe": "388 100 334 5 335 5",
+  "MagicChestRecipe": "709 100 336 5 337 5 768 50 769 50"
 }
 ```
 
 # Compatibility
 * Requires [SMAPI](https://smapi.io/).
 * Supports multiplayers and controllers.
-* Compatible with Automate and mods for Json Assets and Content Patcher.
+* Compatible with Automate, CarryChest and mods for Json Assets and Content Patcher.
 * Partially compatible with Chests Anywhere. It works, but opening Large Chest and Magic Chest through Chests Anywhere will show them as normal chests.
 
 # Is this safe?
