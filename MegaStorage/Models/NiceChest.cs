@@ -21,8 +21,8 @@ namespace MegaStorage.Models
         public abstract string SpriteBracesPath { get; }
         public abstract string RecipeString { get; }
         public abstract string BigCraftableInfo { get; }
-        
-        protected abstract LargeItemGrabMenu CreateItemGrabMenu();
+
+        public abstract LargeItemGrabMenu CreateItemGrabMenu();
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
@@ -34,8 +34,6 @@ namespace MegaStorage.Models
             get => _currentLidFrameReflected.GetValue();
             set => _currentLidFrameReflected.SetValue(value);
         }
-
-        private LargeItemGrabMenu _largeItemGrabMenu;
 
         protected NiceChest() : base(true)
         {
@@ -76,7 +74,7 @@ namespace MegaStorage.Models
                 return;
             items.Remove(item);
             clearNulls();
-            _largeItemGrabMenu.Refresh();
+            Game1.activeClickableMenu = CreateItemGrabMenu();
         }
 
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
@@ -97,8 +95,7 @@ namespace MegaStorage.Models
                     return;
                 if (currentLidFrameValue == ParentSheetIndex + 5)
                 {
-                    _largeItemGrabMenu = CreateItemGrabMenu();
-                    Game1.activeClickableMenu = _largeItemGrabMenu;
+                    Game1.activeClickableMenu = CreateItemGrabMenu();
                     frameCounter.Value = -1;
                 }
                 else
@@ -131,8 +128,9 @@ namespace MegaStorage.Models
                 addedItem = who.addItemToInventory(addedItem);
             clearNulls();
             var id = Game1.activeClickableMenu.currentlySnappedComponent != null ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
-            _largeItemGrabMenu.Refresh();
-            _largeItemGrabMenu.heldItem = addedItem;
+            var menu = CreateItemGrabMenu();
+            menu.heldItem = addedItem;
+            Game1.activeClickableMenu = menu;
             if (id == -1)
                 return;
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);

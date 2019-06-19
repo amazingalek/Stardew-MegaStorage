@@ -1,7 +1,10 @@
 ﻿using MegaStorage.Models;
 using MegaStorage.Persistence;
+using MegaStorage.UI;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
+using StardewValley.Menus;
 
 namespace MegaStorage
 {
@@ -26,6 +29,16 @@ namespace MegaStorage
                 new LocationSaver(Helper, Monitor),
                 new LocationInventorySaver(Helper, Monitor)
             }).Start();
+            modHelper.Events.Display.MenuChanged += OnMenuChanged;
+        }
+
+        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        {
+            Monitor.Log("New menu: " + e.NewMenu?.GetType());
+            if (e.NewMenu is LargeItemGrabMenu)
+                return;
+            if (e.NewMenu is ItemGrabMenu itemGrabMenu && itemGrabMenu.context is NiceChest niceChest)
+                Game1.activeClickableMenu = niceChest.CreateItemGrabMenu();
         }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)

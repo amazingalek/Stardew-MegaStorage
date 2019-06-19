@@ -349,8 +349,8 @@ namespace MegaStorage.UI
 
         private TemporaryAnimatedSprite CreatePoof(int x, int y)
         {
-            return new TemporaryAnimatedSprite("TileSheets/animations", 
-                new Rectangle(0, 320, 64, 64), 50f, 8, 0, 
+            return new TemporaryAnimatedSprite("TileSheets/animations",
+                new Rectangle(0, 320, 64, 64), 50f, 8, 0,
                 new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
         }
 
@@ -358,25 +358,23 @@ namespace MegaStorage.UI
         {
             var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && IsSameItem(i, heldItem));
             if (itemInChest != null) return;
-                        var itemInNiceChest = NiceChest.items.Single(i => IsSameItem(i, heldItem));
+            var itemInNiceChest = NiceChest.items.SingleOrDefault(i => IsSameItem(i, heldItem));
+            if (itemInNiceChest == null)
+                return;
             var index = NiceChest.items.IndexOf(itemInNiceChest);
             NiceChest.items[index] = null;
         }
 
         private bool IsSameItem(Item item, Item other)
         {
+            if (item == null || other == null)
+                return false;
             if (item.ParentSheetIndex != other.ParentSheetIndex || item is Object && !(other is Object) || !(item is Object) && other is Object)
-            {
                 return false;
-            }
             if (item is ColoredObject coloredObject && other is ColoredObject otherColoredObject && !coloredObject.color.Value.Equals(otherColoredObject.color.Value))
-            {
                 return false;
-            }
             if (item is Object itemObject && other is Object otherObject && (itemObject.bigCraftable.Value != otherObject.bigCraftable.Value || itemObject.Quality != otherObject.Quality))
-            {
                 return false;
-            }
             return item.Name.Equals(other.Name);
         }
 

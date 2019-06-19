@@ -16,7 +16,7 @@ namespace MegaStorage.Models
         public override string RecipeString => $"{Config.Instance.LargeChestRecipe}/Home/{ItemId}/true/null";
         public override string BigCraftableInfo => $"{ItemName}/0/-300/Crafting -9/{Description}/true/true/0";
 
-        protected override LargeItemGrabMenu CreateItemGrabMenu() => new LargeItemGrabMenu(this);
+        public override LargeItemGrabMenu CreateItemGrabMenu() => new LargeItemGrabMenu(this);
         public override Item getOne() => new LargeChest();
     }
 }
