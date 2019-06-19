@@ -34,7 +34,7 @@ namespace MegaStorage
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
-            Monitor.Log("New menu: " + e.NewMenu?.GetType());
+            Monitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
             if (e.NewMenu is LargeItemGrabMenu)
                 return;
             if (e.NewMenu is ItemGrabMenu itemGrabMenu && itemGrabMenu.context is NiceChest niceChest)
