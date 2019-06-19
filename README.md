@@ -32,7 +32,7 @@ Recipes are configurable in config.json. The format is pairs of item IDs and how
 # Compatibility
 * Requires [SMAPI](https://smapi.io/).
 * Supports multiplayers and controllers.
-* Compatible with Chests Anywhere, Automate, CarryChest and content packs for Content Patcher and Json Assets.
+* Compatible with Chests Anywhere, Automate, Carry Chest and content packs for Content Patcher and Json Assets.
 * NOT compatible with Stack Everything. Using these mods together may result in loss of items.
 
 # Is this safe?
