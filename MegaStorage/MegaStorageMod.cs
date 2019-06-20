@@ -37,8 +37,8 @@ namespace MegaStorage
             Monitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
             if (e.NewMenu is LargeItemGrabMenu)
                 return;
-            if (e.NewMenu is ItemGrabMenu itemGrabMenu && itemGrabMenu.context is NiceChest niceChest)
-                Game1.activeClickableMenu = niceChest.CreateItemGrabMenu();
+            if (e.NewMenu is ItemGrabMenu itemGrabMenu && itemGrabMenu.context is CustomChest customChest)
+                Game1.activeClickableMenu = customChest.CreateItemGrabMenu();
         }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)

@@ -27,18 +27,18 @@ namespace MegaStorage
         
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            foreach (var niceChest in NiceChestFactory.NiceChests)
+            foreach (var customChest in CustomChestFactory.CustomChests)
             {
-                Register(niceChest);
+                Register(customChest);
             }
         }
 
-        private void Register(NiceChest niceChest)
+        private void Register(CustomChest customChest)
         {
-            _monitor.VerboseLog($"Registering {niceChest.ItemName} ({niceChest.ItemId})");
-            Game1.bigCraftablesInformation[niceChest.ItemId] = niceChest.BigCraftableInfo;
-            CraftingRecipe.craftingRecipes[niceChest.ItemName] = niceChest.RecipeString;
-            Game1.player.craftingRecipes[niceChest.ItemName] = 0;
+            _monitor.VerboseLog($"Registering {customChest.ItemName} ({customChest.ItemId})");
+            Game1.bigCraftablesInformation[customChest.ItemId] = customChest.BigCraftableInfo;
+            CraftingRecipe.craftingRecipes[customChest.ItemName] = customChest.RecipeString;
+            Game1.player.craftingRecipes[customChest.ItemName] = 0;
         }
 
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
@@ -48,16 +48,16 @@ namespace MegaStorage
                 return;
 
             var addedItem = e.Added.Single();
-            if (addedItem is NiceChest)
+            if (addedItem is CustomChest)
                 return;
 
-            if (!NiceChestFactory.IsNiceChest(addedItem))
+            if (!CustomChestFactory.IsCustomChest(addedItem))
                 return;
 
             _monitor.VerboseLog("OnInventoryChanged: converting");
 
             var index = Game1.player.Items.IndexOf(addedItem);
-            Game1.player.Items[index] = NiceChestFactory.Create(addedItem.ParentSheetIndex);
+            Game1.player.Items[index] = CustomChestFactory.Create(addedItem.ParentSheetIndex);
         }
 
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
@@ -68,16 +68,16 @@ namespace MegaStorage
 
             var addedItemPosition = e.Added.Single();
             var addedItem = addedItemPosition.Value;
-            if (addedItem is NiceChest)
+            if (addedItem is CustomChest)
                 return;
 
-            if (!NiceChestFactory.IsNiceChest(addedItem))
+            if (!CustomChestFactory.IsCustomChest(addedItem))
                 return;
 
             _monitor.VerboseLog("OnObjectListChanged: converting");
 
             var position = addedItemPosition.Key;
-            e.Location.objects[position] = NiceChestFactory.Create(addedItem.ParentSheetIndex);
+            e.Location.objects[position] = CustomChestFactory.Create(addedItem.ParentSheetIndex);
         }
 
     }

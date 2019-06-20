@@ -9,7 +9,7 @@ using StardewValley.Tools;
 
 namespace MegaStorage.Models
 {
-    public abstract class NiceChest : Chest
+    public abstract class CustomChest : Chest
     {
         public abstract string ItemName { get; }
         public abstract string Description { get; }
@@ -35,7 +35,7 @@ namespace MegaStorage.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected NiceChest() : base(true)
+        protected CustomChest() : base(true)
         {
             ParentSheetIndex = ItemId;
             _currentLidFrameReflected = MegaStorageMod.Reflection.GetField<int>(this, "currentLidFrame");

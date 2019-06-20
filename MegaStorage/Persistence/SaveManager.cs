@@ -19,55 +19,55 @@ namespace MegaStorage.Persistence
 
         public void Start()
         {
-            _modHelper.Events.GameLoop.SaveLoaded += (sender, args) => LoadNiceChests();
-            _modHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveNiceChests();
-            _modHelper.Events.GameLoop.Saved += (sender, args) => ReAddNiceChests();
-            _modHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveNiceChests();
+            _modHelper.Events.GameLoop.SaveLoaded += (sender, args) => LoadCustomChests();
+            _modHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
+            _modHelper.Events.GameLoop.Saved += (sender, args) => ReAddCustomChests();
+            _modHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveCustomChests();
 
             _modHelper.Events.Multiplayer.PeerContextReceived += OnPeerContextReceived;
             _modHelper.Events.Multiplayer.PeerDisconnected += OnPeerDisconnected;
         }
 
-        private void LoadNiceChests()
+        private void LoadCustomChests()
         {
-            _monitor.VerboseLog("LoadNiceChests");
+            _monitor.VerboseLog("LoadCustomChests");
             foreach (var saver in _savers)
             {
-                saver.LoadNiceChests();
+                saver.LoadCustomChests();
             }
         }
 
-        private void ReAddNiceChests()
+        private void ReAddCustomChests()
         {
-            _monitor.VerboseLog("ReAddNiceChests");
+            _monitor.VerboseLog("ReAddCustomChests");
             foreach (var saver in _savers)
             {
-                saver.ReAddNiceChests();
+                saver.ReAddCustomChests();
             }
         }
 
-        private void HideAndSaveNiceChests()
+        private void HideAndSaveCustomChests()
         {
-            _monitor.VerboseLog("HideAndSaveNiceChests");
+            _monitor.VerboseLog("HideAndSaveCustomChests");
             foreach (var saver in _savers)
             {
-                saver.HideAndSaveNiceChests();
+                saver.HideAndSaveCustomChests();
             }
         }
 
         private async void OnPeerContextReceived(object sender, PeerContextReceivedEventArgs e)
         {
             _monitor.VerboseLog("OnPeerContextReceived");
-            HideAndSaveNiceChests();
+            HideAndSaveCustomChests();
             await Task.Delay(1000); // hack :-(
-            ReAddNiceChests();
+            ReAddCustomChests();
         }
 
         private async void OnPeerDisconnected(object sender, PeerDisconnectedEventArgs e)
         {
             _monitor.VerboseLog("OnPeerDisconnected");
             await Task.Delay(1000); // hack :-(
-            ReAddNiceChests();
+            ReAddCustomChests();
         }
 
     }

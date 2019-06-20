@@ -49,7 +49,7 @@
     <Compile Include="Models\Config.cs" />
     <Compile Include="Persistence\FarmhandInventorySaver.cs" />
     <Compile Include="UI\MagicItemGrabMenu.cs" />
-    <Compile Include="Mapping\NiceChestFactory.cs" />
+    <Compile Include="Mapping\CustomChestFactory.cs" />
     <Compile Include="SpritePatcher.cs" />
     <Compile Include="ItemPatcher.cs" />
     <Compile Include="MegaStorageMod.cs" />
@@ -58,7 +58,7 @@
     <Compile Include="Models\LargeChest.cs" />
     <Compile Include="UI\LargeItemGrabMenu.cs" />
     <Compile Include="Models\MagicChest.cs" />
-    <Compile Include="Models\NiceChest.cs" />
+    <Compile Include="Models\CustomChest.cs" />
     <Compile Include="Persistence\InventorySaver.cs" />
     <Compile Include="Persistence\ISaver.cs" />
     <Compile Include="Persistence\LocationInventorySaver.cs" />

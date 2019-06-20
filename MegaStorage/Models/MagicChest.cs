@@ -3,7 +3,7 @@ using StardewValley;
 
 namespace MegaStorage.Models
 {
-    public class MagicChest : NiceChest
+    public class MagicChest : CustomChest
     {
         public override string ItemName => "Magic Chest";
         public override string Description => "A magical place to store your items.";

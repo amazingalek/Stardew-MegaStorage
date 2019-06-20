@@ -24,7 +24,7 @@ namespace MegaStorage.UI
         protected const int ItemsPerRow = 12;
         protected const int Capacity = ItemsPerRow * Rows;
 
-        protected readonly NiceChest NiceChest;
+        protected readonly CustomChest CustomChest;
 
         private Item SourceItem => _sourceItemReflected.GetValue();
         private readonly IReflectedField<Item> _sourceItemReflected;
@@ -38,15 +38,15 @@ namespace MegaStorage.UI
         public ClickableTextureComponent UpButton;
         public ClickableTextureComponent DownButton;
 
-        public LargeItemGrabMenu(NiceChest niceChest)
-            : base(niceChest.items, false, true, InventoryMenu.highlightAllItems, niceChest.grabItemFromInventory, null, niceChest.grabItemFromChest,
-                false, true, true, true, true, 1, niceChest, -1, niceChest)
+        public LargeItemGrabMenu(CustomChest customChest)
+            : base(customChest.items, false, true, InventoryMenu.highlightAllItems, customChest.grabItemFromInventory, null, customChest.grabItemFromChest,
+                false, true, true, true, true, 1, customChest, -1, customChest)
         {
-            NiceChest = niceChest;
+            CustomChest = customChest;
             _sourceItemReflected = MegaStorageMod.Reflection.GetField<Item>(this, "sourceItem");
             _poofReflected = MegaStorageMod.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
             _behaviorFunctionReflected = MegaStorageMod.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
-            ItemsToGrabMenu = new InventoryMenu(xPositionOnScreen + 32, yPositionOnScreen, false, niceChest.items, null, Capacity, Rows);
+            ItemsToGrabMenu = new InventoryMenu(xPositionOnScreen + 32, yPositionOnScreen, false, customChest.items, null, Capacity, Rows);
             ItemsToGrabMenu.movePosition(0, MoveTop);
             inventory.movePosition(0, MoveBottom);
             CreateArrows();
@@ -151,7 +151,7 @@ namespace MegaStorage.UI
 
         public virtual void Refresh()
         {
-            ItemsToGrabMenu.actualInventory = NiceChest.items.ToList();
+            ItemsToGrabMenu.actualInventory = CustomChest.items.ToList();
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
@@ -249,7 +249,7 @@ namespace MegaStorage.UI
             }
             if (organizeButton != null && organizeButton.containsPoint(x, y))
             {
-                organizeItemsInList(NiceChest.items);
+                organizeItemsInList(CustomChest.items);
                 Refresh();
                 Game1.playSound("Ship");
             }
@@ -358,11 +358,11 @@ namespace MegaStorage.UI
         {
             var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && IsSameItem(i, heldItem));
             if (itemInChest != null) return;
-            var itemInNiceChest = NiceChest.items.SingleOrDefault(i => IsSameItem(i, heldItem));
-            if (itemInNiceChest == null)
+            var itemInCustomChest = CustomChest.items.SingleOrDefault(i => IsSameItem(i, heldItem));
+            if (itemInCustomChest == null)
                 return;
-            var index = NiceChest.items.IndexOf(itemInNiceChest);
-            NiceChest.items[index] = null;
+            var index = CustomChest.items.IndexOf(itemInCustomChest);
+            CustomChest.items[index] = null;
         }
 
         private bool IsSameItem(Item item, Item other)

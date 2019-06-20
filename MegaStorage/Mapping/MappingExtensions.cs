@@ -7,53 +7,53 @@ namespace MegaStorage.Mapping
     public static class MappingExtensions
     {
 
-        public static Chest ToChest(this NiceChest niceChest)
+        public static Chest ToChest(this CustomChest customChest)
         {
             var chest = new Chest(true);
-            chest.items.AddRange(niceChest.items);
-            chest.playerChoiceColor.Value = niceChest.playerChoiceColor.Value;
+            chest.items.AddRange(customChest.items);
+            chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
             return chest;
         }
 
-        public static NiceChest ToNiceChest(this Chest chest, ChestType chestType)
+        public static CustomChest ToCustomChest(this Chest chest, ChestType chestType)
         {
-            var niceChest = NiceChestFactory.Create(chestType);
-            niceChest.items.AddRange(chest.items);
-            niceChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
-            return niceChest;
+            var customChest = CustomChestFactory.Create(chestType);
+            customChest.items.AddRange(chest.items);
+            customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
+            return customChest;
         }
 
-        public static DeserializedChest ToDeserializedChest(this NiceChest niceChest, int inventoryIndex)
+        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, int inventoryIndex)
         {
             return new DeserializedChest
             {
                 InventoryIndex = inventoryIndex,
-                ChestType = niceChest.ChestType
+                ChestType = customChest.ChestType
             };
         }
 
-        public static DeserializedChest ToDeserializedChest(this NiceChest niceChest, long playerId, int inventoryIndex)
+        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, long playerId, int inventoryIndex)
         {
             return new DeserializedChest
             {
                 PlayerId = playerId,
                 InventoryIndex = inventoryIndex,
-                ChestType = niceChest.ChestType
+                ChestType = customChest.ChestType
             };
         }
 
-        public static DeserializedChest ToDeserializedChest(this NiceChest niceChest, string locationName, Vector2 position)
+        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, string locationName, Vector2 position)
         {
             return new DeserializedChest
             {
                 LocationName = locationName,
                 PositionX = position.X,
                 PositionY = position.Y,
-                ChestType = niceChest.ChestType
+                ChestType = customChest.ChestType
             };
         }
 
-        public static DeserializedChest ToDeserializedChest(this NiceChest niceChest, string locationName, Vector2 position, int inventoryIndex)
+        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, string locationName, Vector2 position, int inventoryIndex)
         {
             return new DeserializedChest
             {
@@ -61,7 +61,7 @@ namespace MegaStorage.Mapping
                 PositionX = position.X,
                 PositionY = position.Y,
                 InventoryIndex = inventoryIndex,
-                ChestType = niceChest.ChestType
+                ChestType = customChest.ChestType
             };
         }
 

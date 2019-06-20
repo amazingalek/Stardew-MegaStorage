@@ -3,7 +3,7 @@ using StardewValley;
 
 namespace MegaStorage.Models
 {
-    public class LargeChest : NiceChest
+    public class LargeChest : CustomChest
     {
         public override string ItemName => "Large Chest";
         public override string Description => "A large place to store your items.";

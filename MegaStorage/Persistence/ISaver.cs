@@ -2,8 +2,8 @@
 {
     public interface ISaver
     {
-        void LoadNiceChests();
-        void ReAddNiceChests();
-        void HideAndSaveNiceChests();
+        void LoadCustomChests();
+        void ReAddCustomChests();
+        void HideAndSaveCustomChests();
     }
 }
