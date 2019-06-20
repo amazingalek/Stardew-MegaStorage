@@ -20,13 +20,12 @@ namespace MegaStorage.Persistence
         public void Start()
         {
             _modHelper.Events.GameLoop.SaveLoaded += (sender, args) => LoadNiceChests();
-            _modHelper.Events.GameLoop.DayEnding += (sender, args) => HideAndSaveNiceChests();
-            _modHelper.Events.GameLoop.DayStarted += (sender, args) => ReAddNiceChests();
+            _modHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveNiceChests();
+            _modHelper.Events.GameLoop.Saved += (sender, args) => ReAddNiceChests();
             _modHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveNiceChests();
 
-            _modHelper.Events.Multiplayer.PeerContextReceived += (sender, args) => HideAndSaveNiceChests();
-            _modHelper.Events.Multiplayer.PeerDisconnected += (sender, args) => OnPeerDisconnected();
-            _modHelper.Events.Multiplayer.ModMessageReceived += OnModMessageReceived;
+            _modHelper.Events.Multiplayer.PeerContextReceived += OnPeerContextReceived;
+            _modHelper.Events.Multiplayer.PeerDisconnected += OnPeerDisconnected;
         }
 
         private void LoadNiceChests()
@@ -36,7 +35,6 @@ namespace MegaStorage.Persistence
             {
                 saver.LoadNiceChests();
             }
-            ReportIsLoaded();
         }
 
         private void ReAddNiceChests()
@@ -57,23 +55,18 @@ namespace MegaStorage.Persistence
             }
         }
 
-        private void ReportIsLoaded()
+        private async void OnPeerContextReceived(object sender, PeerContextReceivedEventArgs e)
         {
-            _modHelper.Multiplayer.SendMessage("PlayerLoaded", "PlayerLoaded", new[] { "Alek.MegaStorage" });
-        }
-
-        private async void OnPeerDisconnected()
-        {
-            _monitor.VerboseLog("OnPeerDisconnected");
+            _monitor.VerboseLog("OnPeerContextReceived");
+            HideAndSaveNiceChests();
             await Task.Delay(1000); // hack :-(
             ReAddNiceChests();
         }
 
-        private void OnModMessageReceived(object sender, ModMessageReceivedEventArgs e)
+        private async void OnPeerDisconnected(object sender, PeerDisconnectedEventArgs e)
         {
-            _monitor.VerboseLog($"OnModMessageReceived from {e.FromModID}: {e.Type}");
-            if (e.FromModID != "Alek.MegaStorage" || e.Type != "PlayerLoaded")
-                return;
+            _monitor.VerboseLog("OnPeerDisconnected");
+            await Task.Delay(1000); // hack :-(
             ReAddNiceChests();
         }
 
