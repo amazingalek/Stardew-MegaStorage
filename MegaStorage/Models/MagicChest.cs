@@ -8,7 +8,7 @@ namespace MegaStorage.Models
         public override string ItemName => "Magic Chest";
         public override string Description => "A magical place to store your items.";
         public override int Capacity => int.MaxValue;
-        public override int ItemId => 824;
+        public override int ItemId => 817;
         public override ChestType ChestType => ChestType.MagicChest;
         public override string SpritePath => "Sprites/MagicChest.png";
         public override string SpriteBWPath => "Sprites/MagicChestBW.png";
