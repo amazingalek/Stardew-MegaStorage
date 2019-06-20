@@ -22,6 +22,8 @@ namespace MegaStorage
             Reflection = modHelper.Reflection;
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             modHelper.ReadConfig<Config>();
+            modHelper.Content.AssetEditors.Add(new SpritePatcher(Helper, Monitor));
+            modHelper.Events.Display.MenuChanged += OnMenuChanged;
             new SaveManager(Helper, Monitor, new ISaver[]
             {
                 new InventorySaver(Helper, Monitor),
@@ -29,7 +31,6 @@ namespace MegaStorage
                 new LocationSaver(Helper, Monitor),
                 new LocationInventorySaver(Helper, Monitor)
             }).Start();
-            modHelper.Events.Display.MenuChanged += OnMenuChanged;
         }
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
@@ -43,7 +44,6 @@ namespace MegaStorage
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            Helper.Content.AssetEditors.Add(new SpritePatcher(Helper, Monitor));
             new ItemPatcher(Helper, Monitor).Start();
         }
 

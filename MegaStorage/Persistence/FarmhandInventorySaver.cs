@@ -10,7 +10,7 @@ namespace MegaStorage.Persistence
 {
     public class FarmhandInventorySaver : ISaver
     {
-        private const string SaveDataKey = "FarmhandInventoryNiceChests";
+        public string SaveDataKey => "FarmhandInventoryNiceChests";
 
         private readonly IModHelper _modHelper;
         private readonly IMonitor _monitor;

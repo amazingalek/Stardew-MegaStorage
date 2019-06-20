@@ -11,7 +11,7 @@ namespace MegaStorage.Persistence
 {
     public class LocationInventorySaver : ISaver
     {
-        private const string SaveDataKey = "LocationInventoryNiceChests";
+        public string SaveDataKey => "LocationInventoryNiceChests";
 
         private readonly IModHelper _modHelper;
         private readonly IMonitor _monitor;
