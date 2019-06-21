@@ -17,6 +17,7 @@ namespace MegaStorage.Models
 
         public CustomChestConfig Config { get; }
         public string BigCraftableInfo => $"{Config.Name}/0/-300/Crafting -9/{Config.Description}/true/true/0";
+        public string RecipeString => $"{Config.Recipe}/Home/{Config.Id}/true/null";
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
