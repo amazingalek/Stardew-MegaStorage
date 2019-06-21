@@ -21,13 +21,9 @@ Recipe:
 * 50 Void Essence
 
 # Configuration
-Recipes are configurable in config.json. The format is pairs of item IDs and how many of that item to use. Default:
-```
-{
-  "LargeChestRecipe": "388 100 334 5 335 5",
-  "MagicChestRecipe": "709 100 336 5 337 5 768 50 769 50"
-}
-```
+Names, descriptions and recipes for Large Chest and Magic Chest are configurable in config.json. The format of recipes is pairs of item IDs and how many of that item to use. Default:
+* Large Chest: 388 100 334 5 335 5
+* Magic Chest: 709 100 336 5 337 5 768 50 769 50
 
 # Compatibility
 * Requires [SMAPI](https://smapi.io/).
