@@ -11,23 +11,17 @@ namespace MegaStorage.Models
 {
     public abstract class CustomChest : Chest
     {
-        public abstract string ItemName { get; }
-        public abstract string Description { get; }
         public abstract int Capacity { get; }
-        public abstract int ItemId { get; }
         public abstract ChestType ChestType { get; }
-        public abstract string SpritePath { get; }
-        public abstract string SpriteBWPath { get; }
-        public abstract string SpriteBracesPath { get; }
-        public abstract string RecipeString { get; }
-        public abstract string BigCraftableInfo { get; }
-
         public abstract LargeItemGrabMenu CreateItemGrabMenu();
+
+        public CustomChestConfig Config { get; }
+        public string BigCraftableInfo => $"{Config.Name}/0/-300/Crafting -9/{Config.Description}/true/true/0";
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
         private readonly Texture2D _spriteBraces;
-
+        
         private readonly IReflectedField<int> _currentLidFrameReflected;
         private int CurrentLidFrame
         {
@@ -35,18 +29,19 @@ namespace MegaStorage.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected CustomChest() : base(true)
+        protected CustomChest(CustomChestConfig config) : base(true)
         {
-            ParentSheetIndex = ItemId;
+            Config = config;
+            ParentSheetIndex = config.Id;
             _currentLidFrameReflected = MegaStorageMod.Reflection.GetField<int>(this, "currentLidFrame");
-            startingLidFrame.Value = ItemId + 1;
-            name = ItemName;
-            _sprite = MegaStorageMod.ModHelper.Content.Load<Texture2D>(SpritePath);
-            _spriteBW = MegaStorageMod.ModHelper.Content.Load<Texture2D>(SpriteBWPath);
-            _spriteBraces = MegaStorageMod.ModHelper.Content.Load<Texture2D>(SpriteBracesPath);
+            startingLidFrame.Value = config.Id + 1;
+            name = config.Name;
+            _sprite = MegaStorageMod.ModHelper.Content.Load<Texture2D>(config.SpritePath);
+            _spriteBW = MegaStorageMod.ModHelper.Content.Load<Texture2D>(config.SpriteBWPath);
+            _spriteBraces = MegaStorageMod.ModHelper.Content.Load<Texture2D>(config.SpriteBracesPath);
         }
 
-        public override string getDescription() => Description;
+        public override string getDescription() => Config.Description;
 
         public override Item addItem(Item itemToAdd)
         {
@@ -197,7 +192,7 @@ namespace MegaStorage.Models
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
-            var lidFrameIndex = CurrentLidFrame - ItemId - 1;
+            var lidFrameIndex = CurrentLidFrame - ParentSheetIndex - 1;
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
                 spriteBatch.Draw(_sprite, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), tint.Value * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);

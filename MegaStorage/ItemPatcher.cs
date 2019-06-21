@@ -35,10 +35,11 @@ namespace MegaStorage
 
         private void Register(CustomChest customChest)
         {
-            _monitor.VerboseLog($"Registering {customChest.ItemName} ({customChest.ItemId})");
-            Game1.bigCraftablesInformation[customChest.ItemId] = customChest.BigCraftableInfo;
-            CraftingRecipe.craftingRecipes[customChest.ItemName] = customChest.RecipeString;
-            Game1.player.craftingRecipes[customChest.ItemName] = 0;
+
+            _monitor.VerboseLog($"Registering {customChest.Config.Name} ({customChest.Config.Id})");
+            Game1.bigCraftablesInformation[customChest.Config.Id] = customChest.BigCraftableInfo;
+            CraftingRecipe.craftingRecipes[customChest.Config.Name] = customChest.Config.Recipe;
+            Game1.player.craftingRecipes[customChest.Config.Name] = 0;
         }
 
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)

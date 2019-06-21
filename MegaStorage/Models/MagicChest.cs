@@ -5,18 +5,12 @@ namespace MegaStorage.Models
 {
     public class MagicChest : CustomChest
     {
-        public override string ItemName => "Magic Chest";
-        public override string Description => "A magical place to store your items.";
         public override int Capacity => int.MaxValue;
-        public override int ItemId => 817;
         public override ChestType ChestType => ChestType.MagicChest;
-        public override string SpritePath => "Sprites/MagicChest.png";
-        public override string SpriteBWPath => "Sprites/MagicChestBW.png";
-        public override string SpriteBracesPath => "Sprites/MagicChestBraces.png";
-        public override string RecipeString => $"{Config.Instance.MagicChestRecipe}/Home/{ItemId}/true/null";
-        public override string BigCraftableInfo => $"{ItemName}/0/-300/Crafting -9/{Description}/true/true/0";
 
         public override LargeItemGrabMenu CreateItemGrabMenu() => new MagicItemGrabMenu(this);
         public override Item getOne() => new MagicChest();
+
+        public MagicChest() : base(ModConfig.Instance.MagicChest) { }
     }
 }

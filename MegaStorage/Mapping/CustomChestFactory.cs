@@ -24,12 +24,12 @@ namespace MegaStorage.Mapping
         {
             if (!(item is Object)) return false;
             if (!((Object)item).bigCraftable.Value) return false;
-            return CustomChests.Any(x => x.ItemId == item.ParentSheetIndex);
+            return CustomChests.Any(x => x.Config.Id == item.ParentSheetIndex);
         }
 
         public static CustomChest Create(int id)
         {
-            var chestType = CustomChests.Single(x => x.ItemId == id).ChestType;
+            var chestType = CustomChests.Single(x => x.Config.Id == id).ChestType;
             return Create(chestType);
         }
 
