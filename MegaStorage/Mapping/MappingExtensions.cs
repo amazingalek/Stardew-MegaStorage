@@ -1,5 +1,6 @@
 ﻿using MegaStorage.Models;
 using Microsoft.Xna.Framework;
+using StardewValley;
 using StardewValley.Objects;
 
 namespace MegaStorage.Mapping
@@ -12,6 +13,7 @@ namespace MegaStorage.Mapping
             var chest = new Chest(true);
             chest.items.AddRange(customChest.items);
             chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
+            chest.name = customChest.name;
             return chest;
         }
 
@@ -20,6 +22,7 @@ namespace MegaStorage.Mapping
             var customChest = CustomChestFactory.Create(chestType);
             customChest.items.AddRange(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
+            customChest.name = chest.name;
             return customChest;
         }
 
@@ -28,17 +31,8 @@ namespace MegaStorage.Mapping
             return new DeserializedChest
             {
                 InventoryIndex = inventoryIndex,
-                ChestType = customChest.ChestType
-            };
-        }
-
-        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, long playerId, int inventoryIndex)
-        {
-            return new DeserializedChest
-            {
-                PlayerId = playerId,
-                InventoryIndex = inventoryIndex,
-                ChestType = customChest.ChestType
+                ChestType = customChest.ChestType,
+                Name = customChest.name
             };
         }
 
@@ -49,20 +43,30 @@ namespace MegaStorage.Mapping
                 LocationName = locationName,
                 PositionX = position.X,
                 PositionY = position.Y,
-                ChestType = customChest.ChestType
+                ChestType = customChest.ChestType,
+                Name = customChest.name
             };
+        }
+
+        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, long playerId, int inventoryIndex)
+        {
+            var deserializedChest = customChest.ToDeserializedChest(inventoryIndex);
+            deserializedChest.PlayerId = playerId;
+            return deserializedChest;
         }
 
         public static DeserializedChest ToDeserializedChest(this CustomChest customChest, string locationName, Vector2 position, int inventoryIndex)
         {
-            return new DeserializedChest
-            {
-                LocationName = locationName,
-                PositionX = position.X,
-                PositionY = position.Y,
-                InventoryIndex = inventoryIndex,
-                ChestType = customChest.ChestType
-            };
+            var deserializedChest = customChest.ToDeserializedChest(locationName, position);
+            deserializedChest.InventoryIndex = inventoryIndex;
+            return deserializedChest;
+        }
+
+        public static CustomChest ToCustomChest(this Item item)
+        {
+            var customChest = CustomChestFactory.Create(item.ParentSheetIndex);
+            customChest.name = item.Name;
+            return customChest;
         }
 
     }

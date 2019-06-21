@@ -57,7 +57,8 @@ namespace MegaStorage
             _monitor.VerboseLog("OnInventoryChanged: converting");
 
             var index = Game1.player.Items.IndexOf(addedItem);
-            Game1.player.Items[index] = CustomChestFactory.Create(addedItem.ParentSheetIndex);
+            var item = Game1.player.Items[index];
+            Game1.player.Items[index] = item.ToCustomChest();
         }
 
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
@@ -77,7 +78,8 @@ namespace MegaStorage
             _monitor.VerboseLog("OnObjectListChanged: converting");
 
             var position = addedItemPosition.Key;
-            e.Location.objects[position] = CustomChestFactory.Create(addedItem.ParentSheetIndex);
+            var item = e.Location.objects[position];
+            e.Location.objects[position] = item.ToCustomChest();
         }
 
     }
