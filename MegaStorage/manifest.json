@@ -1,7 +1,7 @@
 {
   "Name": "Mega Storage",
   "Author": "Alek",
-  "Version": "1.0.9",
+  "Version": "1.0.10",
   "Description": "Adds Large Chests and Magic Chests to the game.",
   "UniqueID": "Alek.MegaStorage",
   "EntryDll": "MegaStorage.dll",
