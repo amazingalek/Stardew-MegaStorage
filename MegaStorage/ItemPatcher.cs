@@ -36,8 +36,6 @@ namespace MegaStorage
         private void Register(CustomChest customChest)
         {
             _monitor.VerboseLog($"Registering {customChest.Config.Name} ({customChest.Config.Id})");
-            _monitor.VerboseLog($"Recipe: {customChest.Config.Recipe}");
-            _monitor.VerboseLog($"BigCraftableInfo: {customChest.BigCraftableInfo}");
             Game1.bigCraftablesInformation[customChest.Config.Id] = customChest.BigCraftableInfo;
             CraftingRecipe.craftingRecipes[customChest.Config.Name] = customChest.RecipeString;
             Game1.player.craftingRecipes[customChest.Config.Name] = 0;
