@@ -20,8 +20,8 @@ namespace MegaStorage
             ModHelper = modHelper;
             Logger = Monitor;
             Reflection = modHelper.Reflection;
-            modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             modHelper.ReadConfig<ModConfig>();
+            modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             modHelper.Content.AssetEditors.Add(new SpritePatcher(Helper, Monitor));
             modHelper.Events.Display.MenuChanged += OnMenuChanged;
             new SaveManager(Helper, Monitor, new ISaver[]
