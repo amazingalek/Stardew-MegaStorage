@@ -20,10 +20,15 @@ namespace MegaStorage
             ModHelper = modHelper;
             Logger = Monitor;
             Reflection = modHelper.Reflection;
-            modHelper.ReadConfig<ModConfig>();
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            modHelper.Content.AssetEditors.Add(new SpritePatcher(Helper, Monitor));
             modHelper.Events.Display.MenuChanged += OnMenuChanged;
+        }
+
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
+            Helper.ReadConfig<ModConfig>();
+            Helper.Content.AssetEditors.Add(new SpritePatcher(Helper, Monitor));
+            new ItemPatcher(Helper, Monitor).Start();
             new SaveManager(Helper, Monitor, new ISaver[]
             {
                 new InventorySaver(Helper, Monitor),
@@ -40,11 +45,6 @@ namespace MegaStorage
                 return;
             if (e.NewMenu is ItemGrabMenu itemGrabMenu && itemGrabMenu.context is CustomChest customChest)
                 Game1.activeClickableMenu = customChest.CreateItemGrabMenu();
-        }
-
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
-        {
-            new ItemPatcher(Helper, Monitor).Start();
         }
 
     }
