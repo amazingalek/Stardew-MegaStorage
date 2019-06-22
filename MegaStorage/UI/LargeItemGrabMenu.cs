@@ -24,9 +24,9 @@ namespace MegaStorage.UI
         protected const int ItemsPerRow = 12;
         protected const int Capacity = ItemsPerRow * Rows;
 
-        protected readonly CustomChest CustomChest;
+        public int CurrentRow { get; protected set; }
 
-        public int CurrentRow { get; set; }
+        protected readonly CustomChest CustomChest;
 
         private Item SourceItem => _sourceItemReflected.GetValue();
         private readonly IReflectedField<Item> _sourceItemReflected;
@@ -358,28 +358,15 @@ namespace MegaStorage.UI
 
         private void FixItemDupeBug()
         {
-            var itemInChest = ItemsToGrabMenu.actualInventory.FirstOrDefault(i => i != null && IsSameItem(i, heldItem));
-            if (itemInChest != null) return;
-            var itemInCustomChest = CustomChest.items.SingleOrDefault(i => IsSameItem(i, heldItem));
-            if (itemInCustomChest == null)
-                return;
-            var index = CustomChest.items.IndexOf(itemInCustomChest);
-            CustomChest.items[index] = null;
+            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug. CurrentRow: " + CurrentRow);
+            var skipped = CustomChest.items.Take(ItemsPerRow * CurrentRow).ToList();
+            CustomChest.items.Clear();
+            CustomChest.items.AddRange(skipped);
+            CustomChest.items.AddRange(ItemsToGrabMenu.actualInventory);
+            CustomChest.clearNulls();
+            Refresh();
         }
-
-        private bool IsSameItem(Item item, Item other)
-        {
-            if (item == null || other == null)
-                return false;
-            if (item.ParentSheetIndex != other.ParentSheetIndex || item is Object && !(other is Object) || !(item is Object) && other is Object)
-                return false;
-            if (item is ColoredObject coloredObject && other is ColoredObject otherColoredObject && !coloredObject.color.Value.Equals(otherColoredObject.color.Value))
-                return false;
-            if (item is Object itemObject && other is Object otherObject && (itemObject.bigCraftable.Value != otherObject.bigCraftable.Value || itemObject.Quality != otherObject.Quality))
-                return false;
-            return item.Name.Equals(other.Name);
-        }
-
+        
         public override void draw(SpriteBatch b)
         {
             Draw(b);

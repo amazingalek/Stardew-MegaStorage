@@ -40,6 +40,7 @@ namespace MegaStorage.UI
 
         public override void receiveScrollWheelAction(int direction)
         {
+            MegaStorageMod.Logger.VerboseLog("receiveScrollWheelAction");
             if (direction < 0 && CurrentRow < _maxRow)
             {
                 CurrentRow++;

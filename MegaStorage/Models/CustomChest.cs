@@ -113,7 +113,9 @@ namespace MegaStorage.Models
                 return;
             items.Remove(item);
             clearNulls();
-            _itemGrabMenu = CloneItemGrabMenu();
+            if (_itemGrabMenu == null)
+                _itemGrabMenu = CreateItemGrabMenu();
+            _itemGrabMenu.Refresh();
             Game1.activeClickableMenu = _itemGrabMenu;
         }
 
@@ -128,22 +130,15 @@ namespace MegaStorage.Models
                 addedItem = who.addItemToInventory(addedItem);
             clearNulls();
             var id = Game1.activeClickableMenu.currentlySnappedComponent != null ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
-            _itemGrabMenu = CloneItemGrabMenu();
+            if (_itemGrabMenu == null)
+                _itemGrabMenu = CreateItemGrabMenu();
+            _itemGrabMenu.Refresh();
             _itemGrabMenu.heldItem = addedItem;
             Game1.activeClickableMenu = _itemGrabMenu;
             if (id == -1)
                 return;
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);
             Game1.activeClickableMenu.snapCursorToCurrentSnappedComponent();
-        }
-
-        private LargeItemGrabMenu CloneItemGrabMenu()
-        {
-            var currentRow = _itemGrabMenu?.CurrentRow ?? 0;
-            var itemGrabMenu = CreateItemGrabMenu();
-            itemGrabMenu.CurrentRow = currentRow;
-            itemGrabMenu.Refresh();
-            return itemGrabMenu;
         }
 
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
