@@ -24,7 +24,7 @@ namespace MegaStorage
             _modHelper.Events.World.ObjectListChanged += OnObjectListChanged;
             _modHelper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
         }
-        
+
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             foreach (var customChest in CustomChestFactory.CustomChests)
@@ -44,21 +44,21 @@ namespace MegaStorage
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
         {
             _monitor.VerboseLog("OnInventoryChanged");
-            if (!e.IsLocalPlayer || e.Added.Count() != 1)
+            if (!e.IsLocalPlayer || !e.Added.Any())
                 return;
 
-            var addedItem = e.Added.Single();
-            if (addedItem is CustomChest)
-                return;
-
-            if (!CustomChestFactory.IsCustomChest(addedItem))
+            var addedCustomChestsToConvert = e.Added.Where(CustomChestFactory.ShouldBeCustomChest).ToList();
+            if (!addedCustomChestsToConvert.Any())
                 return;
 
             _monitor.VerboseLog("OnInventoryChanged: converting");
+            
+            var addedCustomChestToConvert = addedCustomChestsToConvert.First();
+            var customChestToAdd = addedCustomChestToConvert.ToCustomChest();
+            customChestToAdd.Stack = addedCustomChestsToConvert.Count;
 
-            var index = Game1.player.Items.IndexOf(addedItem);
-            var item = Game1.player.Items[index];
-            Game1.player.Items[index] = item.ToCustomChest();
+            var index = Game1.player.Items.IndexOf(addedCustomChestToConvert);
+            Game1.player.Items[index] = customChestToAdd;
         }
 
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
@@ -72,7 +72,7 @@ namespace MegaStorage
             if (addedItem is CustomChest)
                 return;
 
-            if (!CustomChestFactory.IsCustomChest(addedItem))
+            if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
                 return;
 
             _monitor.VerboseLog("OnObjectListChanged: converting");
