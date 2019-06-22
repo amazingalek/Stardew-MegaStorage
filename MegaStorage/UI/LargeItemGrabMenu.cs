@@ -24,6 +24,8 @@ namespace MegaStorage.UI
         protected const int ItemsPerRow = 12;
         protected const int Capacity = ItemsPerRow * Rows;
 
+        public int CurrentRow { get; protected set; }
+
         protected readonly CustomChest CustomChest;
 
         private Item SourceItem => _sourceItemReflected.GetValue();
@@ -154,135 +156,135 @@ namespace MegaStorage.UI
             ItemsToGrabMenu.actualInventory = CustomChest.items.ToList();
         }
 
-        //public override void receiveLeftClick(int x, int y, bool playSound = true)
-        //{
-        //    ReceiveLeftClickBase(x, y, !destroyItemOnClick);
-        //    if (chestColorPicker != null)
-        //    {
-        //        chestColorPicker.receiveLeftClick(x, y);
-        //        if (SourceItem is Chest chest)
-        //            chest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-        //    }
-        //    if (colorPickerToggleButton != null && colorPickerToggleButton.containsPoint(x, y))
-        //    {
-        //        Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-        //        chestColorPicker.visible = Game1.player.showChestColorPicker;
-        //        Game1.playSound("drumkit6");
-        //    }
-        //    if (whichSpecialButton != -1 && specialButton != null && specialButton.containsPoint(x, y))
-        //    {
-        //        Game1.playSound("drumkit6");
-        //        if (whichSpecialButton == 1 && context != null && context is JunimoHut hut)
-        //        {
-        //            hut.noHarvest.Value = !hut.noHarvest.Value;
-        //            specialButton.sourceRect.X = hut.noHarvest.Value ? 124 : 108;
-        //        }
-        //    }
-        //    if (heldItem == null && showReceivingMenu)
-        //    {
-        //        heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
-        //        if (heldItem != null && behaviorOnItemGrab != null)
-        //        {
-        //            behaviorOnItemGrab(heldItem, Game1.player);
-        //            if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
-        //            {
-        //                ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
-        //                if (Game1.options.SnappyMenus)
-        //                {
-        //                    ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
-        //                    ((ItemGrabMenu)Game1.activeClickableMenu).snapCursorToCurrentSnappedComponent();
-        //                }
-        //            }
-        //        }
-        //        if (heldItem is Object obj1 && obj1.ParentSheetIndex == 326)
-        //        {
-        //            heldItem = null;
-        //            Game1.player.canUnderstandDwarves = true;
-        //            Poof = CreatePoof(x, y);
-        //            Game1.playSound("fireball");
-        //        }
-        //        else if (heldItem is Object obj2 && obj2.ParentSheetIndex == 102)
-        //        {
-        //            heldItem = null;
-        //            Game1.player.foundArtifact(102, 1);
-        //            Poof = CreatePoof(x, y);
-        //            Game1.playSound("fireball");
-        //        }
-        //        else if (heldItem is Object obj3 && obj3.IsRecipe)
-        //        {
-        //            var key = heldItem.Name.Substring(0, heldItem.Name.IndexOf("Recipe") - 1);
-        //            try
-        //            {
-        //                if (obj3.Category == -7)
-        //                    Game1.player.cookingRecipes.Add(key, 0);
-        //                else
-        //                    Game1.player.craftingRecipes.Add(key, 0);
-        //                Poof = CreatePoof(x, y);
-        //                Game1.playSound("newRecipe");
-        //            }
-        //            catch (Exception ex) { }
-        //            heldItem = null;
-        //        }
-        //        else if (Game1.player.addItemToInventoryBool(heldItem))
-        //        {
-        //            heldItem = null;
-        //            Game1.playSound("coin");
-        //        }
-        //    }
-        //    else if ((reverseGrab || BehaviorFunction != null) && isWithinBounds(x, y))
-        //    {
-        //        BehaviorFunction(heldItem, Game1.player);
-        //        if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
-        //        {
-        //            ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
-        //            if (Game1.options.SnappyMenus)
-        //            {
-        //                ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
-        //                ((ItemGrabMenu)Game1.activeClickableMenu).snapCursorToCurrentSnappedComponent();
-        //            }
-        //        }
-        //        if (destroyItemOnClick)
-        //        {
-        //            heldItem = null;
-        //            return;
-        //        }
-        //    }
-        //    if (organizeButton != null && organizeButton.containsPoint(x, y))
-        //    {
-        //        organizeItemsInList(CustomChest.items);
-        //        Refresh();
-        //        Game1.playSound("Ship");
-        //    }
-        //    else
-        //    {
-        //        if (heldItem == null || isWithinBounds(x, y) || !heldItem.canBeTrashed())
-        //            return;
-        //        Game1.playSound("throwDownITem");
-        //        Game1.createItemDebris(heldItem, Game1.player.getStandingPosition(), Game1.player.FacingDirection);
-        //        inventory.onAddItem?.Invoke(heldItem, Game1.player);
-        //        heldItem = null;
-        //    }
-        //}
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
+            ReceiveLeftClickBase(x, y, !destroyItemOnClick);
+            if (chestColorPicker != null)
+            {
+                chestColorPicker.receiveLeftClick(x, y);
+                if (SourceItem is Chest chest)
+                    chest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+            }
+            if (colorPickerToggleButton != null && colorPickerToggleButton.containsPoint(x, y))
+            {
+                Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+                chestColorPicker.visible = Game1.player.showChestColorPicker;
+                Game1.playSound("drumkit6");
+            }
+            if (whichSpecialButton != -1 && specialButton != null && specialButton.containsPoint(x, y))
+            {
+                Game1.playSound("drumkit6");
+                if (whichSpecialButton == 1 && context != null && context is JunimoHut hut)
+                {
+                    hut.noHarvest.Value = !hut.noHarvest.Value;
+                    specialButton.sourceRect.X = hut.noHarvest.Value ? 124 : 108;
+                }
+            }
+            if (heldItem == null && showReceivingMenu)
+            {
+                heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
+                if (heldItem != null && behaviorOnItemGrab != null)
+                {
+                    behaviorOnItemGrab(heldItem, Game1.player);
+                    if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
+                    {
+                        ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
+                        if (Game1.options.SnappyMenus)
+                        {
+                            ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
+                            ((ItemGrabMenu)Game1.activeClickableMenu).snapCursorToCurrentSnappedComponent();
+                        }
+                    }
+                }
+                if (heldItem is Object obj1 && obj1.ParentSheetIndex == 326)
+                {
+                    heldItem = null;
+                    Game1.player.canUnderstandDwarves = true;
+                    Poof = CreatePoof(x, y);
+                    Game1.playSound("fireball");
+                }
+                else if (heldItem is Object obj2 && obj2.ParentSheetIndex == 102)
+                {
+                    heldItem = null;
+                    Game1.player.foundArtifact(102, 1);
+                    Poof = CreatePoof(x, y);
+                    Game1.playSound("fireball");
+                }
+                else if (heldItem is Object obj3 && obj3.IsRecipe)
+                {
+                    var key = heldItem.Name.Substring(0, heldItem.Name.IndexOf("Recipe") - 1);
+                    try
+                    {
+                        if (obj3.Category == -7)
+                            Game1.player.cookingRecipes.Add(key, 0);
+                        else
+                            Game1.player.craftingRecipes.Add(key, 0);
+                        Poof = CreatePoof(x, y);
+                        Game1.playSound("newRecipe");
+                    }
+                    catch (Exception ex) { }
+                    heldItem = null;
+                }
+                else if (Game1.player.addItemToInventoryBool(heldItem))
+                {
+                    heldItem = null;
+                    Game1.playSound("coin");
+                }
+            }
+            else if ((reverseGrab || BehaviorFunction != null) && isWithinBounds(x, y))
+            {
+                BehaviorFunction(heldItem, Game1.player);
+                if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
+                {
+                    ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
+                    if (Game1.options.SnappyMenus)
+                    {
+                        ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
+                        ((ItemGrabMenu)Game1.activeClickableMenu).snapCursorToCurrentSnappedComponent();
+                    }
+                }
+                if (destroyItemOnClick)
+                {
+                    heldItem = null;
+                    return;
+                }
+            }
+            if (organizeButton != null && organizeButton.containsPoint(x, y))
+            {
+                organizeItemsInList(CustomChest.items);
+                Refresh();
+                Game1.playSound("Ship");
+            }
+            else
+            {
+                if (heldItem == null || isWithinBounds(x, y) || !heldItem.canBeTrashed())
+                    return;
+                Game1.playSound("throwDownITem");
+                Game1.createItemDebris(heldItem, Game1.player.getStandingPosition(), Game1.player.FacingDirection);
+                inventory.onAddItem?.Invoke(heldItem, Game1.player);
+                heldItem = null;
+            }
+        }
 
-        //private void ReceiveLeftClickBase(int x, int y, bool playSound = true)
-        //{
-        //    heldItem = inventory.leftClick(x, y, heldItem, playSound);
-        //    if (!isWithinBounds(x, y) && readyToClose())
-        //        trashCan?.containsPoint(x, y);
-        //    if (okButton != null && okButton.containsPoint(x, y) && readyToClose())
-        //    {
-        //        exitThisMenu();
-        //        if (Game1.currentLocation.currentEvent != null)
-        //            ++Game1.currentLocation.currentEvent.CurrentCommand;
-        //        Game1.playSound("bigDeSelect");
-        //    }
-        //    if (trashCan == null || !trashCan.containsPoint(x, y) || (heldItem == null || !heldItem.canBeTrashed()))
-        //        return;
-        //    if (heldItem is Object obj && Game1.player.specialItems.Contains(obj.ParentSheetIndex))
-        //        Game1.player.specialItems.Remove(obj.ParentSheetIndex);
-        //    heldItem = null;
-        //    Game1.playSound("trashcan");
-        //}
+        private void ReceiveLeftClickBase(int x, int y, bool playSound = true)
+        {
+            heldItem = inventory.leftClick(x, y, heldItem, playSound);
+            if (!isWithinBounds(x, y) && readyToClose())
+                trashCan?.containsPoint(x, y);
+            if (okButton != null && okButton.containsPoint(x, y) && readyToClose())
+            {
+                exitThisMenu();
+                if (Game1.currentLocation.currentEvent != null)
+                    ++Game1.currentLocation.currentEvent.CurrentCommand;
+                Game1.playSound("bigDeSelect");
+            }
+            if (trashCan == null || !trashCan.containsPoint(x, y) || (heldItem == null || !heldItem.canBeTrashed()))
+                return;
+            if (heldItem is Object obj && Game1.player.specialItems.Contains(obj.ParentSheetIndex))
+                Game1.player.specialItems.Remove(obj.ParentSheetIndex);
+            heldItem = null;
+            Game1.playSound("trashcan");
+        }
 
         public override void receiveRightClick(int x, int y, bool playSound = true)
         {
@@ -354,8 +356,17 @@ namespace MegaStorage.UI
                 new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
         }
 
-        protected virtual void FixItemDupeBug() { }
-
+        private void FixItemDupeBug()
+        {
+            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug. CurrentRow: " + CurrentRow);
+            var skipped = CustomChest.items.Take(ItemsPerRow * CurrentRow).ToList();
+            CustomChest.items.Clear();
+            CustomChest.items.AddRange(skipped);
+            CustomChest.items.AddRange(ItemsToGrabMenu.actualInventory);
+            CustomChest.clearNulls();
+            Refresh();
+        }
+        
         public override void draw(SpriteBatch b)
         {
             Draw(b);
