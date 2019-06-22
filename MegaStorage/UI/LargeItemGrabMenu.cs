@@ -26,6 +26,8 @@ namespace MegaStorage.UI
 
         protected readonly CustomChest CustomChest;
 
+        public int CurrentRow { get; set; }
+
         private Item SourceItem => _sourceItemReflected.GetValue();
         private readonly IReflectedField<Item> _sourceItemReflected;
 

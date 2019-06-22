@@ -8,23 +8,22 @@ namespace MegaStorage.UI
 {
     public class MagicItemGrabMenu : LargeItemGrabMenu
     {
-        private int _currentRow;
         private int _maxRow;
 
         public MagicItemGrabMenu(CustomChest customChest) : base(customChest)
         {
-            _currentRow = 0;
+            CurrentRow = 0;
             Refresh();
         }
         
         public override void draw(SpriteBatch b)
         {
             Draw(b);
-            if (_currentRow < _maxRow)
+            if (CurrentRow < _maxRow)
             {
                 DownButton.draw(b);
             }
-            if (_currentRow > 0)
+            if (CurrentRow > 0)
             {
                 UpButton.draw(b);
             }
@@ -33,21 +32,21 @@ namespace MegaStorage.UI
 
         public override void Refresh()
         {
-            ItemsToGrabMenu.actualInventory = CustomChest.items.Skip(ItemsPerRow * _currentRow).ToList();
+            ItemsToGrabMenu.actualInventory = CustomChest.items.Skip(ItemsPerRow * CurrentRow).ToList();
             _maxRow = (CustomChest.items.Count - 1) / 12 + 1 - Rows;
-            if (_currentRow > _maxRow)
-                _currentRow = _maxRow;
+            if (CurrentRow > _maxRow)
+                CurrentRow = _maxRow;
         }
 
         public override void receiveScrollWheelAction(int direction)
         {
-            if (direction < 0 && _currentRow < _maxRow)
+            if (direction < 0 && CurrentRow < _maxRow)
             {
-                _currentRow++;
+                CurrentRow++;
             }
-            else if (direction > 0 && _currentRow > 0)
+            else if (direction > 0 && CurrentRow > 0)
             {
-                _currentRow--;
+                CurrentRow--;
             }
             Refresh();
         }
@@ -55,16 +54,16 @@ namespace MegaStorage.UI
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             base.receiveLeftClick(x, y, true);
-            if (UpButton.containsPoint(x, y) && _currentRow > 0)
+            if (UpButton.containsPoint(x, y) && CurrentRow > 0)
             {
                 Game1.playSound("coin");
-                _currentRow--;
+                CurrentRow--;
                 UpButton.scale = UpButton.baseScale;
             }
-            if (DownButton.containsPoint(x, y) && _currentRow < _maxRow)
+            if (DownButton.containsPoint(x, y) && CurrentRow < _maxRow)
             {
                 Game1.playSound("coin");
-                _currentRow++;
+                CurrentRow++;
                 DownButton.scale = DownButton.baseScale;
             }
             Refresh();

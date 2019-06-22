@@ -22,7 +22,9 @@ namespace MegaStorage.Models
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
         private readonly Texture2D _spriteBraces;
-        
+
+        private LargeItemGrabMenu _itemGrabMenu;
+
         private readonly IReflectedField<int> _currentLidFrameReflected;
         private int CurrentLidFrame
         {
@@ -64,15 +66,6 @@ namespace MegaStorage.Models
             return null;
         }
 
-        public override void grabItemFromChest(Item item, Farmer who)
-        {
-            if (!who.couldInventoryAcceptThisItem(item))
-                return;
-            items.Remove(item);
-            clearNulls();
-            Game1.activeClickableMenu = CreateItemGrabMenu();
-        }
-
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
             var currentLidFrameValue = CurrentLidFrame;
@@ -91,7 +84,8 @@ namespace MegaStorage.Models
                     return;
                 if (currentLidFrameValue == ParentSheetIndex + 5)
                 {
-                    Game1.activeClickableMenu = CreateItemGrabMenu();
+                    _itemGrabMenu = CreateItemGrabMenu();
+                    Game1.activeClickableMenu = _itemGrabMenu;
                     frameCounter.Value = -1;
                 }
                 else
@@ -113,6 +107,16 @@ namespace MegaStorage.Models
             }
         }
 
+        public override void grabItemFromChest(Item item, Farmer who)
+        {
+            if (!who.couldInventoryAcceptThisItem(item))
+                return;
+            items.Remove(item);
+            clearNulls();
+            _itemGrabMenu = CloneItemGrabMenu();
+            Game1.activeClickableMenu = _itemGrabMenu;
+        }
+
         public override void grabItemFromInventory(Item item, Farmer who)
         {
             if (item.Stack == 0)
@@ -124,13 +128,22 @@ namespace MegaStorage.Models
                 addedItem = who.addItemToInventory(addedItem);
             clearNulls();
             var id = Game1.activeClickableMenu.currentlySnappedComponent != null ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
-            var menu = CreateItemGrabMenu();
-            menu.heldItem = addedItem;
-            Game1.activeClickableMenu = menu;
+            _itemGrabMenu = CloneItemGrabMenu();
+            _itemGrabMenu.heldItem = addedItem;
+            Game1.activeClickableMenu = _itemGrabMenu;
             if (id == -1)
                 return;
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);
             Game1.activeClickableMenu.snapCursorToCurrentSnappedComponent();
+        }
+
+        private LargeItemGrabMenu CloneItemGrabMenu()
+        {
+            var currentRow = _itemGrabMenu?.CurrentRow ?? 0;
+            var itemGrabMenu = CreateItemGrabMenu();
+            itemGrabMenu.CurrentRow = currentRow;
+            itemGrabMenu.Refresh();
+            return itemGrabMenu;
         }
 
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
