@@ -24,8 +24,6 @@ namespace MegaStorage.UI
         protected const int ItemsPerRow = 12;
         protected const int Capacity = ItemsPerRow * Rows;
 
-        public int CurrentRow { get; protected set; }
-
         protected readonly CustomChest CustomChest;
 
         private Item SourceItem => _sourceItemReflected.GetValue();
@@ -356,17 +354,17 @@ namespace MegaStorage.UI
                 new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
         }
 
-        private void FixItemDupeBug()
+        protected virtual void FixItemDupeBug()
         {
-            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug. CurrentRow: " + CurrentRow);
-            var skipped = CustomChest.items.Take(ItemsPerRow * CurrentRow).ToList();
+            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug (Magic)");
+            var shownItems = ItemsToGrabMenu.actualInventory.ToList();
+            MegaStorageMod.Logger.VerboseLog("Shown: " + shownItems.Count);
             CustomChest.items.Clear();
-            CustomChest.items.AddRange(skipped);
-            CustomChest.items.AddRange(ItemsToGrabMenu.actualInventory);
+            CustomChest.items.AddRange(shownItems);
             CustomChest.clearNulls();
             Refresh();
         }
-        
+
         public override void draw(SpriteBatch b)
         {
             Draw(b);

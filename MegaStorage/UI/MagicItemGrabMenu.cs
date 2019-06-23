@@ -8,22 +8,23 @@ namespace MegaStorage.UI
 {
     public class MagicItemGrabMenu : LargeItemGrabMenu
     {
+        private int _currentRow;
         private int _maxRow;
 
         public MagicItemGrabMenu(CustomChest customChest) : base(customChest)
         {
-            CurrentRow = 0;
+            _currentRow = 0;
             Refresh();
         }
-        
+
         public override void draw(SpriteBatch b)
         {
             Draw(b);
-            if (CurrentRow < _maxRow)
+            if (_currentRow < _maxRow)
             {
                 DownButton.draw(b);
             }
-            if (CurrentRow > 0)
+            if (_currentRow > 0)
             {
                 UpButton.draw(b);
             }
@@ -32,22 +33,22 @@ namespace MegaStorage.UI
 
         public override void Refresh()
         {
-            ItemsToGrabMenu.actualInventory = CustomChest.items.Skip(ItemsPerRow * CurrentRow).ToList();
+            ItemsToGrabMenu.actualInventory = CustomChest.items.Skip(ItemsPerRow * _currentRow).ToList();
             _maxRow = (CustomChest.items.Count - 1) / 12 + 1 - Rows;
-            if (CurrentRow > _maxRow)
-                CurrentRow = _maxRow;
+            if (_currentRow > _maxRow)
+                _currentRow = _maxRow;
         }
 
         public override void receiveScrollWheelAction(int direction)
         {
             MegaStorageMod.Logger.VerboseLog("receiveScrollWheelAction");
-            if (direction < 0 && CurrentRow < _maxRow)
+            if (direction < 0 && _currentRow < _maxRow)
             {
-                CurrentRow++;
+                _currentRow++;
             }
-            else if (direction > 0 && CurrentRow > 0)
+            else if (direction > 0 && _currentRow > 0)
             {
-                CurrentRow--;
+                _currentRow--;
             }
             Refresh();
         }
@@ -55,16 +56,16 @@ namespace MegaStorage.UI
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             base.receiveLeftClick(x, y, true);
-            if (UpButton.containsPoint(x, y) && CurrentRow > 0)
+            if (UpButton.containsPoint(x, y) && _currentRow > 0)
             {
                 Game1.playSound("coin");
-                CurrentRow--;
+                _currentRow--;
                 UpButton.scale = UpButton.baseScale;
             }
-            if (DownButton.containsPoint(x, y) && CurrentRow < _maxRow)
+            if (DownButton.containsPoint(x, y) && _currentRow < _maxRow)
             {
                 Game1.playSound("coin");
-                CurrentRow++;
+                _currentRow++;
                 DownButton.scale = DownButton.baseScale;
             }
             Refresh();
@@ -75,6 +76,20 @@ namespace MegaStorage.UI
             base.performHoverAction(x, y);
             UpButton.scale = UpButton.containsPoint(x, y) ? Math.Min(UpButton.scale + 0.02f, UpButton.baseScale + 0.1f) : Math.Max(UpButton.scale - 0.02f, UpButton.baseScale);
             DownButton.scale = DownButton.containsPoint(x, y) ? Math.Min(DownButton.scale + 0.02f, DownButton.baseScale + 0.1f) : Math.Max(DownButton.scale - 0.02f, DownButton.baseScale);
+        }
+
+        protected override void FixItemDupeBug()
+        {
+            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug (Magic). CurrentRow: " + _currentRow);
+            var skippedItems = CustomChest.items.Take(ItemsPerRow * _currentRow).ToList();
+            var shownItems = ItemsToGrabMenu.actualInventory.ToList();
+            MegaStorageMod.Logger.VerboseLog("Skipped: " + skippedItems.Count);
+            MegaStorageMod.Logger.VerboseLog("Shown: " + shownItems.Count);
+            CustomChest.items.Clear();
+            CustomChest.items.AddRange(skippedItems);
+            CustomChest.items.AddRange(shownItems);
+            CustomChest.clearNulls();
+            Refresh();
         }
 
     }
