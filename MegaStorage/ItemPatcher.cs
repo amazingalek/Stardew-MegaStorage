@@ -44,21 +44,21 @@ namespace MegaStorage
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
         {
             _monitor.VerboseLog("OnInventoryChanged");
-            if (!e.IsLocalPlayer || !e.Added.Any())
+            if (!e.IsLocalPlayer || e.Added.Count() != 1)
                 return;
 
-            var addedCustomChestsToConvert = e.Added.Where(CustomChestFactory.ShouldBeCustomChest).ToList();
-            if (!addedCustomChestsToConvert.Any())
+            var addedItem = e.Added.Single();
+            if (addedItem is CustomChest)
+                return;
+
+            if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
                 return;
 
             _monitor.VerboseLog("OnInventoryChanged: converting");
-            
-            var addedCustomChestToConvert = addedCustomChestsToConvert.First();
-            var customChestToAdd = addedCustomChestToConvert.ToCustomChest();
-            customChestToAdd.Stack = addedCustomChestsToConvert.Count;
 
-            var index = Game1.player.Items.IndexOf(addedCustomChestToConvert);
-            Game1.player.Items[index] = customChestToAdd;
+            var index = Game1.player.Items.IndexOf(addedItem);
+            var item = Game1.player.Items[index];
+            Game1.player.Items[index] = item.ToCustomChest();
         }
 
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
