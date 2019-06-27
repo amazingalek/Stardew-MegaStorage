@@ -78,13 +78,13 @@ namespace MegaStorage.UI
             DownButton.scale = DownButton.containsPoint(x, y) ? Math.Min(DownButton.scale + 0.02f, DownButton.baseScale + 0.1f) : Math.Max(DownButton.scale - 0.02f, DownButton.baseScale);
         }
 
-        protected override void FixItemDupeBug()
+        protected override void ClearNulls()
         {
-            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug (Magic). CurrentRow: " + _currentRow);
+            MegaStorageMod.Logger.VerboseLog("ClearNulls (Magic). CurrentRow: " + _currentRow);
             var skippedItems = CustomChest.items.Take(ItemsPerRow * _currentRow).ToList();
             var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            MegaStorageMod.Logger.VerboseLog("Skipped: " + skippedItems.Count);
-            MegaStorageMod.Logger.VerboseLog("Shown: " + shownItems.Count);
+            MegaStorageMod.Logger.VerboseLog("Skipped items: " + skippedItems.Count);
+            MegaStorageMod.Logger.VerboseLog("Shown items: " + shownItems.Count);
             CustomChest.items.Clear();
             CustomChest.items.AddRange(skippedItems);
             CustomChest.items.AddRange(shownItems);

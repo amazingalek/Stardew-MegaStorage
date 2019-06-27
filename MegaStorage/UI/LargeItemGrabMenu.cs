@@ -181,6 +181,10 @@ namespace MegaStorage.UI
             if (heldItem == null && showReceivingMenu)
             {
                 heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
+                if (HaveNulls())
+                {
+                    ClearNulls();
+                }
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
                     behaviorOnItemGrab(heldItem, Game1.player);
@@ -294,7 +298,10 @@ namespace MegaStorage.UI
                 heldItem = ItemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
-                    FixItemDupeBug();
+                    if (HaveNulls())
+                    {
+                        ClearNulls();
+                    }
                     behaviorOnItemGrab(heldItem, Game1.player);
                     if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
                         ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
@@ -347,22 +354,29 @@ namespace MegaStorage.UI
             }
         }
 
+        private bool HaveNulls()
+        {
+            var nullsInMenu = ItemsToGrabMenu.actualInventory.Count(x => x == null);
+            var nullsInChest = CustomChest.items.Count(x => x == null);
+            return nullsInMenu > nullsInChest;
+        }
+
+        protected virtual void ClearNulls()
+        {
+            MegaStorageMod.Logger.VerboseLog("ClearNulls (Large)");
+            var shownItems = ItemsToGrabMenu.actualInventory.ToList();
+            MegaStorageMod.Logger.VerboseLog("Shown items: " + shownItems.Count);
+            CustomChest.items.Clear();
+            CustomChest.items.AddRange(shownItems);
+            CustomChest.clearNulls();
+            Refresh();
+        }
+
         private TemporaryAnimatedSprite CreatePoof(int x, int y)
         {
             return new TemporaryAnimatedSprite("TileSheets/animations",
                 new Rectangle(0, 320, 64, 64), 50f, 8, 0,
                 new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
-        }
-
-        protected virtual void FixItemDupeBug()
-        {
-            MegaStorageMod.Logger.VerboseLog("FixItemDupeBug (Magic)");
-            var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            MegaStorageMod.Logger.VerboseLog("Shown: " + shownItems.Count);
-            CustomChest.items.Clear();
-            CustomChest.items.AddRange(shownItems);
-            CustomChest.clearNulls();
-            Refresh();
         }
 
         public override void draw(SpriteBatch b)
