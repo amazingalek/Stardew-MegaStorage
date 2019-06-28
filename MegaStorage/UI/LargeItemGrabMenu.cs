@@ -181,7 +181,7 @@ namespace MegaStorage.UI
             if (heldItem == null && showReceivingMenu)
             {
                 heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
-                if (HaveNulls())
+                if (Game1.player.isInventoryFull())
                 {
                     ClearNulls();
                 }
@@ -298,7 +298,7 @@ namespace MegaStorage.UI
                 heldItem = ItemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
-                    if (HaveNulls())
+                    if (HasNulls())
                     {
                         ClearNulls();
                     }
@@ -354,7 +354,7 @@ namespace MegaStorage.UI
             }
         }
 
-        private bool HaveNulls()
+        private bool HasNulls()
         {
             var nullsInMenu = ItemsToGrabMenu.actualInventory.Count(x => x == null);
             var nullsInChest = CustomChest.items.Count(x => x == null);
