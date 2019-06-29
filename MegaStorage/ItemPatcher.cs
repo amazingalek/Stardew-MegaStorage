@@ -57,8 +57,7 @@ namespace MegaStorage
             _monitor.VerboseLog("OnInventoryChanged: converting");
 
             var index = Game1.player.Items.IndexOf(addedItem);
-            var item = Game1.player.Items[index];
-            Game1.player.Items[index] = item.ToCustomChest();
+            Game1.player.Items[index] = addedItem.ToCustomChest();
         }
 
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
