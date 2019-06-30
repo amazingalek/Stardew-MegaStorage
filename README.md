@@ -29,6 +29,7 @@ Names, descriptions and recipes for Large Chest and Magic Chest are configurable
 * Requires [SMAPI](https://smapi.io/).
 * Supports multiplayers and controllers.
 * Compatible with Chests Anywhere, Stack Everything, Automate, Carry Chest and content packs for Content Patcher and Json Assets.
+* Minor incompatibility with Convenient Chests. The mods work well together except for categories not being saved.
 * NOT compatible with Save Anywhere. Using these mods together may result in crashes and loss of items.
 
 # Is this safe?
