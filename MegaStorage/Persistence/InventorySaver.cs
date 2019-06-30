@@ -14,13 +14,14 @@ namespace MegaStorage.Persistence
 
         private readonly IModHelper _modHelper;
         private readonly IMonitor _monitor;
-
+        private readonly IConvenientChestsAPI _convenientChestsAPI;
         private Dictionary<int, CustomChest> _inventoryCustomChests;
 
-        public InventorySaver(IModHelper modHelper, IMonitor monitor)
+        public InventorySaver(IModHelper modHelper, IMonitor monitor, IConvenientChestsAPI convenientChestsAPI)
         {
             _modHelper = modHelper;
             _monitor = monitor;
+            _convenientChestsAPI = convenientChestsAPI;
         }
 
         public void HideAndSaveCustomChests()
@@ -33,6 +34,7 @@ namespace MegaStorage.Persistence
             {
                 var chest = customChest.ToChest();
                 var index = Game1.player.Items.IndexOf(customChest);
+                _convenientChestsAPI.CopyChestData(customChest, chest);
                 Game1.player.Items[index] = chest;
                 var deserializedChest = customChest.ToDeserializedChest(index);
                 _monitor.VerboseLog($"Hiding and saving: {deserializedChest}");
@@ -88,6 +90,7 @@ namespace MegaStorage.Persistence
                 var chest = (Chest)Game1.player.Items[deserializedChest.InventoryIndex];
                 var customChest = chest.ToCustomChest(deserializedChest.ChestType);
                 _monitor.VerboseLog($"Loading: {deserializedChest}");
+                _convenientChestsAPI.CopyChestData(chest, customChest);
                 Game1.player.Items[deserializedChest.InventoryIndex] = customChest;
             }
 

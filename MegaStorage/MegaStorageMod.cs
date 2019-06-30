@@ -27,15 +27,25 @@ namespace MegaStorage
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
+            IConvenientChestsAPI convenientChestsAPI = Helper.ModRegistry.GetApi<IConvenientChestsAPI>("aEnigma.ConvenientChests");
+            if (convenientChestsAPI != null)
+            {
+                Monitor.Log("Convenient Chests found, integration enabled");
+            }
+            else
+            {
+                convenientChestsAPI = new MockConvenientChestsAPI();
+            }
+
             var itemPatcher = new ItemPatcher(Helper, Monitor);
             var spritePatcher = new SpritePatcher(Helper, Monitor);
             var farmhandMonitor = new FarmhandMonitor(Helper, Monitor);
             var savers = new ISaver[]
             {
-                new InventorySaver(Helper, Monitor),
-                new FarmhandInventorySaver(Helper, Monitor),
-                new LocationSaver(Helper, Monitor),
-                new LocationInventorySaver(Helper, Monitor)
+                new InventorySaver(Helper, Monitor, convenientChestsAPI),
+                new FarmhandInventorySaver(Helper, Monitor, convenientChestsAPI),
+                new LocationSaver(Helper, Monitor, convenientChestsAPI),
+                new LocationInventorySaver(Helper, Monitor, convenientChestsAPI)
             };
             var saveManager = new SaveManager(Helper, Monitor, farmhandMonitor, savers);
 

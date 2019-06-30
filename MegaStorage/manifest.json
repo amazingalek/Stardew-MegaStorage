@@ -6,5 +6,12 @@
   "UniqueID": "Alek.MegaStorage",
   "EntryDll": "MegaStorage.dll",
   "MinimumApiVersion": "2.10.0",
-  "UpdateKeys": [ "Nexus:4089" ]
+  "UpdateKeys": [ "Nexus:4089" ],
+  "Dependencies": [
+    {
+      "UniqueID": "aEnigma.ConvenientChests",
+      "MinimumVersion": "1.1.1",
+      "IsRequired": false
+    }
+  ]
 }

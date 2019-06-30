@@ -15,13 +15,14 @@ namespace MegaStorage.Persistence
 
         private readonly IModHelper _modHelper;
         private readonly IMonitor _monitor;
-
+        private readonly IConvenientChestsAPI _convenientChestsAPI;
         private Dictionary<GameLocation, Dictionary<Vector2, CustomChest>> _locationCustomChests;
 
-        public LocationSaver(IModHelper modHelper, IMonitor monitor)
+        public LocationSaver(IModHelper modHelper, IMonitor monitor, IConvenientChestsAPI convenientChestsAPI)
         {
             _modHelper = modHelper;
             _monitor = monitor;
+            _convenientChestsAPI = convenientChestsAPI;
         }
 
         public void HideAndSaveCustomChests()
@@ -42,6 +43,7 @@ namespace MegaStorage.Persistence
                     var position = customChestPosition.Key;
                     var customChest = customChestPosition.Value;
                     var chest = customChest.ToChest();
+                    _convenientChestsAPI.CopyChestData(customChest, chest);
                     location.objects[position] = chest;
                     var deserializedChest = customChest.ToDeserializedChest(locationName, position);
                     _monitor.VerboseLog($"Hiding and saving in {locationName}: {deserializedChest}");
@@ -113,6 +115,7 @@ namespace MegaStorage.Persistence
                     var chest = (Chest)location.objects[position];
                     var customChest = chest.ToCustomChest(deserializedChest.ChestType);
                     _monitor.VerboseLog($"Loading: {deserializedChest}");
+                    _convenientChestsAPI.CopyChestData(chest, customChest);
                     location.objects[position] = customChest;
                 }
             }
