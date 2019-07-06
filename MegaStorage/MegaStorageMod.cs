@@ -14,10 +14,6 @@ namespace MegaStorage
         public static IMonitor Logger;
         public static IReflectionHelper Reflection;
 
-        private SpritePatcher _spritePatcher;
-        private ItemPatcher _itemPatcher;
-        private SaveManager _saveManager;
-
         public override void Entry(IModHelper modHelper)
         {
             Monitor.VerboseLog("Entry of MegaStorageMod");
@@ -25,25 +21,28 @@ namespace MegaStorage
             Logger = Monitor;
             Reflection = modHelper.Reflection;
 
-            _spritePatcher = new SpritePatcher(Helper, Monitor);
-            _itemPatcher = new ItemPatcher(Helper, Monitor);
-            _saveManager = new SaveManager(Helper, Monitor,
-                new FarmhandMonitor(Helper, Monitor),
-                new InventorySaver(Helper, Monitor),
-                new FarmhandInventorySaver(Helper, Monitor),
-                new LocationSaver(Helper, Monitor),
-                new LocationInventorySaver(Helper, Monitor));
-
             modHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             modHelper.Events.Display.MenuChanged += OnMenuChanged;
         }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
+            var itemPatcher = new ItemPatcher(Helper, Monitor);
+            var spritePatcher = new SpritePatcher(Helper, Monitor);
+            var farmhandMonitor = new FarmhandMonitor(Helper, Monitor);
+            var savers = new ISaver[]
+            {
+                new InventorySaver(Helper, Monitor),
+                new FarmhandInventorySaver(Helper, Monitor),
+                new LocationSaver(Helper, Monitor),
+                new LocationInventorySaver(Helper, Monitor)
+            };
+            var saveManager = new SaveManager(Helper, Monitor, farmhandMonitor, savers);
+
             Helper.ReadConfig<ModConfig>();
-            Helper.Content.AssetEditors.Add(_spritePatcher);
-            _itemPatcher.Start();
-            _saveManager.Start();
+            Helper.Content.AssetEditors.Add(spritePatcher);
+            itemPatcher.Start();
+            saveManager.Start();
         }
 
         private void OnMenuChanged(object sender, MenuChangedEventArgs e)
