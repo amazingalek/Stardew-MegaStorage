@@ -10,39 +10,33 @@ namespace MegaStorage.UI
     {
         private const int OffsetY = 64;
 
-        private readonly int _index;
+        protected readonly int Index;
         private readonly string _name;
+        private readonly int _itemId;
         private readonly string[] _categoryNames;
-        private readonly int _x;
-        private readonly int _y;
+        protected readonly int X;
+        protected readonly int Y;
 
-        public ChestCategory(int index, string name, int itemId, string[] categoryNames, int x, int y) : base(new Rectangle(0, 0, 0, 0), new Object(itemId, 1))
+        public ChestCategory(int index, string name, int itemId, string[] categoryNames, int x, int y) : base(new Rectangle(0, 0, 0, 0), name)
         {
-            _index = index;
+            Index = index;
             _name = name;
+            _itemId = itemId;
             _categoryNames = categoryNames;
-            _x = x;
-            _y = y;
+            X = x;
+            Y = y;
         }
 
-        public void Draw(SpriteBatch b)
+        public virtual void Draw(SpriteBatch b)
         {
-            b.Draw(Game1.mouseCursors, new Vector2(_x - 72, _y + 32 + _index * OffsetY + 16), new Rectangle(16, 368, 12, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            b.Draw(Game1.mouseCursors, new Vector2(_x - 72, _y + 32 + _index * OffsetY - 16), new Rectangle(21, 368, 11, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-
-            if (_categoryNames == null)
-            {
-                b.Draw(Game1.mouseCursors, new Vector2(_x - 52, _y + 32 - 44), new Rectangle(sbyte.MaxValue, 412, 10, 11), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            }
-            else
-            {
-                b.Draw(Game1.objectSpriteSheet, new Vector2(_x - 64, _y + 32 + _index * OffsetY - 52), Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, item.ParentSheetIndex, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            }
+            b.Draw(Game1.mouseCursors, new Vector2(X - 72, Y + 32 + Index * OffsetY + 16), new Rectangle(16, 368, 12, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(X - 72, Y + 32 + Index * OffsetY - 16), new Rectangle(21, 368, 11, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.objectSpriteSheet, new Vector2(X - 64, Y + 32 + Index * OffsetY - 52), Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, _itemId, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
         }
 
-        public bool BelongsToCategory(Item i)
+        public virtual bool BelongsToCategory(Item i)
         {
-            return _categoryNames == null || _categoryNames.Contains(i.getCategoryName());
+            return _categoryNames.Contains(i.getCategoryName());
         }
 
         public void DrawTooltip()
