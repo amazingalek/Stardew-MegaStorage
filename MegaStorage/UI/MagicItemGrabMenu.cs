@@ -41,7 +41,7 @@ namespace MegaStorage.UI
 
         public override void receiveScrollWheelAction(int direction)
         {
-            MegaStorageMod.Logger.VerboseLog("receiveScrollWheelAction");
+            Monitor.VerboseLog("receiveScrollWheelAction");
             if (direction < 0 && _currentRow < _maxRow)
             {
                 _currentRow++;
@@ -80,11 +80,11 @@ namespace MegaStorage.UI
 
         protected override void ClearNulls()
         {
-            MegaStorageMod.Logger.VerboseLog("ClearNulls (Magic). CurrentRow: " + _currentRow);
+            Monitor.VerboseLog("ClearNulls (Magic). CurrentRow: " + _currentRow);
             var skippedItems = CustomChest.items.Take(ItemsPerRow * _currentRow).ToList();
             var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            MegaStorageMod.Logger.VerboseLog("Skipped items: " + skippedItems.Count);
-            MegaStorageMod.Logger.VerboseLog("Shown items: " + shownItems.Count);
+            Monitor.VerboseLog("Skipped items: " + skippedItems.Count);
+            Monitor.VerboseLog("Shown items: " + shownItems.Count);
             CustomChest.items.Clear();
             CustomChest.items.AddRange(skippedItems);
             CustomChest.items.AddRange(shownItems);

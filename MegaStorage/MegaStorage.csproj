@@ -46,6 +46,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MenuChanger.cs" />
     <Compile Include="Models\CustomChestConfig.cs" />
     <Compile Include="Models\ModConfig.cs" />
     <Compile Include="Persistence\FarmhandInventorySaver.cs" />

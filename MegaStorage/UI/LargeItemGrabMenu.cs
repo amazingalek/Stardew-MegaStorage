@@ -38,14 +38,19 @@ namespace MegaStorage.UI
         public ClickableTextureComponent UpButton;
         public ClickableTextureComponent DownButton;
 
+        protected IModHelper Helper;
+        protected IMonitor Monitor;
+
         public LargeItemGrabMenu(CustomChest customChest)
             : base(customChest.items, false, true, InventoryMenu.highlightAllItems, customChest.grabItemFromInventory, null, customChest.grabItemFromChest,
                 false, true, true, true, true, 1, customChest, -1, customChest)
         {
+            Helper = MegaStorageMod.Instance.Helper;
+            Monitor = MegaStorageMod.Instance.Monitor;
             CustomChest = customChest;
-            _sourceItemReflected = MegaStorageMod.Reflection.GetField<Item>(this, "sourceItem");
-            _poofReflected = MegaStorageMod.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
-            _behaviorFunctionReflected = MegaStorageMod.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
+            _sourceItemReflected = Helper.Reflection.GetField<Item>(this, "sourceItem");
+            _poofReflected = Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
+            _behaviorFunctionReflected = Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
             ItemsToGrabMenu = new InventoryMenu(xPositionOnScreen + 32, yPositionOnScreen, false, customChest.items, null, Capacity, Rows);
             ItemsToGrabMenu.movePosition(0, MoveTop);
             inventory.movePosition(0, MoveBottom);
@@ -363,9 +368,9 @@ namespace MegaStorage.UI
 
         protected virtual void ClearNulls()
         {
-            MegaStorageMod.Logger.VerboseLog("ClearNulls (Large)");
+            Monitor.VerboseLog("ClearNulls (Large)");
             var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            MegaStorageMod.Logger.VerboseLog("Shown items: " + shownItems.Count);
+            Monitor.VerboseLog("Shown items: " + shownItems.Count);
             CustomChest.items.Clear();
             CustomChest.items.AddRange(shownItems);
             CustomChest.clearNulls();

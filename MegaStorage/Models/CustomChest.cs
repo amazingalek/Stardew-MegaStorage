@@ -33,16 +33,21 @@ namespace MegaStorage.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
+        protected IModHelper Helper;
+        protected IMonitor Monitor;
+
         protected CustomChest(CustomChestConfig config) : base(true)
         {
+            Helper = MegaStorageMod.Instance.Helper;
+            Monitor = MegaStorageMod.Instance.Monitor;
             Config = config;
             ParentSheetIndex = config.Id;
-            _currentLidFrameReflected = MegaStorageMod.Reflection.GetField<int>(this, "currentLidFrame");
+            _currentLidFrameReflected = Helper.Reflection.GetField<int>(this, "currentLidFrame");
             startingLidFrame.Value = config.Id + 1;
             name = config.Name;
-            _sprite = MegaStorageMod.ModHelper.Content.Load<Texture2D>(config.SpritePath);
-            _spriteBW = MegaStorageMod.ModHelper.Content.Load<Texture2D>(config.SpriteBWPath);
-            _spriteBraces = MegaStorageMod.ModHelper.Content.Load<Texture2D>(config.SpriteBracesPath);
+            _sprite = Helper.Content.Load<Texture2D>(config.SpritePath);
+            _spriteBW = Helper.Content.Load<Texture2D>(config.SpriteBWPath);
+            _spriteBraces = Helper.Content.Load<Texture2D>(config.SpriteBracesPath);
         }
 
         public override string getDescription() => Config.Description;
