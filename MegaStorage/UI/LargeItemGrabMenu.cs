@@ -42,6 +42,7 @@ namespace MegaStorage.UI
         protected IMonitor Monitor;
 
         private ChestCategory[] _chestCategories;
+        private ChestCategory _hoverCategory;
 
         public LargeItemGrabMenu(CustomChest customChest)
             : base(customChest.items, false, true, InventoryMenu.highlightAllItems, customChest.grabItemFromInventory, null, customChest.grabItemFromChest,
@@ -406,6 +407,12 @@ namespace MegaStorage.UI
             drawMouse(b);
         }
 
+        public override void performHoverAction(int x, int y)
+        {
+            base.performHoverAction(x, y);
+            _hoverCategory = _chestCategories.FirstOrDefault(c => c.containsPoint(x, y));
+        }
+
         protected void Draw(SpriteBatch b)
         {
             // opaque background
@@ -430,6 +437,8 @@ namespace MegaStorage.UI
             Game1.drawDialogueBox(ItemsToGrabMenu.xPositionOnScreen - borderWidth - spaceToClearSideBorder, ItemsToGrabMenu.yPositionOnScreen - borderWidth - spaceToClearTopBorder + TopBackgroundChange,
                 ItemsToGrabMenu.width + borderWidth * 2 + spaceToClearSideBorder * 2, ItemsToGrabMenu.height + spaceToClearTopBorder + borderWidth * 2 + TopHeightChange, false, true, null, false, true);
             ItemsToGrabMenu.draw(b);
+
+            _hoverCategory?.DrawTooltip(b);
 
             if (colorPickerToggleButton != null)
                 colorPickerToggleButton.draw(b);

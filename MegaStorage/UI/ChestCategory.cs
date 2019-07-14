@@ -8,7 +8,7 @@ namespace MegaStorage.UI
 {
     public class ChestCategory : ClickableComponent
     {
-        private const int OffsetY = 64;
+        protected const int OffsetY = 64;
 
         protected readonly int Index;
         private readonly string _name;
@@ -17,7 +17,7 @@ namespace MegaStorage.UI
         protected readonly int X;
         protected readonly int Y;
 
-        public ChestCategory(int index, string name, int itemId, string[] categoryNames, int x, int y) : base(new Rectangle(0, 0, 0, 0), name)
+        public ChestCategory(int index, string name, int itemId, string[] categoryNames, int x, int y) : base(new Rectangle(x - 72, y + 32 + index * OffsetY - 64, 64, 64), name)
         {
             Index = index;
             _name = name;
@@ -39,8 +39,9 @@ namespace MegaStorage.UI
             return _categoryNames.Contains(i.getCategoryName());
         }
 
-        public void DrawTooltip()
+        public void DrawTooltip(SpriteBatch b)
         {
+            IClickableMenu.drawHoverText(b, _name, Game1.smallFont);
         }
 
     }

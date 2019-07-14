@@ -6,8 +6,6 @@ namespace MegaStorage.UI
 {
     public class AllCategory : ChestCategory
     {
-        private const int OffsetY = 64;
-
         public AllCategory(int index, int x, int y) : base(index, "All", -1, null, x, y) { }
 
         public override void Draw(SpriteBatch b)
