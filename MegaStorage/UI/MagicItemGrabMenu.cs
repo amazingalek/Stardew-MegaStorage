@@ -33,8 +33,9 @@ namespace MegaStorage.UI
 
         public override void Refresh()
         {
-            ItemsToGrabMenu.actualInventory = CustomChest.items.Skip(ItemsPerRow * _currentRow).ToList();
-            _maxRow = (CustomChest.items.Count - 1) / 12 + 1 - Rows;
+            var shownItems = CustomChest.items.Where(x => x.SpecialVariable != -999).ToList();
+            ItemsToGrabMenu.actualInventory = shownItems.Skip(ItemsPerRow * _currentRow).ToList();
+            _maxRow = (shownItems.Count - 1) / 12 + 1 - Rows;
             if (_currentRow > _maxRow)
                 _currentRow = _maxRow;
         }

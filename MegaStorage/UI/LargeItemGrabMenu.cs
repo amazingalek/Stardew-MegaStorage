@@ -43,6 +43,7 @@ namespace MegaStorage.UI
 
         private ChestCategory[] _chestCategories;
         private ChestCategory _hoverCategory;
+        private ChestCategory _selectedCategory;
 
         public LargeItemGrabMenu(CustomChest customChest)
             : base(customChest.items, false, true, InventoryMenu.highlightAllItems, customChest.grabItemFromInventory, null, customChest.grabItemFromChest,
@@ -64,14 +65,15 @@ namespace MegaStorage.UI
 
         private void SetupCategories()
         {
+            _selectedCategory = new AllCategory(0, xPositionOnScreen, yPositionOnScreen);
+            _selectedCategory.Filter(CustomChest.items);
             _chestCategories = new[]
             {
-                new AllCategory(0, xPositionOnScreen, yPositionOnScreen),
+                _selectedCategory,
                 new ChestCategory(1, "Crops", 264, new []{ "Forage", "Flower", "Fruit", "Vegetable", "Seed"}, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(2, "Tools", 388, new []{ "Tool" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(3, "Resource", 80, new []{ "Resource", "Mineral", "Crafting", "Monster Loot" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(4, "Cooking", 142, new []{ "Cooking", "Fish", "Animal Product", "Artisan Goods" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(5, "Misc", 93, new []{ "" }, xPositionOnScreen, yPositionOnScreen)
+                new ChestCategory(2, "Resources", 80, new []{ "Resource", "Mineral", "Crafting", "Monster Loot" }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(3, "Cooking", 142, new []{ "Cooking", "Fish", "Animal Product", "Artisan Goods" }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(4, "Misc", 516, new []{ "Tool", "Artifact", "" }, xPositionOnScreen, yPositionOnScreen)
             };
         }
 
@@ -173,11 +175,12 @@ namespace MegaStorage.UI
 
         public virtual void Refresh()
         {
-            ItemsToGrabMenu.actualInventory = CustomChest.items.ToList();
+            ItemsToGrabMenu.actualInventory = CustomChest.items.Where(x => x.SpecialVariable != -999).ToList();
         }
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            FilterCategory();
             ReceiveLeftClickBase(x, y, !destroyItemOnClick);
             if (chestColorPicker != null)
             {
@@ -288,6 +291,15 @@ namespace MegaStorage.UI
                 inventory.onAddItem?.Invoke(heldItem, Game1.player);
                 heldItem = null;
             }
+        }
+
+        private void FilterCategory()
+        {
+            if (_hoverCategory == null)
+                return;
+            _hoverCategory.Filter(CustomChest.items);
+            _selectedCategory = _hoverCategory;
+            Refresh();
         }
 
         private void ReceiveLeftClickBase(int x, int y, bool playSound = true)
@@ -430,8 +442,9 @@ namespace MegaStorage.UI
 
             foreach (var chestCategory in _chestCategories)
             {
-                chestCategory.Draw(b);
+                chestCategory.Draw(b, Color.White);
             }
+            _selectedCategory?.Draw(b, Color.GreenYellow);
 
             // top inventory
             Game1.drawDialogueBox(ItemsToGrabMenu.xPositionOnScreen - borderWidth - spaceToClearSideBorder, ItemsToGrabMenu.yPositionOnScreen - borderWidth - spaceToClearTopBorder + TopBackgroundChange,
