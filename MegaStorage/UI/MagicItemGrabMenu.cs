@@ -22,20 +22,21 @@ namespace MegaStorage.UI
             Draw(b);
             if (_currentRow < _maxRow)
             {
-                DownButton.draw(b);
+                DownArrow.draw(b);
             }
             if (_currentRow > 0)
             {
-                UpButton.draw(b);
+                UpArrow.draw(b);
             }
             drawMouse(b);
         }
 
         public override void Refresh()
         {
-            var shownItems = CustomChest.items.Where(x => x.SpecialVariable != -999).ToList();
-            ItemsToGrabMenu.actualInventory = shownItems.Skip(ItemsPerRow * _currentRow).ToList();
-            _maxRow = (shownItems.Count - 1) / 12 + 1 - Rows;
+            Monitor.Log("Category: " + SelectedCategory.name);
+            var filteredItems = SelectedCategory.Filter(CustomChest.items);
+            ItemsToGrabMenu.actualInventory = filteredItems.Skip(ItemsPerRow * _currentRow).ToList();
+            _maxRow = (filteredItems.Count - 1) / 12 + 1 - Rows;
             if (_currentRow > _maxRow)
                 _currentRow = _maxRow;
         }
@@ -57,17 +58,17 @@ namespace MegaStorage.UI
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             base.receiveLeftClick(x, y, true);
-            if (UpButton.containsPoint(x, y) && _currentRow > 0)
+            if (UpArrow.containsPoint(x, y) && _currentRow > 0)
             {
                 Game1.playSound("coin");
                 _currentRow--;
-                UpButton.scale = UpButton.baseScale;
+                UpArrow.scale = UpArrow.baseScale;
             }
-            if (DownButton.containsPoint(x, y) && _currentRow < _maxRow)
+            if (DownArrow.containsPoint(x, y) && _currentRow < _maxRow)
             {
                 Game1.playSound("coin");
                 _currentRow++;
-                DownButton.scale = DownButton.baseScale;
+                DownArrow.scale = DownArrow.baseScale;
             }
             Refresh();
         }
@@ -75,8 +76,8 @@ namespace MegaStorage.UI
         public override void performHoverAction(int x, int y)
         {
             base.performHoverAction(x, y);
-            UpButton.scale = UpButton.containsPoint(x, y) ? Math.Min(UpButton.scale + 0.02f, UpButton.baseScale + 0.1f) : Math.Max(UpButton.scale - 0.02f, UpButton.baseScale);
-            DownButton.scale = DownButton.containsPoint(x, y) ? Math.Min(DownButton.scale + 0.02f, DownButton.baseScale + 0.1f) : Math.Max(DownButton.scale - 0.02f, DownButton.baseScale);
+            UpArrow.scale = UpArrow.containsPoint(x, y) ? Math.Min(UpArrow.scale + 0.02f, UpArrow.baseScale + 0.1f) : Math.Max(UpArrow.scale - 0.02f, UpArrow.baseScale);
+            DownArrow.scale = DownArrow.containsPoint(x, y) ? Math.Min(DownArrow.scale + 0.02f, DownArrow.baseScale + 0.1f) : Math.Max(DownArrow.scale - 0.02f, DownArrow.baseScale);
         }
 
         protected override void ClearNulls()

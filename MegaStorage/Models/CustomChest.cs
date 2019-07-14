@@ -14,7 +14,7 @@ namespace MegaStorage.Models
     {
         public abstract int Capacity { get; }
         public abstract ChestType ChestType { get; }
-        public abstract LargeItemGrabMenu CreateItemGrabMenu();
+        protected abstract LargeItemGrabMenu CreateItemGrabMenu();
 
         public CustomChestConfig Config { get; }
         public string BigCraftableInfo => $"{Config.Name}/0/-300/Crafting -9/{Config.Description}/true/true/0";
@@ -240,5 +240,9 @@ namespace MegaStorage.Models
             }
         }
 
+        public LargeItemGrabMenu GetItemGrabMenu()
+        {
+            return _itemGrabMenu ?? (_itemGrabMenu = CreateItemGrabMenu());
+        }
     }
 }

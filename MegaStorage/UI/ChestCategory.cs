@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 
@@ -10,34 +9,26 @@ namespace MegaStorage.UI
 {
     public class ChestCategory : ClickableComponent
     {
-        protected const int OffsetY = 64;
+        private const int OffsetY = 76;
 
-        protected readonly int Index;
-        protected readonly int X;
-        protected readonly int Y;
-
+        private readonly int _index;
         private readonly string _name;
-        private readonly int _itemId;
+        private readonly Vector2 _spritePos;
         private readonly string[] _categoryNames;
 
-        private readonly IMonitor _monitor;
-
-        public ChestCategory(int index, string name, int itemId, string[] categoryNames, int x, int y) : base(new Rectangle(x - 72, y + 32 + index * OffsetY - 64, 64, 64), name)
+        public ChestCategory(int index, string name, Vector2 spritePos, string[] categoryNames, int x, int y) : base(new Rectangle(x - 72, y + 36 + index * OffsetY - 64, 64, 64), name)
         {
-            _monitor = MegaStorageMod.Instance.Monitor;
-            Index = index;
+            _index = index;
             _name = name;
-            _itemId = itemId;
+            _spritePos = spritePos;
             _categoryNames = categoryNames;
-            X = x;
-            Y = y;
         }
 
-        public virtual void Draw(SpriteBatch b, Color color)
+        public void Draw(SpriteBatch b, int x, int y)
         {
-            b.Draw(Game1.mouseCursors, new Vector2(X - 72, Y + 32 + Index * OffsetY + 16), new Rectangle(16, 368, 12, 16), color, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            b.Draw(Game1.mouseCursors, new Vector2(X - 72, Y + 32 + Index * OffsetY - 16), new Rectangle(21, 368, 11, 16), color, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            b.Draw(Game1.objectSpriteSheet, new Vector2(X - 64, Y + 32 + Index * OffsetY - 52), Game1.getSourceRectForStandardTileSheet(Game1.objectSpriteSheet, _itemId, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(x - 72, y + 32 + _index * OffsetY + 16), new Rectangle(16, 368, 12, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(x - 72, y + 32 + _index * OffsetY - 16), new Rectangle(21, 368, 11, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(x - 52, y + 40 + _index * OffsetY - 52), new Rectangle((int)_spritePos.X, (int)_spritePos.Y,10, 11), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
         }
 
         public void DrawTooltip(SpriteBatch b)
@@ -45,18 +36,14 @@ namespace MegaStorage.UI
             IClickableMenu.drawHoverText(b, _name, Game1.smallFont);
         }
 
-        public void Filter(IList<Item> items)
+        public List<Item> Filter(IList<Item> items)
         {
-            _monitor.Log("Filtering " + _name);
-            foreach (var i in items)
-            {
-                i.SpecialVariable = BelongsToCategory(i) ? 0 : -999;
-            }
+            return items.Where(BelongsToCategory).ToList();
         }
 
-        protected virtual bool BelongsToCategory(Item i)
+        private bool BelongsToCategory(Item i)
         {
-            return _categoryNames.Contains(i.getCategoryName());
+            return _categoryNames == null || _categoryNames.Contains(i.getCategoryName());
         }
     }
 }
