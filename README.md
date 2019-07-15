@@ -20,6 +20,15 @@ Recipe:
 * 50 Solar Essence
 * 50 Void Essence
 
+# Categories
+From v1.2.0 you can filter the contents by clicking on the categories to the left of the chest inventory. Using vanilla UI there was only room for 6 categories. They are so far not configurable.
+* All
+* Crops: Forage, Fruit, Flower, Vegetable, Seed, Fertilizer
+* Materials: Mineral, Resource, Crafting, Monster Loot
+* Cooking: Cooking, Animal Product, Artisan Goods
+* Fish: Fish, Fishing Tackle, Bait
+* Misc: Tool, Footware, Ring, Furniture, Decor, Trash, (no category) 
+
 # Configuration
 Names, descriptions and recipes for Large Chest and Magic Chest are configurable in config.json. The format of recipes is pairs of item IDs and how many of that item to use. Default:
 * Large Chest: 388 100 334 5 335 5
