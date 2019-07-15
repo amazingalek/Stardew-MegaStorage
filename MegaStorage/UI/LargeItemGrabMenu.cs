@@ -39,8 +39,6 @@ namespace MegaStorage.UI
         public List<ClickableComponent> CategoryComponents;
 
         protected readonly CustomChest CustomChest;
-        protected IModHelper Helper;
-        protected IMonitor Monitor;
 
         private ChestCategory[] _chestCategories;
         private ChestCategory _hoverCategory;
@@ -50,12 +48,10 @@ namespace MegaStorage.UI
             : base(customChest.items, false, true, InventoryMenu.highlightAllItems, customChest.grabItemFromInventory, null, customChest.grabItemFromChest,
                 false, true, true, true, true, 1, customChest, -1, customChest)
         {
-            Helper = MegaStorageMod.Instance.Helper;
-            Monitor = MegaStorageMod.Instance.Monitor;
             CustomChest = customChest;
-            _sourceItemReflected = Helper.Reflection.GetField<Item>(this, "sourceItem");
-            _poofReflected = Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
-            _behaviorFunctionReflected = Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
+            _sourceItemReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<Item>(this, "sourceItem");
+            _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
+            _behaviorFunctionReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
             ItemsToGrabMenu = new InventoryMenu(xPositionOnScreen + 32, yPositionOnScreen, false, customChest.items, null, Capacity, Rows);
             ItemsToGrabMenu.movePosition(0, MoveTop);
             inventory.movePosition(0, MoveBottom);
@@ -219,7 +215,7 @@ namespace MegaStorage.UI
 
         public virtual void Refresh()
         {
-            Monitor.Log("Category: " + SelectedCategory.name);
+            MegaStorageMod.Instance.Monitor.VerboseLog("Category: " + SelectedCategory.name);
             ItemsToGrabMenu.actualInventory = SelectedCategory.Filter(CustomChest.items);
         }
 
@@ -442,9 +438,9 @@ namespace MegaStorage.UI
 
         protected virtual void ClearNulls()
         {
-            Monitor.VerboseLog("ClearNulls (Large)");
+            MegaStorageMod.Instance.Monitor.VerboseLog("ClearNulls (Large)");
             var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            Monitor.VerboseLog("Shown items: " + shownItems.Count);
+            MegaStorageMod.Instance.Monitor.VerboseLog("Shown items: " + shownItems.Count);
             CustomChest.items.Clear();
             CustomChest.items.AddRange(shownItems);
             CustomChest.clearNulls();
