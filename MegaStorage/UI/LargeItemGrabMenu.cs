@@ -187,23 +187,26 @@ namespace MegaStorage.UI
             left0.leftNeighborID = CategoryComponents[0].myID;
             left1.leftNeighborID = CategoryComponents[1].myID;
             left2.leftNeighborID = CategoryComponents[2].myID;
-            left3.leftNeighborID = CategoryComponents[3].myID;
-            left4.leftNeighborID = CategoryComponents[4].myID;
-            left5.leftNeighborID = CategoryComponents[5].myID;
+            left3.leftNeighborID = CategoryComponents[4].myID;
+            left4.leftNeighborID = CategoryComponents[5].myID;
+            left5.leftNeighborID = CategoryComponents[6].myID;
 
             CategoryComponents[0].rightNeighborID = left0.myID;
             CategoryComponents[1].rightNeighborID = left1.myID;
             CategoryComponents[2].rightNeighborID = left2.myID;
-            CategoryComponents[3].rightNeighborID = left3.myID;
-            CategoryComponents[4].rightNeighborID = left4.myID;
-            CategoryComponents[5].rightNeighborID = left5.myID;
+            CategoryComponents[3].rightNeighborID = left2.myID;
+            CategoryComponents[4].rightNeighborID = left3.myID;
+            CategoryComponents[5].rightNeighborID = left4.myID;
+            CategoryComponents[6].rightNeighborID = left5.myID;
 
             CategoryComponents[0].downNeighborID = CategoryComponents[1].myID;
             CategoryComponents[1].downNeighborID = CategoryComponents[2].myID;
             CategoryComponents[2].downNeighborID = CategoryComponents[3].myID;
             CategoryComponents[3].downNeighborID = CategoryComponents[4].myID;
             CategoryComponents[4].downNeighborID = CategoryComponents[5].myID;
+            CategoryComponents[5].downNeighborID = CategoryComponents[6].myID;
 
+            CategoryComponents[6].upNeighborID = CategoryComponents[5].myID;
             CategoryComponents[5].upNeighborID = CategoryComponents[4].myID;
             CategoryComponents[4].upNeighborID = CategoryComponents[3].myID;
             CategoryComponents[3].upNeighborID = CategoryComponents[2].myID;
