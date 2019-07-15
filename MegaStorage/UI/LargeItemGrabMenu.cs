@@ -88,14 +88,15 @@ namespace MegaStorage.UI
             _chestCategories = new[]
             {
                 new ChestCategory(0, "All", new Vector2(127, 412), null, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(1, "Crops", new Vector2(10, 427), new []{ "Forage", "Flower", "Fruit", "Vegetable", "Seed"}, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(2, "Materials", new Vector2(60, 427), new []{ "Resource", "Mineral", "Crafting", "Monster Loot" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(3, "Cooking", new Vector2(20, 427), new []{ "Cooking", "Fish", "Animal Product", "Artisan Goods" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(4, "Misc", new Vector2(30, 427), new []{ "Tool", "Artifact", "" }, xPositionOnScreen, yPositionOnScreen)
+                new ChestCategory(1, "Crops", new Vector2(10, 428), new []{ "Forage", "Flower", "Fruit", "Vegetable", "Seed", "Fertilizer"}, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(2, "Materials", new Vector2(60, 428), new []{ "Resource", "Mineral", "Crafting", "Monster Loot" }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(3, "Cooking", new Vector2(211, 373), new []{ "Cooking", "Animal Product", "Artisan Goods" }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(4, "Fishing", new Vector2(20, 428), new []{ "Fish", "Bait", "Fishing Tackle" }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(5, "Misc", new Vector2(30, 428), new []{ "Tool", "Artifact", "Furniture", "Decor", "Trash", "" }, xPositionOnScreen, yPositionOnScreen)
             };
             SelectedCategory = _chestCategories.First();
         }
-        
+
         private void SetupControllerSupport()
         {
             if (Game1.options.SnappyMenus)
