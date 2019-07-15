@@ -11,7 +11,7 @@ Recipe:
 * 5 Iron Bar
  
 # Magic Chest
-Infinite scrollable capacity. Might add filters/categories and searching in the future.
+Infinite scrollable capacity.
 
 Recipe:
 * 100 Hardwood
@@ -21,7 +21,7 @@ Recipe:
 * 50 Void Essence
 
 # Categories
-From v1.2.0 you can filter the contents by clicking on the categories to the left of the chest inventory. Using vanilla UI there was only room for 6 categories. They are so far not configurable.
+From v1.2.0 you can filter chest contents by clicking on the categories to the left of the chest inventory. Using vanilla UI there was only room for 7 categories. They are so far not configurable.
 * All
 * Crops: Forage, Fruit, Flower, Vegetable
 * Seeds: Seed, Fertilizer
