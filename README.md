@@ -28,7 +28,7 @@ From v1.2.0 you can filter chest contents by clicking on the categories to the l
 * Materials: Mineral, Resource, Crafting, Monster Loot
 * Cooking: Cooking, Animal Product, Artisan Goods
 * Fish: Fish, Fishing Tackle, Bait
-* Misc: Tool, Footware, Ring, Furniture, Decor, Trash, (no category) 
+* Misc: Tool, Footware, Ring, Artifact, Furniture, Decor, Trash, (no category) 
 
 # Configuration
 Names, descriptions, IDs and recipes for Large Chest and Magic Chest are configurable in config.json. The format of recipes is pairs of item IDs and how many of that item to use. Default:
