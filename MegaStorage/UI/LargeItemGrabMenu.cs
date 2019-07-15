@@ -83,12 +83,13 @@ namespace MegaStorage.UI
         {
             _chestCategories = new[]
             {
-                new AllCategory(0, "All", new Vector2(127, 412), xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(1, "Crops", new Vector2(10, 428), new []{ -81, -80, -79, -75, -74, -19 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(2, "Materials", new Vector2(60, 428), new []{ -15, -16, -2, -12, -8, -28 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(3, "Cooking", new Vector2(211, 373), new []{ -25, -7, -18, -14, -6, -5, -27, -26 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(4, "Fishing", new Vector2(20, 428), new []{ -4, -21, -22 }, xPositionOnScreen, yPositionOnScreen),
-                new MiscCategory(5, "Misc", new Vector2(30, 428), new []{ -24, -20 }, xPositionOnScreen, yPositionOnScreen)
+                new AllCategory(0, "All", xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(1, "Crops", new Vector2(640, 80), new []{ -81, -80, -79, -75 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(2, "Seeds", new Vector2(656, 64), new []{ -74, -19 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(3, "Materials", new Vector2(672, 64), new []{ -15, -16, -2, -12, -8, -28 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(4, "Cooking", new Vector2(688, 64), new []{ -25, -7, -18, -14, -6, -5, -27, -26 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(5, "Fishing", new Vector2(640, 64), new []{ -4, -21, -22 }, xPositionOnScreen, yPositionOnScreen),
+                new MiscCategory(6, "Misc", new Vector2(672, 80), new []{ -24, -20 }, xPositionOnScreen, yPositionOnScreen)
             };
             SelectedCategory = _chestCategories.First();
         }
