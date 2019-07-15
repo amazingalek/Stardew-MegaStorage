@@ -9,38 +9,32 @@ namespace MegaStorage
     {
         public static MegaStorageMod Instance;
 
-        private SpritePatcher _spritePatcher;
-        private ItemPatcher _itemPatcher;
-        private MenuChanger _menuChanger;
-        private SaveManager _saveManager;
-
         public override void Entry(IModHelper modHelper)
         {
             Monitor.VerboseLog("Entry of MegaStorageMod");
             Instance = this;
+            Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+        }
 
+        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
+        {
             var convenientChestsApi = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
-            
-            _spritePatcher = new SpritePatcher(Helper, Monitor);
-            _itemPatcher = new ItemPatcher(Helper, Monitor);
-            _menuChanger = new MenuChanger(Helper, Monitor);
-            _saveManager = new SaveManager(Helper, Monitor,
+
+            var spritePatcher = new SpritePatcher(Helper, Monitor);
+            var itemPatcher = new ItemPatcher(Helper, Monitor);
+            var menuChanger = new MenuChanger(Helper, Monitor);
+            var saveManager = new SaveManager(Helper, Monitor,
                 new FarmhandMonitor(Helper, Monitor),
                 new InventorySaver(Helper, Monitor, convenientChestsApi),
                 new FarmhandInventorySaver(Helper, Monitor, convenientChestsApi),
                 new LocationSaver(Helper, Monitor, convenientChestsApi),
                 new LocationInventorySaver(Helper, Monitor, convenientChestsApi));
 
-            Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-        }
-
-        private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
-        {
             Helper.ReadConfig<ModConfig>();
-            Helper.Content.AssetEditors.Add(_spritePatcher);
-            _itemPatcher.Start();
-            _saveManager.Start();
-            _menuChanger.Start();
+            Helper.Content.AssetEditors.Add(spritePatcher);
+            itemPatcher.Start();
+            saveManager.Start();
+            menuChanger.Start();
         }
 
     }
