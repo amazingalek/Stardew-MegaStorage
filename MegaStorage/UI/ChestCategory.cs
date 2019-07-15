@@ -15,14 +15,14 @@ namespace MegaStorage.UI
         private readonly int _index;
         private readonly string _name;
         private readonly Vector2 _spritePos;
-        private readonly string[] _categoryNames;
+        private readonly int[] _categoryIds;
 
-        public ChestCategory(int index, string name, Vector2 spritePos, string[] categoryNames, int x, int y) : base(new Rectangle(x - 72, y + StartY + index * OffsetY - 60, 64, OffsetY), name)
+        public ChestCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y) : base(new Rectangle(x - 72, y + StartY + index * OffsetY - 60, 64, OffsetY), name)
         {
             _index = index;
             _name = name;
             _spritePos = spritePos;
-            _categoryNames = categoryNames;
+            _categoryIds = categoryIds;
         }
 
         public void Draw(SpriteBatch b, int x, int y)
@@ -42,9 +42,9 @@ namespace MegaStorage.UI
             return items.Where(BelongsToCategory).ToList();
         }
 
-        private bool BelongsToCategory(Item i)
+        protected virtual bool BelongsToCategory(Item i)
         {
-            return _categoryNames == null || _categoryNames.Any(categoryName => categoryName.Contains(i.getCategoryName()));
+            return _categoryIds.Contains(i.Category);
         }
     }
 }

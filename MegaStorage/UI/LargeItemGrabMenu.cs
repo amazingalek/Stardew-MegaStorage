@@ -87,12 +87,12 @@ namespace MegaStorage.UI
         {
             _chestCategories = new[]
             {
-                new ChestCategory(0, "All", new Vector2(127, 412), null, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(1, "Crops", new Vector2(10, 428), new []{ "Forage", "Flower", "Fruit", "Vegetable", "Seed", "Fertilizer"}, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(2, "Materials", new Vector2(60, 428), new []{ "Resource", "Mineral", "Crafting", "Monster Loot" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(3, "Cooking", new Vector2(211, 373), new []{ "Cooking", "Animal Product", "Artisan Goods" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(4, "Fishing", new Vector2(20, 428), new []{ "Fish", "Bait", "Fishing Tackle" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(5, "Misc", new Vector2(30, 428), new []{ "Tool", "Ring", "Footwear", "Level", "Artifact", "Furniture", "Decor", "Trash", "" }, xPositionOnScreen, yPositionOnScreen)
+                new AllCategory(0, "All", new Vector2(127, 412), xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(1, "Crops", new Vector2(10, 428), new []{ -81, -80, -79, -75, -74, -19 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(2, "Materials", new Vector2(60, 428), new []{ -15, -16, -2, -12, -8, -28 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(3, "Cooking", new Vector2(211, 373), new []{ -25, -7, -18, -14, -6, -5, -27, -26 }, xPositionOnScreen, yPositionOnScreen),
+                new ChestCategory(4, "Fishing", new Vector2(20, 428), new []{ -4, -21, -22 }, xPositionOnScreen, yPositionOnScreen),
+                new MiscCategory(5, "Misc", new Vector2(30, 428), new []{ -24, -20 }, xPositionOnScreen, yPositionOnScreen)
             };
             SelectedCategory = _chestCategories.First();
         }
@@ -190,21 +190,24 @@ namespace MegaStorage.UI
             left0.leftNeighborID = CategoryComponents[0].myID;
             left1.leftNeighborID = CategoryComponents[1].myID;
             left2.leftNeighborID = CategoryComponents[2].myID;
-            left3.leftNeighborID = CategoryComponents[2].myID;
-            left4.leftNeighborID = CategoryComponents[3].myID;
-            left5.leftNeighborID = CategoryComponents[4].myID;
+            left3.leftNeighborID = CategoryComponents[3].myID;
+            left4.leftNeighborID = CategoryComponents[4].myID;
+            left5.leftNeighborID = CategoryComponents[5].myID;
 
             CategoryComponents[0].rightNeighborID = left0.myID;
             CategoryComponents[1].rightNeighborID = left1.myID;
             CategoryComponents[2].rightNeighborID = left2.myID;
-            CategoryComponents[3].rightNeighborID = left4.myID;
-            CategoryComponents[4].rightNeighborID = left5.myID;
+            CategoryComponents[3].rightNeighborID = left3.myID;
+            CategoryComponents[4].rightNeighborID = left4.myID;
+            CategoryComponents[5].rightNeighborID = left5.myID;
 
             CategoryComponents[0].downNeighborID = CategoryComponents[1].myID;
             CategoryComponents[1].downNeighborID = CategoryComponents[2].myID;
             CategoryComponents[2].downNeighborID = CategoryComponents[3].myID;
             CategoryComponents[3].downNeighborID = CategoryComponents[4].myID;
+            CategoryComponents[4].downNeighborID = CategoryComponents[5].myID;
 
+            CategoryComponents[5].upNeighborID = CategoryComponents[4].myID;
             CategoryComponents[4].upNeighborID = CategoryComponents[3].myID;
             CategoryComponents[3].upNeighborID = CategoryComponents[2].myID;
             CategoryComponents[2].upNeighborID = CategoryComponents[1].myID;
