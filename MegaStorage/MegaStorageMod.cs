@@ -19,15 +19,17 @@ namespace MegaStorage
             Monitor.VerboseLog("Entry of MegaStorageMod");
             Instance = this;
 
+            var convenientChestsApi = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
+            
             _spritePatcher = new SpritePatcher(Helper, Monitor);
             _itemPatcher = new ItemPatcher(Helper, Monitor);
             _menuChanger = new MenuChanger(Helper, Monitor);
             _saveManager = new SaveManager(Helper, Monitor,
                 new FarmhandMonitor(Helper, Monitor),
-                new InventorySaver(Helper, Monitor),
-                new FarmhandInventorySaver(Helper, Monitor),
-                new LocationSaver(Helper, Monitor),
-                new LocationInventorySaver(Helper, Monitor));
+                new InventorySaver(Helper, Monitor, convenientChestsApi),
+                new FarmhandInventorySaver(Helper, Monitor, convenientChestsApi),
+                new LocationSaver(Helper, Monitor, convenientChestsApi),
+                new LocationInventorySaver(Helper, Monitor, convenientChestsApi));
 
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
         }

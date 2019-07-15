@@ -72,6 +72,7 @@
     <Compile Include="Mapping\MappingExtensions.cs" />
     <Compile Include="Models\SaveData.cs" />
     <Compile Include="Persistence\SaveManager.cs" />
+    <Compile Include="IConvenientChestsAPI.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Sprites\LargeChest.png">
