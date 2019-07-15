@@ -44,7 +44,7 @@ namespace MegaStorage.UI
 
         private bool BelongsToCategory(Item i)
         {
-            return _categoryNames == null || _categoryNames.Contains(i.getCategoryName());
+            return _categoryNames == null || _categoryNames.Any(categoryName => categoryName.Contains(i.getCategoryName()));
         }
     }
 }

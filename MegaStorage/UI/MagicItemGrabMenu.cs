@@ -41,6 +41,13 @@ namespace MegaStorage.UI
                 _currentRow = _maxRow;
         }
 
+        protected override void ChangeCategory(ChestCategory cat)
+        {
+            SelectedCategory = cat;
+            _currentRow = 0;
+            Refresh();
+        }
+
         public override void receiveScrollWheelAction(int direction)
         {
             Monitor.VerboseLog("receiveScrollWheelAction");

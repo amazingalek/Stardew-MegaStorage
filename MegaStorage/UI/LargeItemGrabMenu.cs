@@ -92,7 +92,7 @@ namespace MegaStorage.UI
                 new ChestCategory(2, "Materials", new Vector2(60, 428), new []{ "Resource", "Mineral", "Crafting", "Monster Loot" }, xPositionOnScreen, yPositionOnScreen),
                 new ChestCategory(3, "Cooking", new Vector2(211, 373), new []{ "Cooking", "Animal Product", "Artisan Goods" }, xPositionOnScreen, yPositionOnScreen),
                 new ChestCategory(4, "Fishing", new Vector2(20, 428), new []{ "Fish", "Bait", "Fishing Tackle" }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(5, "Misc", new Vector2(30, 428), new []{ "Tool", "Artifact", "Furniture", "Decor", "Trash", "" }, xPositionOnScreen, yPositionOnScreen)
+                new ChestCategory(5, "Misc", new Vector2(30, 428), new []{ "Tool", "Ring", "Footwear", "Level", "Artifact", "Furniture", "Decor", "Trash", "" }, xPositionOnScreen, yPositionOnScreen)
             };
             SelectedCategory = _chestCategories.First();
         }
@@ -222,7 +222,10 @@ namespace MegaStorage.UI
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            ChangeCategory();
+            if (_hoverCategory != null)
+            {
+                ChangeCategory(_hoverCategory);
+            }
             ReceiveLeftClickBase(x, y, !destroyItemOnClick);
             if (chestColorPicker != null)
             {
@@ -335,11 +338,9 @@ namespace MegaStorage.UI
             }
         }
 
-        private void ChangeCategory()
+        protected virtual void ChangeCategory(ChestCategory cat)
         {
-            if (_hoverCategory == null)
-                return;
-            SelectedCategory = _hoverCategory;
+            SelectedCategory = cat;
             Refresh();
         }
 
@@ -477,9 +478,9 @@ namespace MegaStorage.UI
             inventory.draw(b);
 
             // bottom inventory icon
-            b.Draw(Game1.mouseCursors, new Vector2(xPositionOnScreen - 64, yPositionOnScreen + height / 2 + MoveBottom + 32 + 16), new Rectangle(16, 368, 12, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            b.Draw(Game1.mouseCursors, new Vector2(xPositionOnScreen - 64, yPositionOnScreen + height / 2 + MoveBottom + 32 - 16), new Rectangle(21, 368, 11, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            b.Draw(Game1.mouseCursors, new Vector2(xPositionOnScreen - 40, yPositionOnScreen + height / 2 + MoveBottom + 32 - 44), new Rectangle(4, 372, 8, 11), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(xPositionOnScreen - 64, yPositionOnScreen + height / 2 + MoveBottom + 64 + 16), new Rectangle(16, 368, 12, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(xPositionOnScreen - 64, yPositionOnScreen + height / 2 + MoveBottom + 64 - 16), new Rectangle(21, 368, 11, 16), Color.White, 4.712389f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            b.Draw(Game1.mouseCursors, new Vector2(xPositionOnScreen - 40, yPositionOnScreen + height / 2 + MoveBottom + 64 - 44), new Rectangle(4, 372, 8, 11), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
 
             // top inventory
             Game1.drawDialogueBox(ItemsToGrabMenu.xPositionOnScreen - borderWidth - spaceToClearSideBorder, ItemsToGrabMenu.yPositionOnScreen - borderWidth - spaceToClearTopBorder + TopBackgroundChange,
