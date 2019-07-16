@@ -21,17 +21,17 @@ Recipe:
 * 50 Void Essence
 
 # Categories
-From v1.2.0 you can filter chest contents by clicking on the categories to the left of the chest inventory. Using vanilla UI there was only room for 7 categories. They are so far not configurable.
+From v1.2.0 you can filter chest contents by clicking on the categories to the left of the chest inventory. Using vanilla UI there were only room for 7 categories. They are so far not configurable.
 * All
 * Crops: Forage, Fruit, Flower, Vegetable
 * Seeds: Seed, Fertilizer
 * Materials: Mineral, Resource, Crafting, Monster Loot
 * Cooking: Cooking, Animal Product, Artisan Goods
-* Fish: Fish, Fishing Tackle, Bait
+* Fishing: Fish, Fishing Tackle, Bait
 * Misc: Tool, Footware, Ring, Artifact, Furniture, Decor, Trash, (no category) 
 
 # Configuration
-Names, descriptions, IDs and recipes for Large Chest and Magic Chest are configurable in config.json. The format of recipes is pairs of item IDs and how many of that item to use. Default:
+Names, descriptions, IDs and recipes for Large Chest and Magic Chest are configurable in config.json. The format of recipes is as follows: <ID of 1st item> <number of 1st item> <ID of 2nd item> <number of 2nd item> etc. Default (same as above):
 * Large Chest: 388 100 334 5 335 5
 * Magic Chest: 709 100 336 5 337 5 768 50 769 50
 
