@@ -45,6 +45,8 @@ Names, descriptions, IDs and recipes for Large Chest and Magic Chest are configu
 # Is this safe?
 Before saving, all Large Chests and Magic Chests are converted to normal chests. After saving, they are converted back. This makes sure your items aren't lost, even if uninstalling this mod. Normal chests actually have infinite capacity, it's only when adding items one at a time they are limited to 36 capacity.
 
+If you lose any items or custom chests don't convert back from normal chests, please report a bug with a detailed description of what happened. If you save, the issue will become permanent, so please consider reloading instead, even if you lose a days progress.
+
 # Credits
 * Inspired by [Magic Storage](https://forums.terraria.org/index.php?threads/magic-storage.56294/) for Terraria.
 * Custom sprites by [Revanius](https://www.nexusmods.com/users/40079).
