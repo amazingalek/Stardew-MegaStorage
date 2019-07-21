@@ -87,19 +87,5 @@ namespace MegaStorage.UI
             DownArrow.scale = DownArrow.containsPoint(x, y) ? Math.Min(DownArrow.scale + 0.02f, DownArrow.baseScale + 0.1f) : Math.Max(DownArrow.scale - 0.02f, DownArrow.baseScale);
         }
 
-        protected override void ClearNulls()
-        {
-            MegaStorageMod.Instance.Monitor.VerboseLog("ClearNulls (Magic). CurrentRow: " + _currentRow);
-            var skippedItems = CustomChest.items.Take(ItemsPerRow * _currentRow).ToList();
-            var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            MegaStorageMod.Instance.Monitor.VerboseLog("Skipped items: " + skippedItems.Count);
-            MegaStorageMod.Instance.Monitor.VerboseLog("Shown items: " + shownItems.Count);
-            CustomChest.items.Clear();
-            CustomChest.items.AddRange(skippedItems);
-            CustomChest.items.AddRange(shownItems);
-            CustomChest.clearNulls();
-            Refresh();
-        }
-
     }
 }

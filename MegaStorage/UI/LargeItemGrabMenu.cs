@@ -253,11 +253,10 @@ namespace MegaStorage.UI
             }
             if (heldItem == null && showReceivingMenu)
             {
+                var itemsBefore = ItemsToGrabMenu.actualInventory.ToList();
                 heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
-                if (Game1.player.isInventoryFull())
-                {
-                    ClearNulls();
-                }
+                var itemsAfter = ItemsToGrabMenu.actualInventory.ToList();
+                FixNulls(itemsBefore, itemsAfter);
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
                     behaviorOnItemGrab(heldItem, Game1.player);
@@ -374,13 +373,12 @@ namespace MegaStorage.UI
             heldItem = inventory.rightClick(x, y, heldItem, playSound && playRightClickSound);
             if (heldItem == null && showReceivingMenu)
             {
+                var itemsBefore = ItemsToGrabMenu.actualInventory.ToList();
                 heldItem = ItemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (heldItem != null && behaviorOnItemGrab != null)
                 {
-                    if (HasNulls())
-                    {
-                        ClearNulls();
-                    }
+                    var itemsAfter = ItemsToGrabMenu.actualInventory.ToList();
+                    FixNulls(itemsBefore, itemsAfter);
                     behaviorOnItemGrab(heldItem, Game1.player);
                     if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
                         ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
@@ -433,22 +431,21 @@ namespace MegaStorage.UI
             }
         }
 
-        private bool HasNulls()
+        private void FixNulls(List<Item> itemsBefore, List<Item> itemsAfter)
         {
-            var nullsInMenu = ItemsToGrabMenu.actualInventory.Count(x => x == null);
-            var nullsInChest = CustomChest.items.Count(x => x == null);
-            return nullsInMenu > nullsInChest;
-        }
-
-        protected virtual void ClearNulls()
-        {
-            MegaStorageMod.Instance.Monitor.VerboseLog("ClearNulls (Large)");
-            var shownItems = ItemsToGrabMenu.actualInventory.ToList();
-            MegaStorageMod.Instance.Monitor.VerboseLog("Shown items: " + shownItems.Count);
-            CustomChest.items.Clear();
-            CustomChest.items.AddRange(shownItems);
-            CustomChest.clearNulls();
-            Refresh();
+            for (var i = 0; i < itemsBefore.Count; i++)
+            {
+                var itemBefore = itemsBefore[i];
+                var itemAfter = itemsAfter[i];
+                if (itemBefore != null && itemAfter == null)
+                {
+                    var index = CustomChest.items.IndexOf(itemBefore);
+                    if (index > -1)
+                    {
+                        CustomChest.items.RemoveAt(index);
+                    }
+                }
+            }
         }
 
         private TemporaryAnimatedSprite CreatePoof(int x, int y)
