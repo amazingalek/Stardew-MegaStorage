@@ -12,13 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.0.0" />
+    <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Reference Include="Automate">
+      <HintPath>G:\Steam\steamapps\common\Stardew Valley\Mods\Automate\Automate.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Sprites\AllTab.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

@@ -475,7 +475,8 @@ namespace MegaStorage.UI
         public override void performHoverAction(int x, int y)
         {
             base.performHoverAction(x, y);
-            _hoverCategory = _chestCategories.FirstOrDefault(c => c.containsPoint(x, y));
+            if (ModConfig.Instance.EnableCategories)
+                _hoverCategory = _chestCategories.FirstOrDefault(c => c.containsPoint(x, y));
         }
 
         protected void Draw(SpriteBatch b)
