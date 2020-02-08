@@ -32,6 +32,5 @@ namespace MegaStorage
                 return;
             Game1.activeClickableMenu = customChest.GetItemGrabMenu();
         }
-
     }
 }
