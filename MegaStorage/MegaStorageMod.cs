@@ -39,6 +39,9 @@ namespace MegaStorage
             saveManager.Start();
             menuChanger.Start();
 
+            if (!(convenientChestsApi is null))
+                ModConfig.Instance.EnableCategories = false;
+
             automateApi?.AddFactory(new AutomationFactory());
         }
 
