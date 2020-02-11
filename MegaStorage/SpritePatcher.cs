@@ -21,11 +21,15 @@ namespace MegaStorage
             _monitor = monitor;
         }
 
+        /// <summary>Get whether this instance can edit the given asset.</summary>
+        /// <param name="asset">Basic metadata about the asset being loaded.</param>
         public bool CanEdit<T>(IAssetInfo asset)
         {
             return asset.AssetNameEquals("TileSheets/Craftables");
         }
 
+        /// <summary>Edit a matched asset.</summary>
+        /// <param name="asset">A helper which encapsulates metadata about an asset and enables changes to it.</param>
         public void Edit<T>(IAssetData asset)
         {
             _monitor.VerboseLog("Type of asset: " + typeof(T));

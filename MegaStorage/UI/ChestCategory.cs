@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MegaStorage.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -28,7 +29,8 @@ namespace MegaStorage.UI
 
         public virtual void Draw(SpriteBatch b, int x, int y)
         {
-            b.Draw(Game1.mouseCursors, new Vector2(x - 72, y + StartY + Index * Height), new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            if (ModConfig.Instance.EnableCategories)
+                b.Draw(Game1.mouseCursors, new Vector2(x - 72, y + StartY + Index * Height), new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
         }
 
         public void DrawTooltip(SpriteBatch b)

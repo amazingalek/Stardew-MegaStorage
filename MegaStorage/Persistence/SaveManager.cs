@@ -19,6 +19,15 @@ namespace MegaStorage.Persistence
 
         public void Start()
         {
+            var saveAnywhereApi = _modHelper.ModRegistry.GetApi<ISaveAnywhereApi>("Omegasis.SaveAnywhere");
+
+            if (!(saveAnywhereApi is null))
+            {
+                saveAnywhereApi.BeforeSave += (sender, args) => HideAndSaveCustomChests();
+                saveAnywhereApi.AfterSave += (sender, args) => ReAddCustomChests();
+                saveAnywhereApi.AfterLoad += (sender, args) => LoadCustomChests();
+            }
+
             _modHelper.Events.GameLoop.SaveLoaded += (sender, args) => LoadCustomChests();
             _modHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
             _modHelper.Events.GameLoop.Saved += (sender, args) => ReAddCustomChests();
