@@ -11,6 +11,10 @@ namespace MegaStorage.Models
         protected override LargeItemGrabMenu CreateItemGrabMenu() => new MagicItemGrabMenu(this);
         public override Item getOne() => new MagicChest();
 
-        public MagicChest() : base(ModConfig.Instance.MagicChest) { }
+        public MagicChest()
+            : base(MegaStorageMod.MagicChestId,
+                "MagicChest.png",
+                "MagicChestBW.png",
+                "MagicChestBraces.png") { }
     }
 }

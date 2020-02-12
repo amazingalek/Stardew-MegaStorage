@@ -11,6 +11,10 @@ namespace MegaStorage.Models
         protected override LargeItemGrabMenu CreateItemGrabMenu() => new LargeItemGrabMenu(this);
         public override Item getOne() => new LargeChest();
 
-        public LargeChest() : base(ModConfig.Instance.LargeChest) { }
+        public LargeChest()
+            : base(MegaStorageMod.LargeChestId,
+                "LargeChest.png",
+                "LargeChestBW.png",
+                "LargeChestBraces.png") { }
     }
 }

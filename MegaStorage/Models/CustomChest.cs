@@ -1,4 +1,6 @@
-﻿using MegaStorage.Mapping;
+﻿using System.IO;
+using System.Linq;
+using MegaStorage.Mapping;
 using MegaStorage.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,11 +16,8 @@ namespace MegaStorage.Models
     {
         public abstract int Capacity { get; }
         public abstract ChestType ChestType { get; }
+        public string SpritePath { get; }
         protected abstract LargeItemGrabMenu CreateItemGrabMenu();
-
-        public CustomChestConfig Config { get; }
-        public string BigCraftableInfo => $"{Config.Name}/0/-300/Crafting -9/{Config.Description}/true/true/0";
-        public string RecipeString => $"{Config.Recipe}/Home/{Config.Id}/true/{Config.Name}";
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
@@ -33,37 +32,42 @@ namespace MegaStorage.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected CustomChest(CustomChestConfig config) : base(true)
+        protected CustomChest(int parentSheetIndex, string spritePath, string spriteBWPath, string spriteBracesPath)
+            : base(true)
         {
-            Config = config;
-            ParentSheetIndex = config.Id;
+            ParentSheetIndex = parentSheetIndex;
+            startingLidFrame.Value = parentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
-            startingLidFrame.Value = config.Id + 1;
-            name = config.Name;
-            _sprite = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(config.SpritePath);
-            _spriteBW = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(config.SpriteBWPath);
-            _spriteBraces = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(config.SpriteBracesPath);
-        }
 
-        public override string getDescription() => Config.Description;
+            var contentHelper = MegaStorageMod.Instance.Helper.Content;
+
+            SpritePath = Path.Combine("assets", "Sprites", spritePath);
+
+            _sprite = contentHelper.Load<Texture2D>(SpritePath);
+            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", "Sprites", spriteBWPath));
+            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", "Sprites", spriteBracesPath));
+        }
 
         public override Item addItem(Item itemToAdd)
         {
+            if (itemToAdd is null)
+                return null;
+
             itemToAdd.resetState();
             clearNulls();
-            foreach (var item in items)
+
+            foreach (var item in items.Where(item => item != null && item.canStackWith(itemToAdd)))
             {
-                if (item == null || !item.canStackWith(itemToAdd))
-                    continue;
                 itemToAdd.Stack = item.addToStack(itemToAdd);
                 if (itemToAdd.Stack <= 0)
                     return null;
             }
+
             if (items.Count >= Capacity)
-            {
                 return itemToAdd;
-            }
+            
             items.Add(itemToAdd);
+
             return null;
         }
 
@@ -237,6 +241,7 @@ namespace MegaStorage.Models
 
         public LargeItemGrabMenu GetItemGrabMenu()
         {
+            MegaStorageMod.Instance.Monitor.Log("GetItemGrabMenu", LogLevel.Trace);
             return _itemGrabMenu ?? (_itemGrabMenu = CreateItemGrabMenu());
         }
     }

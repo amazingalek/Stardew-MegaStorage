@@ -1,27 +1,51 @@
-﻿using MegaStorage.Mapping;
+﻿using System.IO;
+using MegaStorage.Mapping;
 using MegaStorage.Models;
 using MegaStorage.Persistence;
-using Pathoschild.Stardew.Automate;
+using MegaStorage.UI;
+using MegaStorageAutomate;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using StardewValley;
 
 namespace MegaStorage
 {
     public class MegaStorageMod : Mod
     {
-        public static MegaStorageMod Instance;
+        public static MegaStorageMod Instance { get; private set; }
+        public static int LargeChestId { get; private set; }
+        public static int MagicChestId { get; private set; }
+        private IJsonAssetsApi _jsonAssetsApi;
 
         public override void Entry(IModHelper modHelper)
         {
             Monitor.VerboseLog("Entry of MegaStorageMod");
             Instance = this;
+
             Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
         }
 
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
+            _jsonAssetsApi = Helper.ModRegistry.GetApi<IJsonAssetsApi>("spacechase0.JsonAssets");
+            if (_jsonAssetsApi is null)
+            {
+                Monitor.Log("JsonAssets is needed to load Mega Storage chests", LogLevel.Error);
+                return;
+            }
+
+            _jsonAssetsApi.LoadAssets(Path.Combine(Helper.DirectoryPath, "assets", "JsonAssets"));
+        }
+
+        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        {
+            LargeChestId = _jsonAssetsApi.GetBigCraftableId("Large Chest");
+            MagicChestId = _jsonAssetsApi.GetBigCraftableId("Magic Chest");
+            Monitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
+            Monitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
+
             var convenientChestsApi = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
-            var automateApi = Helper.ModRegistry.GetApi<IAutomateAPI>("Pathoschild.Automate");
 
             var spritePatcher = new SpritePatcher(Helper, Monitor);
             var itemPatcher = new ItemPatcher(Helper, Monitor);
@@ -41,9 +65,6 @@ namespace MegaStorage
 
             if (!(convenientChestsApi is null))
                 ModConfig.Instance.EnableCategories = false;
-
-            automateApi?.AddFactory(new AutomationFactory());
         }
-
     }
 }

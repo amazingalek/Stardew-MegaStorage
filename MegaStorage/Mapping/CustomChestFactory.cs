@@ -19,14 +19,16 @@ namespace MegaStorage.Mapping
 
         public static bool ShouldBeCustomChest(Item item)
         {
-            if (!(item is Object)) return false;
-            if (!((Object)item).bigCraftable.Value) return false;
-            return CustomChests.Any(x => x.Config.Id == item.ParentSheetIndex);
+            if (!(item is Object))
+                return false;
+            if (!((Object)item).bigCraftable.Value)
+                return false;
+            return CustomChests.Any(x => x.ParentSheetIndex == item.ParentSheetIndex);
         }
 
         public static CustomChest Create(int id)
         {
-            var chestType = CustomChests.Single(x => x.Config.Id == id).ChestType;
+            var chestType = CustomChests.Single(x => x.ParentSheetIndex == id).ChestType;
             return Create(chestType);
         }
 

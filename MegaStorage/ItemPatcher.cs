@@ -23,23 +23,6 @@ namespace MegaStorage
             _modHelper.Events.Player.InventoryChanged += OnInventoryChanged;
             _modHelper.Events.World.ChestInventoryChanged += OnChestInventoryChanged;
             _modHelper.Events.World.ObjectListChanged += OnObjectListChanged;
-            _modHelper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
-        }
-
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
-        {
-            foreach (var customChest in CustomChestFactory.CustomChests)
-            {
-                Register(customChest);
-            }
-        }
-
-        private void Register(CustomChest customChest)
-        {
-            _monitor.VerboseLog($"Registering {customChest.Config.Name} ({customChest.Config.Id})");
-            Game1.bigCraftablesInformation[customChest.Config.Id] = customChest.BigCraftableInfo;
-            CraftingRecipe.craftingRecipes[customChest.Config.Name] = customChest.RecipeString;
-            Game1.player.craftingRecipes[customChest.Config.Name] = 0;
         }
 
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
