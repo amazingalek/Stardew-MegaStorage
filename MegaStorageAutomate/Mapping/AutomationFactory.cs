@@ -1,5 +1,4 @@
-﻿using System;
-using MegaStorage.Models;
+﻿using MegaStorageAutomate.Models;
 using Microsoft.Xna.Framework;
 using Pathoschild.Stardew.Automate;
 using StardewValley;
@@ -8,7 +7,7 @@ using StardewValley.Locations;
 using StardewValley.TerrainFeatures;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Mapping
+namespace MegaStorageAutomate.Mapping
 {
     internal class AutomationFactory : IAutomationFactory
     {
@@ -19,10 +18,9 @@ namespace MegaStorage.Mapping
         /// <returns>Returns an instance or <c>null</c>.</returns>
         public IAutomatable GetFor(SObject obj, GameLocation location, in Vector2 tile)
         {
-            if (obj.ParentSheetIndex == ModConfig.Instance.LargeChest.Id ||
-                obj.ParentSheetIndex == ModConfig.Instance.MagicChest.Id)
+            if (obj.ParentSheetIndex.Equals(MegaStorageAutomateMod.LargeChestId) ||
+                obj.ParentSheetIndex.Equals(MegaStorageAutomateMod.MagicChestId))
                 return new CustomChestContainer(obj, location, tile);
-            
             return null;
         }
 

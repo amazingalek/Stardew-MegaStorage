@@ -1,0 +1,26 @@
+{
+	"Name": "Mega Storage Automate",
+	"Author": "furyx639",
+	"Version": "1.4.0",
+	"Description": "Automates Large Chests and Magic Chests in the game.",
+	"UniqueID": "Alek.MegaStorageAutomate",
+	"EntryDll": "MegaStorageAutomate.dll",
+	"MinimumApiVersion": "3.2.0",
+	"Dependencies": [
+		{
+			"UniqueID": "Alek.MegaStorage",
+			"MinimumVersion": "1.4.0",
+			"IsRequired": true
+		},
+		{
+			"UniqueID": "Pathoschild.Automate",
+			"MinimumVersion": "1.15.1",
+			"IsRequired": true
+		},
+		{
+			"UniqueID":  "spacechase0.JsonAssets",
+			"MinimumVersion":  "1.6.1",
+			"IsRequired":  true
+		}
+	]
+}
