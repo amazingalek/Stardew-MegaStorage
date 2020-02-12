@@ -67,7 +67,7 @@ namespace MegaStorage
 
         private void PatchSprite(IAssetDataForImage assetImage, CustomChest customChest)
         {
-            var sprite = _modHelper.Content.Load<Texture2D>(customChest.Config.SpritePath);
+            var sprite = _modHelper.Content.Load<Texture2D>(customChest.SpritePath);
             var destinationRect = Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, customChest.ParentSheetIndex, 16, 32);
             var sourceRect = new Rectangle(0, 0, 16, 32);
             _monitor.VerboseLog($"Destination rect: ({destinationRect.X}, {destinationRect.Y}) - ({destinationRect.Width}, {destinationRect.Height})");
