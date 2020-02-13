@@ -1,4 +1,6 @@
-﻿using MegaStorage.Mapping;
+﻿using System;
+using System.IO;
+using MegaStorage.Mapping;
 using MegaStorage.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -35,20 +37,31 @@ namespace MegaStorage.Models
 
         protected CustomChest(CustomChestConfig config) : base(true)
         {
+            var contentHelper = MegaStorageMod.Instance.Helper.Content;
+
+            if (config is null)
+            {
+                MegaStorageMod.Instance.Monitor.Log("Cannot load CustomChest, missing config", LogLevel.Error);
+                return;
+            }
+
             Config = config;
             ParentSheetIndex = config.Id;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
             startingLidFrame.Value = config.Id + 1;
             name = config.Name;
-            _sprite = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(config.SpritePath);
-            _spriteBW = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(config.SpriteBWPath);
-            _spriteBraces = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(config.SpriteBracesPath);
+            _sprite = contentHelper.Load<Texture2D>(Path.Combine("assets", config.SpritePath));
+            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", config.SpriteBWPath));
+            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", config.SpriteBracesPath));
         }
 
         public override string getDescription() => Config.Description;
 
         public override Item addItem(Item itemToAdd)
         {
+            if (itemToAdd is null)
+                return null;
+
             itemToAdd.resetState();
             clearNulls();
             foreach (var item in items)
@@ -69,6 +82,9 @@ namespace MegaStorage.Models
 
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
+            if (time is null)
+                return;
+
             var currentLidFrameValue = CurrentLidFrame;
             fixLidFrame();
             mutex.Update(environment);
@@ -104,12 +120,15 @@ namespace MegaStorage.Models
                 currentLidFrameValue = ParentSheetIndex + 5;
                 CurrentLidFrame = currentLidFrameValue;
                 frameCounter.Value = 2;
-                environment.localSound("doorCreakReverse");
+                environment?.localSound("doorCreakReverse");
             }
         }
 
         public override void grabItemFromChest(Item item, Farmer who)
         {
+            if (who is null)
+                return;
+
             if (!who.couldInventoryAcceptThisItem(item))
                 return;
             items.Remove(item);
@@ -117,11 +136,15 @@ namespace MegaStorage.Models
             if (_itemGrabMenu == null)
                 _itemGrabMenu = CreateItemGrabMenu();
             _itemGrabMenu.Refresh();
+
             Game1.activeClickableMenu = _itemGrabMenu;
         }
 
         public override void grabItemFromInventory(Item item, Farmer who)
         {
+            if (item is null || who is null)
+                return;
+
             if (item.Stack == 0)
                 item.Stack = 1;
             var addedItem = addItem(item);
@@ -144,6 +167,9 @@ namespace MegaStorage.Models
 
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
+            if (location is null)
+                return false;
+
             var objectKey = new Vector2(x / 64, y / 64);
             health = 10;
             owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
@@ -177,7 +203,7 @@ namespace MegaStorage.Models
                 if (items.Count == 0)
                 {
                     performRemoveAction(tileLocation.Value, location);
-                    if (location.Objects.Remove(c) && type.Value.Equals("Crafting") && Fragility != 2)
+                    if (location.Objects.Remove(c) && type.Value.Equals("Crafting", StringComparison.InvariantCultureIgnoreCase) && Fragility != 2)
                     {
                         location.debris.Add(CreateDebris(player));
                     }
@@ -203,6 +229,9 @@ namespace MegaStorage.Models
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
+            if (spriteBatch is null)
+                return;
+
             var lidFrameIndex = CurrentLidFrame - ParentSheetIndex - 1;
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
@@ -220,6 +249,9 @@ namespace MegaStorage.Models
 
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
+            if (spriteBatch is null)
+                return;
+
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
                 spriteBatch.Draw(_sprite, location + new Vector2(32f, 32f), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), color * transparency, 0.0f, new Vector2(8f, 16f), (float)(4.0 * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.0)), SpriteEffects.None, layerDepth);
