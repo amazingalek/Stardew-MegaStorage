@@ -43,14 +43,26 @@ namespace MegaStorage.Models
                 return;
             }
 
+            var spritePath = Path.Combine("assets", Config.SpritePath);
+            var spriteBWPath = Path.Combine("assets", Config.SpriteBWPath);
+            var spriteBracesPath = Path.Combine("assets", Config.SpriteBracesPath);
+
+            if (!File.Exists(spritePath)
+                || !File.Exists(spriteBWPath)
+                || !File.Exists(spriteBracesPath))
+            {
+                MegaStorageMod.Instance.Monitor.Log("Cannot load CustomChest, missing sprites", LogLevel.Error);
+                return;
+            }
+
+            _sprite = contentHelper.Load<Texture2D>(spritePath);
+            _spriteBW = contentHelper.Load<Texture2D>(spriteBWPath);
+            _spriteBraces = contentHelper.Load<Texture2D>(spriteBracesPath);
+
             Config = config;
             ParentSheetIndex = parentSheetIndex;
             startingLidFrame.Value = parentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
-
-            _sprite = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpritePath));
-            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBWPath));
-            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBracesPath));
         }
 
         public override Item addItem(Item itemToAdd)
