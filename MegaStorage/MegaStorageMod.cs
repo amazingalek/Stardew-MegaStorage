@@ -1,12 +1,10 @@
-﻿using System.IO;
-using MegaStorage.Mapping;
+﻿using System;
+using System.IO;
 using MegaStorage.Models;
 using MegaStorage.Persistence;
-using MegaStorage.UI;
 using MegaStorageAutomate;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
-using StardewValley;
 
 namespace MegaStorage
 {
@@ -34,17 +32,20 @@ namespace MegaStorage
                 Monitor.Log("JsonAssets is needed to load Mega Storage chests", LogLevel.Error);
                 return;
             }
-
             _jsonAssetsApi.LoadAssets(Path.Combine(Helper.DirectoryPath, "assets", "JsonAssets"));
+            _jsonAssetsApi.IdsAssigned += OnIdsAssigned;
         }
 
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        private void OnIdsAssigned(object sender, EventArgs e)
         {
             LargeChestId = _jsonAssetsApi.GetBigCraftableId("Large Chest");
             MagicChestId = _jsonAssetsApi.GetBigCraftableId("Magic Chest");
             Monitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
             Monitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
+        }
 
+        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        {
             var convenientChestsApi = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
 
             var spritePatcher = new SpritePatcher(Helper, Monitor);
