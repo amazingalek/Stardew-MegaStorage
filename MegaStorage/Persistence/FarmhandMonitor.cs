@@ -1,5 +1,4 @@
 ﻿using System;
-using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
@@ -10,21 +9,16 @@ namespace MegaStorage.Persistence
         public event Action OnPlayerAdded;
         public event Action OnPlayerRemoved;
 
-        private readonly IModHelper _modHelper;
-        private readonly IMonitor _monitor;
-
         private int _prevLength;
 
-        public FarmhandMonitor(IModHelper modHelper, IMonitor monitor)
+        public FarmhandMonitor()
         {
-            _modHelper = modHelper;
-            _monitor = monitor;
             _prevLength = 0;
         }
 
         public void Start()
         {
-            _modHelper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+            MegaStorageMod.ModHelper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
         }
 
         private void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
@@ -32,13 +26,13 @@ namespace MegaStorage.Persistence
             var currentLength = Game1.otherFarmers.Count;
             if (currentLength > _prevLength)
             {
-                _monitor.VerboseLog("Player added");
+                MegaStorageMod.ModMonitor.VerboseLog("Player added");
                 OnPlayerAdded?.Invoke();
                 _prevLength = currentLength;
             }
             else if (currentLength < _prevLength)
             {
-                _monitor.VerboseLog("Player removed");
+                MegaStorageMod.ModMonitor.VerboseLog("Player removed");
                 OnPlayerRemoved?.Invoke();
                 _prevLength = currentLength;
             }

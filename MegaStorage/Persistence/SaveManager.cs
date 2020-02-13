@@ -1,25 +1,19 @@
-﻿using StardewModdingAPI;
-
-namespace MegaStorage.Persistence
+﻿namespace MegaStorage.Persistence
 {
     public class SaveManager
     {
-        private readonly IModHelper _modHelper;
-        private readonly IMonitor _monitor;
         private readonly ISaver[] _savers;
         private readonly FarmhandMonitor _farmhandMonitor;
 
-        public SaveManager(IModHelper modHelper, IMonitor monitor, FarmhandMonitor farmhandMonitor, params ISaver[] savers)
+        public SaveManager(FarmhandMonitor farmhandMonitor, params ISaver[] savers)
         {
-            _modHelper = modHelper;
-            _monitor = monitor;
             _savers = savers;
             _farmhandMonitor = farmhandMonitor;
         }
 
         public void Start()
         {
-            var saveAnywhereApi = _modHelper.ModRegistry.GetApi<ISaveAnywhereApi>("Omegasis.SaveAnywhere");
+            var saveAnywhereApi = MegaStorageMod.ModHelper.ModRegistry.GetApi<ISaveAnywhereApi>("Omegasis.SaveAnywhere");
 
             if (!(saveAnywhereApi is null))
             {
@@ -28,20 +22,21 @@ namespace MegaStorage.Persistence
                 saveAnywhereApi.AfterLoad += (sender, args) => LoadCustomChests();
             }
 
-            _modHelper.Events.GameLoop.SaveLoaded += (sender, args) => LoadCustomChests();
-            _modHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
-            _modHelper.Events.GameLoop.Saved += (sender, args) => ReAddCustomChests();
-            _modHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveCustomChests();
-            _modHelper.Events.Multiplayer.PeerContextReceived += (sender, args) => HideAndSaveCustomChests();
+            MegaStorageMod.ModHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
+            MegaStorageMod.ModHelper.Events.GameLoop.Saved += (sender, args) => ReAddCustomChests();
+            MegaStorageMod.ModHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveCustomChests();
+            MegaStorageMod.ModHelper.Events.Multiplayer.PeerContextReceived += (sender, args) => HideAndSaveCustomChests();
 
             _farmhandMonitor.Start();
             _farmhandMonitor.OnPlayerAdded += ReAddCustomChests;
             _farmhandMonitor.OnPlayerRemoved += ReAddCustomChests;
+
+            LoadCustomChests();
         }
 
         private void LoadCustomChests()
         {
-            _monitor.VerboseLog("LoadCustomChests");
+            MegaStorageMod.ModMonitor.VerboseLog("LoadCustomChests");
             foreach (var saver in _savers)
             {
                 saver.LoadCustomChests();
@@ -50,7 +45,7 @@ namespace MegaStorage.Persistence
 
         private void ReAddCustomChests()
         {
-            _monitor.VerboseLog("ReAddCustomChests");
+            MegaStorageMod.ModMonitor.VerboseLog("ReAddCustomChests");
             foreach (var saver in _savers)
             {
                 saver.ReAddCustomChests();
@@ -59,7 +54,7 @@ namespace MegaStorage.Persistence
 
         private void HideAndSaveCustomChests()
         {
-            _monitor.VerboseLog("HideAndSaveCustomChests");
+            MegaStorageMod.ModMonitor.VerboseLog("HideAndSaveCustomChests");
             foreach (var saver in _savers)
             {
                 saver.HideAndSaveCustomChests();
