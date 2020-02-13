@@ -4,7 +4,6 @@
     {
         public CustomChestConfig LargeChest { get; set; }
         public CustomChestConfig MagicChest { get; set; }
-
         public bool EnableCategories { get; set; }
         
         public ModConfig()
@@ -17,9 +16,9 @@
                 Name = "Large Chest",
                 Description = "A large place to store your items.",
                 Recipe = "388 100 334 5 335 5",
-                SpritePath = "Sprites/LargeChest.png",
-                SpriteBWPath = "Sprites/LargeChestBW.png",
-                SpriteBracesPath = "Sprites/LargeChestBraces.png"
+                SpritePath = "LargeChest.png",
+                SpriteBWPath = "LargeChestBW.png",
+                SpriteBracesPath = "LargeChestBraces.png"
             };
 
             MagicChest = new CustomChestConfig()
@@ -28,9 +27,9 @@
                 Name = "Magic Chest",
                 Description = "A magical place to store your items.",
                 Recipe = "709 100 336 5 337 5 768 50 769 50",
-                SpritePath = "Sprites/MagicChest.png",
-                SpriteBWPath = "Sprites/MagicChestBW.png",
-                SpriteBracesPath = "Sprites/MagicChestBraces.png"
+                SpritePath = "MagicChest.png",
+                SpriteBWPath = "MagicChestBW.png",
+                SpriteBracesPath = "MagicChestBraces.png"
             };
 
             EnableCategories = true;
