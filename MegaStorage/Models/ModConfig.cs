@@ -2,11 +2,9 @@
 {
     public class ModConfig
     {
-        
         public CustomChestConfig LargeChest { get; set; }
         public CustomChestConfig MagicChest { get; set; }
         public bool EnableCategories { get; set; }
-        
         public ModConfig()
         {
             Instance = this;
@@ -27,7 +25,6 @@
 
             EnableCategories = true;
         }
-
         public static ModConfig Instance { get; private set; }
     }
 }
