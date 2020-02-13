@@ -23,7 +23,35 @@
 				"Object":  769,
 				"Count":  50
 			}
-		]
+		],
+		"IsDefault":  true
 	},
-	"EnableWithMod":  "Alek.MegaStorage"
+	"NameLocalization":
+	{
+		//"es": "", //Spanish
+		"ko": "마법 상자",
+		//"de": "", //German
+		//"fr": "", //French
+		//"hu": "", //Hungarian
+		//"it": "", //Italian
+		//"ja": "", //Japanese
+		//"pt": "", //Portuguese
+		//"ru": "", //Russian
+		//"tr": "", //Turkish
+		"zh": "魔法宝箱", //Chinese (Simplified)
+	},
+	"DescriptionLocalization":
+	{
+		//"es": "", //Spanish
+		"ko": "물건을 보관할 수 있는 마법의 상자.",
+		//"de": "", //German
+		//"fr": "", //French
+		//"hu": "", //Hungarian
+		//"it": "", //Italian
+		//"ja": "", //Japanese
+		//"pt": "", //Portuguese
+		//"ru": "", //Russian
+		//"tr": "", //Turkish
+		"zh": "一个神奇的魔法宝箱，存储容量无限。", //Chinese (Simplified)
+	}
 }

@@ -15,7 +15,35 @@
 				"Object":  335,
 				"Count":  5
 			}
-		]
+		],
+		"IsDefault":  true
 	},
-	"EnableWithMod":  "Alek.MegaStorage"
+	"NameLocalization":
+	{
+		//"es": "", //Spanish
+		"ko": "큰 상자",
+		//"de": "", //German
+		//"fr": "", //French
+		//"hu": "", //Hungarian
+		//"it": "", //Italian
+		//"ja": "", //Japanese
+		//"pt": "", //Portuguese
+		//"ru": "", //Russian
+		//"tr": "", //Turkish
+		"zh": "大箱子", //Chinese (Simplified)
+	},
+	"DescriptionLocalization":
+	{
+		//"es": "", //Spanish
+		"ko": "물건을 보관할 수 있는 넓은 상자.",
+		//"de": "", //German
+		//"fr": "", //French
+		//"hu": "", //Hungarian
+		//"it": "", //Italian
+		//"ja": "", //Japanese
+		//"pt": "", //Portuguese
+		//"ru": "", //Russian
+		//"tr": "", //Turkish
+		"zh": "一个比默认箱子更大的大箱子，用于存放更多物品。", //Chinese (Simplified)
+	}
 }
