@@ -39,7 +39,7 @@ namespace MegaStorage.Persistence
                     foreach (var customChest in customChestsInChest)
                     {
                         var index = chest.items.IndexOf(customChest);
-                        MegaStorageMod.ConvenientChests.CopyChestData(customChest, chest);
+                        MegaStorageMod.ConvenientChests?.CopyChestData(customChest, chest);
                         chest.items[index] = customChest.ToChest();
                         customChestIndexes.Add(index, customChest);
                         var deserializedChest = customChest.ToDeserializedChest(locationName, position, index);
@@ -123,7 +123,7 @@ namespace MegaStorage.Persistence
                     var hiddenCustomChest = (Chest)chest.items[index];
                     var customChest = hiddenCustomChest.ToCustomChest(deserializedChest.ChestType);
                     MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
-                    MegaStorageMod.ConvenientChests.CopyChestData(chest, customChest);
+                    MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
                     chest.items[index] = customChest;
                 }
             }

@@ -24,7 +24,7 @@ namespace MegaStorage.Persistence
             {
                 var chest = customChest.ToChest();
                 var index = Game1.player.Items.IndexOf(customChest);
-                MegaStorageMod.ConvenientChests.CopyChestData(customChest, chest);
+                MegaStorageMod.ConvenientChests?.CopyChestData(customChest, chest);
                 Game1.player.Items[index] = chest;
                 var deserializedChest = customChest.ToDeserializedChest(index);
                 MegaStorageMod.ModMonitor.VerboseLog($"Hiding and saving: {deserializedChest}");

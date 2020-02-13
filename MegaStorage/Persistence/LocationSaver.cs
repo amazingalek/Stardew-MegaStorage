@@ -33,7 +33,7 @@ namespace MegaStorage.Persistence
                     var position = customChestPosition.Key;
                     var customChest = customChestPosition.Value;
                     var chest = customChest.ToChest();
-                    MegaStorageMod.ConvenientChests.CopyChestData(customChest, chest);
+                    MegaStorageMod.ConvenientChests?.CopyChestData(customChest, chest);
                     location.objects[position] = chest;
                     var deserializedChest = customChest.ToDeserializedChest(locationName, position);
                     MegaStorageMod.ModMonitor.VerboseLog($"Hiding and saving in {locationName}: {deserializedChest}");
@@ -106,7 +106,7 @@ namespace MegaStorage.Persistence
                     var chest = (Chest)location.objects[position];
                     var customChest = chest.ToCustomChest(deserializedChest.ChestType);
                     MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
-                    MegaStorageMod.ConvenientChests.CopyChestData(chest, customChest);
+                    MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
                     location.objects[position] = customChest;
                 }
             }

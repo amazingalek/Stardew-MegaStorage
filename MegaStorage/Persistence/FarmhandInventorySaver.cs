@@ -29,7 +29,7 @@ namespace MegaStorage.Persistence
                 {
                     var chest = customChest.ToChest();
                     var index = player.Items.IndexOf(customChest);
-                    MegaStorageMod.ConvenientChests.CopyChestData(customChest, chest);
+                    MegaStorageMod.ConvenientChests?.CopyChestData(customChest, chest);
                     player.Items[index] = chest;
                     var deserializedChest = customChest.ToDeserializedChest(playerId, index);
                     MegaStorageMod.ModMonitor.VerboseLog($"Hiding and saving: {deserializedChest}");
@@ -104,7 +104,7 @@ namespace MegaStorage.Persistence
                 var chest = (Chest)player.Items[deserializedChest.InventoryIndex];
                 var customChest = chest.ToCustomChest(deserializedChest.ChestType);
                 MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
-                MegaStorageMod.ConvenientChests.CopyChestData(chest, customChest);
+                MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
                 player.Items[deserializedChest.InventoryIndex] = customChest;
             }
         }
