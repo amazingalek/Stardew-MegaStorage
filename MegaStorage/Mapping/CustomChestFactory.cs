@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MegaStorage.Models;
 using StardewValley;
-using Object = StardewValley.Object;
+using SObject = StardewValley.Object;
 
 namespace MegaStorage.Mapping
 {
@@ -19,11 +19,11 @@ namespace MegaStorage.Mapping
 
         public static bool ShouldBeCustomChest(Item item)
         {
-            if (!(item is Object))
+            if (!(item is SObject obj))
                 return false;
-            if (!((Object)item).bigCraftable.Value)
-                return false;
-            return CustomChests.Any(x => x.ParentSheetIndex == item.ParentSheetIndex);
+
+            return obj.bigCraftable.Value
+                   && CustomChests.Any(x => x.ParentSheetIndex == item.ParentSheetIndex);
         }
 
         public static CustomChest Create(int id)

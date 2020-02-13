@@ -10,6 +10,8 @@ namespace MegaStorage.Mapping
 
         public static Chest ToChest(this CustomChest customChest)
         {
+            if (customChest is null)
+                return null;
             var chest = new Chest(true);
             chest.items.AddRange(customChest.items);
             chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
@@ -20,6 +22,8 @@ namespace MegaStorage.Mapping
 
         public static CustomChest ToCustomChest(this Chest chest, ChestType chestType)
         {
+            if (chest is null)
+                return null;
             var customChest = CustomChestFactory.Create(chestType);
             customChest.items.AddRange(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
@@ -30,24 +34,28 @@ namespace MegaStorage.Mapping
 
         public static DeserializedChest ToDeserializedChest(this CustomChest customChest, int inventoryIndex)
         {
-            return new DeserializedChest
-            {
-                InventoryIndex = inventoryIndex,
-                ChestType = customChest.ChestType,
-                Name = customChest.name
-            };
+            return customChest is null
+                ? null
+                : new DeserializedChest
+                {
+                    InventoryIndex = inventoryIndex,
+                    ChestType = customChest.ChestType,
+                    Name = customChest.name
+                };
         }
 
         public static DeserializedChest ToDeserializedChest(this CustomChest customChest, string locationName, Vector2 position)
         {
-            return new DeserializedChest
-            {
-                LocationName = locationName,
-                PositionX = position.X,
-                PositionY = position.Y,
-                ChestType = customChest.ChestType,
-                Name = customChest.name
-            };
+            return customChest is null
+                ? null
+                : new DeserializedChest
+                {
+                    LocationName = locationName,
+                    PositionX = position.X,
+                    PositionY = position.Y,
+                    ChestType = customChest.ChestType,
+                    Name = customChest.name
+                };
         }
 
         public static DeserializedChest ToDeserializedChest(this CustomChest customChest, long playerId, int inventoryIndex)
@@ -66,6 +74,8 @@ namespace MegaStorage.Mapping
 
         public static CustomChest ToCustomChest(this Item item)
         {
+            if (item is null)
+                return null;
             var customChest = CustomChestFactory.Create(item.ParentSheetIndex);
             customChest.name = item.Name;
             customChest.Stack = item.Stack;
