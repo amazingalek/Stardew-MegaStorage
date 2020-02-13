@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using MegaStorage.Mapping;
+using MegaStorage.Models;
 using Microsoft.Xna.Framework;
 using Pathoschild.Stardew.Automate;
 using StardewValley;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Models
+namespace MegaStorageAutomate.Models
 {
     /// <summary>A in-game chest which can provide or store items.</summary>
     internal class CustomChestContainer : IContainer
@@ -45,7 +46,7 @@ namespace MegaStorage.Models
         /// <param name="chest">The underlying chest.</param>
         /// <param name="location">The location which contains the container.</param>
         /// <param name="tile">The tile area covered by the container.</param>
-        public CustomChestContainer(SObject chest, GameLocation location, Vector2 tile)
+        public CustomChestContainer(Item chest, GameLocation location, Vector2 tile)
         {
             this._chest = chest.ToCustomChest();
             this.Location = location;

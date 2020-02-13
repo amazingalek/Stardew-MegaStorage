@@ -1,6 +1,8 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using Object = StardewValley.Object;
 
 namespace MegaStorage.UI
 {
@@ -12,7 +14,8 @@ namespace MegaStorage.UI
 
         protected override bool BelongsToCategory(Item i)
         {
-            if (i.getCategoryName() == "" || i is Object obj && obj.Type == "Arch")
+            if (i != null && (string.IsNullOrWhiteSpace(i.getCategoryName()) || i is Object obj &&
+                              obj.Type.Equals("Arch", StringComparison.InvariantCultureIgnoreCase)))
                 return true;
             switch (i)
             {
