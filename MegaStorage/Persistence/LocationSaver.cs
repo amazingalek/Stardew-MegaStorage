@@ -13,22 +13,11 @@ namespace MegaStorage.Persistence
     {
         public string SaveDataKey => "LocationNiceChests";
 
-        private readonly IModHelper _modHelper;
-        private readonly IMonitor _monitor;
-        private readonly IConvenientChestsApi _convenientChestsApi;
-
         private Dictionary<GameLocation, Dictionary<Vector2, CustomChest>> _locationCustomChests;
-
-        public LocationSaver(IModHelper modHelper, IMonitor monitor, IConvenientChestsApi convenientChestsApi)
-        {
-            _modHelper = modHelper;
-            _monitor = monitor;
-            _convenientChestsApi = convenientChestsApi;
-        }
 
         public void HideAndSaveCustomChests()
         {
-            _monitor.VerboseLog("LocationSaver: HideAndSaveCustomChests");
+            MegaStorageMod.ModMonitor.VerboseLog("LocationSaver: HideAndSaveCustomChests");
             _locationCustomChests = new Dictionary<GameLocation, Dictionary<Vector2, CustomChest>>();
             var deserializedChests = new List<DeserializedChest>();
             var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
@@ -44,31 +33,32 @@ namespace MegaStorage.Persistence
                     var position = customChestPosition.Key;
                     var customChest = customChestPosition.Value;
                     var chest = customChest.ToChest();
-                    _convenientChestsApi?.CopyChestData(customChest, chest);
+                    MegaStorageMod.ConvenientChests.CopyChestData(customChest, chest);
                     location.objects[position] = chest;
                     var deserializedChest = customChest.ToDeserializedChest(locationName, position);
-                    _monitor.VerboseLog($"Hiding and saving in {locationName}: {deserializedChest}");
+                    MegaStorageMod.ModMonitor.VerboseLog($"Hiding and saving in {locationName}: {deserializedChest}");
                     deserializedChests.Add(deserializedChest);
                 }
             }
             if (!Context.IsMainPlayer)
             {
-                _monitor.VerboseLog("Not main player!");
+                MegaStorageMod.ModMonitor.VerboseLog("Not main player!");
                 return;
             }
-            var saveData = new SaveData
+
+            var saveData = new SaveData()
             {
                 DeserializedChests = deserializedChests
             };
-            _modHelper.Data.WriteSaveData(SaveDataKey, saveData);
+            MegaStorageMod.ModHelper.Data.WriteSaveData(SaveDataKey, saveData);
         }
 
         public void ReAddCustomChests()
         {
-            _monitor.VerboseLog("LocationSaver: ReAddCustomChests");
+            MegaStorageMod.ModMonitor.VerboseLog("LocationSaver: ReAddCustomChests");
             if (_locationCustomChests == null)
             {
-                _monitor.VerboseLog("Nothing to re-add");
+                MegaStorageMod.ModMonitor.VerboseLog("Nothing to re-add");
                 return;
             }
             foreach (var customChestLocations in _locationCustomChests)
@@ -80,7 +70,7 @@ namespace MegaStorage.Persistence
                     var position = customChestPosition.Key;
                     var customChest = customChestPosition.Value;
                     var locationName = location.uniqueName.Value ?? location.Name;
-                    _monitor.VerboseLog($"Re-adding in {locationName}: {customChest.Name} ({position})");
+                    MegaStorageMod.ModMonitor.VerboseLog($"Re-adding in {locationName}: {customChest.Name} ({position})");
                     location.objects[position] = customChest;
                 }
             }
@@ -88,16 +78,16 @@ namespace MegaStorage.Persistence
 
         public void LoadCustomChests()
         {
-            _monitor.VerboseLog("LocationSaver: LoadCustomChests");
+            MegaStorageMod.ModMonitor.VerboseLog("LocationSaver: LoadCustomChests");
             if (!Context.IsMainPlayer)
             {
-                _monitor.VerboseLog("Not main player!");
+                MegaStorageMod.ModMonitor.VerboseLog("Not main player!");
                 return;
             }
-            var saveData = _modHelper.Data.ReadSaveData<SaveData>(SaveDataKey);
+            var saveData = MegaStorageMod.ModHelper.Data.ReadSaveData<SaveData>(SaveDataKey);
             if (saveData == null)
             {
-                _monitor.VerboseLog("Nothing to load");
+                MegaStorageMod.ModMonitor.VerboseLog("Nothing to load");
                 return;
             }
             var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
@@ -110,13 +100,13 @@ namespace MegaStorage.Persistence
                     var position = new Vector2(deserializedChest.PositionX, deserializedChest.PositionY);
                     if (!location.objects.ContainsKey(position))
                     {
-                        _monitor.VerboseLog("WARNING! Expected chest at position: " + position);
+                        MegaStorageMod.ModMonitor.VerboseLog("WARNING! Expected chest at position: " + position);
                         continue;
                     }
                     var chest = (Chest)location.objects[position];
                     var customChest = chest.ToCustomChest(deserializedChest.ChestType);
-                    _monitor.VerboseLog($"Loading: {deserializedChest}");
-                    _convenientChestsApi?.CopyChestData(chest, customChest);
+                    MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
+                    MegaStorageMod.ConvenientChests.CopyChestData(chest, customChest);
                     location.objects[position] = customChest;
                 }
             }

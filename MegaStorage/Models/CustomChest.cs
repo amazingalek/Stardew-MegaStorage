@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using MegaStorage.Mapping;
 using MegaStorage.UI;
 using Microsoft.Xna.Framework;
@@ -16,11 +17,8 @@ namespace MegaStorage.Models
     {
         public abstract int Capacity { get; }
         public abstract ChestType ChestType { get; }
-        protected abstract LargeItemGrabMenu CreateItemGrabMenu();
-
         public CustomChestConfig Config { get; }
-        public string BigCraftableInfo => $"{Config.Name}/0/-300/Crafting -9/{Config.Description}/true/true/0";
-        public string RecipeString => $"{Config.Recipe}/Home/{Config.Id}/true/{Config.Name}";
+        protected abstract LargeItemGrabMenu CreateItemGrabMenu();
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
@@ -35,7 +33,7 @@ namespace MegaStorage.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected CustomChest(CustomChestConfig config) : base(true)
+        protected CustomChest(int parentSheetIndex, CustomChestConfig config) : base(true)
         {
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 
@@ -46,16 +44,14 @@ namespace MegaStorage.Models
             }
 
             Config = config;
-            ParentSheetIndex = config.Id;
+            ParentSheetIndex = parentSheetIndex;
+            startingLidFrame.Value = parentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
-            startingLidFrame.Value = config.Id + 1;
-            name = config.Name;
-            _sprite = contentHelper.Load<Texture2D>(Path.Combine("assets", config.SpritePath));
-            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", config.SpriteBWPath));
-            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", config.SpriteBracesPath));
-        }
 
-        public override string getDescription() => Config.Description;
+            _sprite = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpritePath));
+            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBWPath));
+            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBracesPath));
+        }
 
         public override Item addItem(Item itemToAdd)
         {
@@ -64,19 +60,19 @@ namespace MegaStorage.Models
 
             itemToAdd.resetState();
             clearNulls();
-            foreach (var item in items)
+
+            foreach (var item in items.Where(item => item != null && item.canStackWith(itemToAdd)))
             {
-                if (item == null || !item.canStackWith(itemToAdd))
-                    continue;
                 itemToAdd.Stack = item.addToStack(itemToAdd);
                 if (itemToAdd.Stack <= 0)
                     return null;
             }
+
             if (items.Count >= Capacity)
-            {
                 return itemToAdd;
-            }
+            
             items.Add(itemToAdd);
+
             return null;
         }
 
@@ -126,10 +122,7 @@ namespace MegaStorage.Models
 
         public override void grabItemFromChest(Item item, Farmer who)
         {
-            if (who is null)
-                return;
-
-            if (!who.couldInventoryAcceptThisItem(item))
+            if (who is null || !who.couldInventoryAcceptThisItem(item))
                 return;
             items.Remove(item);
             clearNulls();
@@ -144,7 +137,6 @@ namespace MegaStorage.Models
         {
             if (item is null || who is null)
                 return;
-
             if (item.Stack == 0)
                 item.Stack = 1;
             var addedItem = addItem(item);
@@ -169,7 +161,6 @@ namespace MegaStorage.Models
         {
             if (location is null)
                 return false;
-
             var objectKey = new Vector2(x / 64, y / 64);
             health = 10;
             owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
@@ -203,7 +194,9 @@ namespace MegaStorage.Models
                 if (items.Count == 0)
                 {
                     performRemoveAction(tileLocation.Value, location);
-                    if (location.Objects.Remove(c) && type.Value.Equals("Crafting", StringComparison.InvariantCultureIgnoreCase) && Fragility != 2)
+                    if (location.Objects.Remove(c)
+                        && type.Value.Equals("Crafting", StringComparison.InvariantCultureIgnoreCase)
+                        && Fragility != 2)
                     {
                         location.debris.Add(CreateDebris(player));
                     }
@@ -231,19 +224,42 @@ namespace MegaStorage.Models
         {
             if (spriteBatch is null)
                 return;
-
             var lidFrameIndex = CurrentLidFrame - ParentSheetIndex - 1;
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
-                spriteBatch.Draw(_sprite, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), tint.Value * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
-                spriteBatch.Draw(_sprite, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)), Game1.getSourceRectForStandardTileSheet(_sprite, lidFrameIndex, 16, 32), tint.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
+                spriteBatch.Draw(_sprite,
+                    Game1.GlobalToLocal(Game1.viewport,
+                        new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)),
+                    Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), tint.Value * alpha, 0.0f, Vector2.Zero,
+                    4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
+                spriteBatch.Draw(_sprite,
+                    Game1.GlobalToLocal(Game1.viewport,
+                        new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)),
+                    Game1.getSourceRectForStandardTileSheet(_sprite, lidFrameIndex, 16, 32), tint.Value * alpha * alpha,
+                    0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
             }
             else
             {
-                spriteBatch.Draw(_spriteBW, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(_spriteBW, 0, 16, 32), playerChoiceColor.Value * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
-                spriteBatch.Draw(_spriteBW, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(_spriteBW, lidFrameIndex, 16, 32), playerChoiceColor.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
-                spriteBatch.Draw(Game1.bigCraftableSpriteSheet, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 20)), new Rectangle(0, 725, 16, 11), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
-                spriteBatch.Draw(_spriteBraces, Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))), Game1.getSourceRectForStandardTileSheet(_spriteBraces, lidFrameIndex, 16, 32), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
+                spriteBatch.Draw(_spriteBW,
+                    Game1.GlobalToLocal(Game1.viewport,
+                        new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))),
+                    Game1.getSourceRectForStandardTileSheet(_spriteBW, 0, 16, 32), playerChoiceColor.Value * alpha,
+                    0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
+                spriteBatch.Draw(_spriteBW,
+                    Game1.GlobalToLocal(Game1.viewport,
+                        new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))),
+                    Game1.getSourceRectForStandardTileSheet(_spriteBW, lidFrameIndex, 16, 32),
+                    playerChoiceColor.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None,
+                    (y * 64 + 5) / 10000f);
+                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 20)),
+                    new Rectangle(0, 725, 16, 11), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None,
+                    (y * 64 + 6) / 10000f);
+                spriteBatch.Draw(_spriteBraces,
+                    Game1.GlobalToLocal(Game1.viewport,
+                        new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))),
+                    Game1.getSourceRectForStandardTileSheet(_spriteBraces, lidFrameIndex, 16, 32), Color.White * alpha,
+                    0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
             }
         }
 
@@ -251,7 +267,6 @@ namespace MegaStorage.Models
         {
             if (spriteBatch is null)
                 return;
-
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
                 spriteBatch.Draw(_sprite, location + new Vector2(32f, 32f), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), color * transparency, 0.0f, new Vector2(8f, 16f), (float)(4.0 * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.0)), SpriteEffects.None, layerDepth);
@@ -269,6 +284,7 @@ namespace MegaStorage.Models
 
         public LargeItemGrabMenu GetItemGrabMenu()
         {
+            MegaStorageMod.ModMonitor.Log("GetItemGrabMenu");
             return _itemGrabMenu ?? (_itemGrabMenu = CreateItemGrabMenu());
         }
     }

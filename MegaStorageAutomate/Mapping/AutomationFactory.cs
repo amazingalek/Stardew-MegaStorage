@@ -1,5 +1,4 @@
-﻿using MegaStorage.Mapping;
-using MegaStorageAutomate.Models;
+﻿using MegaStorageAutomate.Models;
 using Microsoft.Xna.Framework;
 using Pathoschild.Stardew.Automate;
 using StardewValley;
@@ -19,7 +18,10 @@ namespace MegaStorageAutomate.Mapping
         /// <returns>Returns an instance or <c>null</c>.</returns>
         public IAutomatable GetFor(SObject obj, GameLocation location, in Vector2 tile)
         {
-            return CustomChestFactory.ShouldBeCustomChest(obj) ? new CustomChestContainer(obj, location, tile) : null;
+            if (obj.ParentSheetIndex.Equals(MegaStorageAutomateMod.LargeChestId) ||
+                obj.ParentSheetIndex.Equals(MegaStorageAutomateMod.MagicChestId))
+                return new CustomChestContainer(obj, location, tile);
+            return null;
         }
 
         /// <summary>Get a machine, container, or connector instance for a given terrain feature.</summary>

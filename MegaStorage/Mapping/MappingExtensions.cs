@@ -12,7 +12,6 @@ namespace MegaStorage.Mapping
         {
             if (customChest is null)
                 return null;
-
             var chest = new Chest(true);
             chest.items.AddRange(customChest.items);
             chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
@@ -26,7 +25,6 @@ namespace MegaStorage.Mapping
         {
             if (chest is null)
                 return null;
-
             var customChest = CustomChestFactory.Create(chestType);
             customChest.items.AddRange(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
@@ -80,7 +78,6 @@ namespace MegaStorage.Mapping
         {
             if (item is null)
                 return null;
-
             var customChest = CustomChestFactory.Create(item.ParentSheetIndex);
             customChest.name = item.Name;
             customChest.Stack = item.Stack;

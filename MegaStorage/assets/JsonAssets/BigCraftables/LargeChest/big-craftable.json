@@ -1,0 +1,21 @@
+﻿{
+	"Name":  "Large Chest",
+	"Description":  "A large place to store your items.",
+	"Recipe": {
+		"Ingredients":  [
+			{
+				"Object":  388,
+				"Count":  100
+			},
+			{
+				"Object":  334,
+				"Count":  5
+			},
+			{
+				"Object":  335,
+				"Count":  5
+			}
+		]
+	},
+	"EnableWithMod":  "Alek.MegaStorage"
+}

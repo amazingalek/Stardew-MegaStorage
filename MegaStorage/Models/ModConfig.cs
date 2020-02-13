@@ -5,28 +5,19 @@
         public CustomChestConfig LargeChest { get; set; }
         public CustomChestConfig MagicChest { get; set; }
         public bool EnableCategories { get; set; }
-        
         public ModConfig()
         {
             Instance = this;
-
+            
             LargeChest = new CustomChestConfig()
             {
-                Id = 816,
-                Name = "Large Chest",
-                Description = "A large place to store your items.",
-                Recipe = "388 100 334 5 335 5",
                 SpritePath = "LargeChest.png",
                 SpriteBWPath = "LargeChestBW.png",
                 SpriteBracesPath = "LargeChestBraces.png"
             };
-
+            
             MagicChest = new CustomChestConfig()
             {
-                Id = 817,
-                Name = "Magic Chest",
-                Description = "A magical place to store your items.",
-                Recipe = "709 100 336 5 337 5 768 50 769 50",
                 SpritePath = "MagicChest.png",
                 SpriteBWPath = "MagicChestBW.png",
                 SpriteBracesPath = "MagicChestBraces.png"
@@ -34,7 +25,6 @@
 
             EnableCategories = true;
         }
-
         public static ModConfig Instance { get; private set; }
     }
 }
