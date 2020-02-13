@@ -1,7 +1,5 @@
-﻿using MegaStorage.Mapping;
-using MegaStorage.Models;
+﻿using MegaStorage.Models;
 using MegaStorage.Persistence;
-using Pathoschild.Stardew.Automate;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 
@@ -9,7 +7,7 @@ namespace MegaStorage
 {
     public class MegaStorageMod : Mod
     {
-        public static MegaStorageMod Instance;
+        public static MegaStorageMod Instance { get; private set; }
 
         public override void Entry(IModHelper modHelper)
         {
@@ -21,7 +19,6 @@ namespace MegaStorage
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
             var convenientChestsApi = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
-            var automateApi = Helper.ModRegistry.GetApi<IAutomateAPI>("Pathoschild.Automate");
 
             var spritePatcher = new SpritePatcher(Helper, Monitor);
             var itemPatcher = new ItemPatcher(Helper, Monitor);
@@ -41,8 +38,6 @@ namespace MegaStorage
 
             if (!(convenientChestsApi is null))
                 ModConfig.Instance.EnableCategories = false;
-
-            automateApi?.AddFactory(new AutomationFactory());
         }
 
     }

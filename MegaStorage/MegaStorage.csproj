@@ -9,39 +9,40 @@
     <PlatformTarget>x86</PlatformTarget>
 
     <EnableHarmony>false</EnableHarmony>
+
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.6">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Pathoschild.Stardew.ModBuildConfig" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Automate">
-      <HintPath>G:\Steam\steamapps\common\Stardew Valley\Mods\Automate\Automate.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Sprites\AllTab.png">
+    <None Update="assets\AllTab.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Sprites\LargeChest.png">
+    <None Update="assets\LargeChest.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Sprites\LargeChestBraces.png">
+    <None Update="assets\LargeChestBraces.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Sprites\LargeChestBW.png">
+    <None Update="assets\LargeChestBW.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Sprites\MagicChest.png">
+    <None Update="assets\MagicChest.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Sprites\MagicChestBraces.png">
+    <None Update="assets\MagicChestBraces.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Sprites\MagicChestBW.png">
+    <None Update="assets\MagicChestBW.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
