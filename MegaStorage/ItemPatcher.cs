@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using MegaStorage.Mapping;
 using MegaStorage.Models;
-using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
 
@@ -9,25 +8,16 @@ namespace MegaStorage
 {
     public class ItemPatcher
     {
-        private readonly IModHelper _modHelper;
-        private readonly IMonitor _monitor;
-
-        public ItemPatcher(IModHelper modHelper, IMonitor monitor)
-        {
-            _modHelper = modHelper;
-            _monitor = monitor;
-        }
-
         public void Start()
         {
-            _modHelper.Events.Player.InventoryChanged += OnInventoryChanged;
-            _modHelper.Events.World.ChestInventoryChanged += OnChestInventoryChanged;
-            _modHelper.Events.World.ObjectListChanged += OnObjectListChanged;
+            MegaStorageMod.ModHelper.Events.Player.InventoryChanged += OnInventoryChanged;
+            MegaStorageMod.ModHelper.Events.World.ChestInventoryChanged += OnChestInventoryChanged;
+            MegaStorageMod.ModHelper.Events.World.ObjectListChanged += OnObjectListChanged;
         }
 
         private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
         {
-            _monitor.VerboseLog("OnInventoryChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged");
             if (!e.IsLocalPlayer || e.Added.Count() != 1)
                 return;
 
@@ -38,7 +28,7 @@ namespace MegaStorage
             if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
                 return;
 
-            _monitor.VerboseLog("OnInventoryChanged: converting");
+            MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged: converting");
 
             var index = Game1.player.Items.IndexOf(addedItem);
             Game1.player.Items[index] = addedItem.ToCustomChest();
@@ -46,7 +36,7 @@ namespace MegaStorage
 
         private void OnChestInventoryChanged(object sender, ChestInventoryChangedEventArgs e)
         {
-            _monitor.VerboseLog("OnChestInventoryChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged");
             if (e.Added.Count() != 1)
                 return;
 
@@ -57,7 +47,7 @@ namespace MegaStorage
             if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
                 return;
 
-            _monitor.VerboseLog("OnChestInventoryChanged: converting");
+            MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged: converting");
 
             var index = Game1.player.Items.IndexOf(addedItem);
             Game1.player.Items[index] = addedItem.ToCustomChest();
@@ -65,7 +55,7 @@ namespace MegaStorage
 
         private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
         {
-            _monitor.VerboseLog("OnObjectListChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
             if (e.Added.Count() != 1)
                 return;
 
@@ -77,7 +67,7 @@ namespace MegaStorage
             if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
                 return;
 
-            _monitor.VerboseLog("OnObjectListChanged: converting");
+            MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
 
             var position = addedItemPosition.Key;
             var item = e.Location.objects[position];

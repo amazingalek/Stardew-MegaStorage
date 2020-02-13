@@ -10,62 +10,77 @@ namespace MegaStorage
 {
     public class MegaStorageMod : Mod
     {
-        public static MegaStorageMod Instance { get; private set; }
-        public static int LargeChestId { get; private set; }
-        public static int MagicChestId { get; private set; }
-        private IJsonAssetsApi _jsonAssetsApi;
+        internal static MegaStorageMod Instance { get; private set; }
+        internal static IModHelper ModHelper;
+        internal static IMonitor ModMonitor;
+        internal static int LargeChestId { get; private set; }
+        internal static int MagicChestId { get; private set; }
 
+        internal static IJsonAssetsApi JsonAssets;
+        internal static IConvenientChestsApi ConvenientChests;
+        private ItemPatcher _itemPatcher;
+        private MenuChanger _menuChanger;
+        private SaveManager _saveManager;
+
+        /*********
+        ** Public methods
+        *********/
         public override void Entry(IModHelper modHelper)
         {
-            Monitor.VerboseLog("Entry of MegaStorageMod");
+            // Make Instance, ModHelper, and ModMonitor static for use in other classes
             Instance = this;
+            ModHelper = modHelper ?? throw new ArgumentNullException(nameof(modHelper));
+            ModMonitor = Monitor;
 
-            Helper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            Helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+            ModMonitor.VerboseLog("Entry of MegaStorageMod");
+
+            ModHelper.ReadConfig<ModConfig>();
+
+            ModHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
+            ModHelper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
         }
 
+        /*********
+        ** Private methods
+        *********/
         private void OnGameLaunched(object sender, GameLaunchedEventArgs e)
         {
-            _jsonAssetsApi = Helper.ModRegistry.GetApi<IJsonAssetsApi>("spacechase0.JsonAssets");
-            if (_jsonAssetsApi is null)
+            JsonAssets = ModHelper.ModRegistry.GetApi<IJsonAssetsApi>("spacechase0.JsonAssets");
+            if (JsonAssets is null)
             {
                 Monitor.Log("JsonAssets is needed to load Mega Storage chests", LogLevel.Error);
                 return;
             }
-            _jsonAssetsApi.LoadAssets(Path.Combine(Helper.DirectoryPath, "assets", "JsonAssets"));
-            _jsonAssetsApi.IdsAssigned += OnIdsAssigned;
-        }
+            JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "JsonAssets"));
+            JsonAssets.IdsAssigned += OnIdsAssigned;
 
-        private void OnIdsAssigned(object sender, EventArgs e)
-        {
-            LargeChestId = _jsonAssetsApi.GetBigCraftableId("Large Chest");
-            MagicChestId = _jsonAssetsApi.GetBigCraftableId("Magic Chest");
-            Monitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
-            Monitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
+            ConvenientChests = ModHelper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
+            if (!(ConvenientChests is null))
+                ModConfig.Instance.EnableCategories = false;
+
+            _itemPatcher = new ItemPatcher();
+            _menuChanger = new MenuChanger();
+            _saveManager = new SaveManager(
+                new FarmhandMonitor(),
+                new InventorySaver(),
+                new FarmhandInventorySaver(),
+                new LocationSaver(),
+                new LocationInventorySaver());
         }
 
         private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            var convenientChestsApi = Helper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
+            _itemPatcher.Start();
+            _saveManager.Start();
+            _menuChanger.Start();
+        }
 
-            var spritePatcher = new SpritePatcher(Helper, Monitor);
-            var itemPatcher = new ItemPatcher(Helper, Monitor);
-            var menuChanger = new MenuChanger(Helper, Monitor);
-            var saveManager = new SaveManager(Helper, Monitor,
-                new FarmhandMonitor(Helper, Monitor),
-                new InventorySaver(Helper, Monitor, convenientChestsApi),
-                new FarmhandInventorySaver(Helper, Monitor, convenientChestsApi),
-                new LocationSaver(Helper, Monitor, convenientChestsApi),
-                new LocationInventorySaver(Helper, Monitor, convenientChestsApi));
-
-            Helper.ReadConfig<ModConfig>();
-            Helper.Content.AssetEditors.Add(spritePatcher);
-            itemPatcher.Start();
-            saveManager.Start();
-            menuChanger.Start();
-
-            if (!(convenientChestsApi is null))
-                ModConfig.Instance.EnableCategories = false;
+        private static void OnIdsAssigned(object sender, EventArgs e)
+        {
+            LargeChestId = JsonAssets.GetBigCraftableId("Large Chest");
+            MagicChestId = JsonAssets.GetBigCraftableId("Magic Chest");
+            ModMonitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
+            ModMonitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
         }
     }
 }
