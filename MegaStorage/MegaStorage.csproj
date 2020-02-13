@@ -45,25 +45,25 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="assets\Sprites\AllTab.png">
+    <None Update="assets\AllTab.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="assets\Sprites\LargeChest.png">
+    <None Update="assets\LargeChest.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="assets\Sprites\LargeChestBraces.png">
+    <None Update="assets\LargeChestBraces.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="assets\Sprites\LargeChestBW.png">
+    <None Update="assets\LargeChestBW.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="assets\Sprites\MagicChest.png">
+    <None Update="assets\MagicChest.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="assets\Sprites\MagicChestBraces.png">
+    <None Update="assets\MagicChestBraces.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="assets\Sprites\MagicChestBW.png">
+    <None Update="assets\MagicChestBW.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

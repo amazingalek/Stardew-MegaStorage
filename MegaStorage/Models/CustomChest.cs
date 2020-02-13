@@ -41,11 +41,11 @@ namespace MegaStorage.Models
 
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 
-            SpritePath = Path.Combine("assets", "Sprites", spritePath);
+            SpritePath = Path.Combine("assets", spritePath);
 
             _sprite = contentHelper.Load<Texture2D>(SpritePath);
-            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", "Sprites", spriteBWPath));
-            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", "Sprites", spriteBracesPath));
+            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", spriteBWPath));
+            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", spriteBracesPath));
         }
 
         public override Item addItem(Item itemToAdd)
