@@ -9,6 +9,10 @@ namespace MegaStorage.Models
         public override ChestType ChestType => ChestType.LargeChest;
         protected override LargeItemGrabMenu CreateItemGrabMenu() => new LargeItemGrabMenu(this);
         public override Item getOne() => new LargeChest();
-        public LargeChest() : base(MegaStorageMod.LargeChestId, ModConfig.Instance.LargeChest) { }
+
+        public LargeChest() : base(MegaStorageMod.LargeChestId, ModConfig.Instance.LargeChest)
+        {
+            name = "Large Chest";
+        }
     }
 }
