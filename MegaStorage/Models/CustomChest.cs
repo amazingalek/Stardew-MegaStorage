@@ -51,8 +51,6 @@ namespace MegaStorage.Models
             _sprite = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpritePath));
             _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBWPath));
             _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBracesPath));
-
-            
         }
 
         public override Item addItem(Item itemToAdd)

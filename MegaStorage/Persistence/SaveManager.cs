@@ -1,4 +1,9 @@
-﻿namespace MegaStorage.Persistence
+﻿using StardewModdingAPI.Events;
+using System;
+using StardewModdingAPI;
+using StardewValley.Menus;
+
+namespace MegaStorage.Persistence
 {
     public class SaveManager
     {
