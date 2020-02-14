@@ -30,7 +30,7 @@
 	{
 		//"es": "", //Spanish
 		"ko": "마법 상자",
-		//"de": "", //German
+		"de": "Magishe Truhe", //German
 		//"fr": "", //French
 		//"hu": "", //Hungarian
 		//"it": "", //Italian
@@ -44,7 +44,7 @@
 	{
 		//"es": "", //Spanish
 		"ko": "물건을 보관할 수 있는 마법의 상자.",
-		//"de": "", //German
+		"de": "Eine magische Truhe, um alle deine Gegenstände zu lagern.", //German
 		//"fr": "", //French
 		//"hu": "", //Hungarian
 		//"it": "", //Italian

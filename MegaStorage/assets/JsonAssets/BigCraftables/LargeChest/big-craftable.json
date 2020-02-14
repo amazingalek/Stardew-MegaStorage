@@ -22,7 +22,7 @@
 	{
 		//"es": "", //Spanish
 		"ko": "큰 상자",
-		//"de": "", //German
+		"de": "Große Kiste", //German
 		//"fr": "", //French
 		//"hu": "", //Hungarian
 		//"it": "", //Italian
@@ -36,7 +36,7 @@
 	{
 		//"es": "", //Spanish
 		"ko": "물건을 보관할 수 있는 넓은 상자.",
-		//"de": "", //German
+		"de": "Eine größere Kiste, um deine Gegenstände zu lagern.", //German
 		//"fr": "", //French
 		//"hu": "", //Hungarian
 		//"it": "", //Italian
