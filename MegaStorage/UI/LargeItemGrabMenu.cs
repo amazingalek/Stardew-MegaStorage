@@ -231,22 +231,24 @@ namespace MegaStorage.UI
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             if (_hoverCategory != null)
-            {
                 ChangeCategory(_hoverCategory);
-            }
+
             ReceiveLeftClickBase(x, y, !destroyItemOnClick);
+
             if (chestColorPicker != null)
             {
                 chestColorPicker.receiveLeftClick(x, y);
                 if (SourceItem is Chest chest)
                     chest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
             }
+
             if (colorPickerToggleButton != null && colorPickerToggleButton.containsPoint(x, y))
             {
                 Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
                 chestColorPicker.visible = Game1.player.showChestColorPicker;
                 Game1.playSound("drumkit6");
             }
+
             if (whichSpecialButton != -1 && specialButton != null && specialButton.containsPoint(x, y))
             {
                 Game1.playSound("drumkit6");
@@ -256,6 +258,7 @@ namespace MegaStorage.UI
                     specialButton.sourceRect.X = hut.noHarvest.Value ? 124 : 108;
                 }
             }
+
             if (heldItem == null && showReceivingMenu)
             {
                 var itemsBefore = ItemsToGrabMenu.actualInventory.ToList();
@@ -328,12 +331,14 @@ namespace MegaStorage.UI
                     return;
                 }
             }
+
             //Test Fill Stash Button
             if (fillStacksButton != null && fillStacksButton.containsPoint(x, y))
             {
                 FillOutStacks();
                 Game1.playSound("Ship");
             }
+
             if (organizeButton != null && organizeButton.containsPoint(x, y))
             {
                 organizeItemsInList(CustomChest.items);
@@ -360,8 +365,10 @@ namespace MegaStorage.UI
         private void ReceiveLeftClickBase(int x, int y, bool playSound = true)
         {
             heldItem = inventory.leftClick(x, y, heldItem, playSound);
+
             if (!isWithinBounds(x, y) && readyToClose())
                 trashCan?.containsPoint(x, y);
+            
             if (okButton != null && okButton.containsPoint(x, y) && readyToClose())
             {
                 exitThisMenu();
@@ -369,10 +376,13 @@ namespace MegaStorage.UI
                     ++Game1.currentLocation.currentEvent.CurrentCommand;
                 Game1.playSound("bigDeSelect");
             }
+            
             if (trashCan == null || !trashCan.containsPoint(x, y) || (heldItem == null || !heldItem.canBeTrashed()))
                 return;
+            
             if (heldItem is Object obj && Game1.player.specialItems.Contains(obj.ParentSheetIndex))
                 Game1.player.specialItems.Remove(obj.ParentSheetIndex);
+            
             heldItem = null;
             Game1.playSound("trashcan");
         }
