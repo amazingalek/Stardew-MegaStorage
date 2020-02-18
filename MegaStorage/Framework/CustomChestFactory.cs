@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MegaStorage.Models;
+using MegaStorage.Framework.Models;
 using StardewValley;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Mapping
+namespace MegaStorage.Framework
 {
     public static class CustomChestFactory
     {

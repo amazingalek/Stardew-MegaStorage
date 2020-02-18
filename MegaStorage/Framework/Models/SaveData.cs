@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MegaStorage.Models
+namespace MegaStorage.Framework.Models
 {
     public class SaveData
     {

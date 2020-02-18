@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using MegaStorage.Models;
-using MegaStorage.Persistence;
-using MegaStorageAutomate;
+using MegaStorage.Framework.Models;
+using MegaStorage.Framework.Persistence;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 

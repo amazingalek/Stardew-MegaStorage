@@ -1,6 +1,5 @@
-﻿using MegaStorage.Models;
-using MegaStorage.UI;
-using StardewModdingAPI;
+﻿using MegaStorage.Framework.Interface;
+using MegaStorage.Framework.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Menus;
@@ -14,7 +13,7 @@ namespace MegaStorage
             MegaStorageMod.ModHelper.Events.Display.MenuChanged += OnMenuChanged;
         }
 
-        private void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
             if (e.NewMenu is LargeItemGrabMenu)

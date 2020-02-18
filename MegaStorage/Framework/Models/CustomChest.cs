@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.UI;
+using MegaStorage.Framework.Interface;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -11,7 +10,7 @@ using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Tools;
 
-namespace MegaStorage.Models
+namespace MegaStorage.Framework.Models
 {
     public abstract class CustomChest : Chest
     {

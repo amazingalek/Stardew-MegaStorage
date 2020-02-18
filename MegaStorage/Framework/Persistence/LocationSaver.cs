@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.Models;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 
-namespace MegaStorage.Persistence
+namespace MegaStorage.Framework.Persistence
 {
     public class LocationSaver : ISaver
     {

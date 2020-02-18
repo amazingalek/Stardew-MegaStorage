@@ -2,7 +2,7 @@
 using StardewModdingAPI.Events;
 using StardewValley;
 
-namespace MegaStorage.Persistence
+namespace MegaStorage.Framework.Persistence
 {
     public class FarmhandMonitor
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MegaStorage.Models;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -11,7 +11,7 @@ using StardewValley.Menus;
 using StardewValley.Objects;
 using Object = StardewValley.Object;
 
-namespace MegaStorage.UI
+namespace MegaStorage.Framework.Interface
 {
     public class LargeItemGrabMenu : ItemGrabMenu
     {

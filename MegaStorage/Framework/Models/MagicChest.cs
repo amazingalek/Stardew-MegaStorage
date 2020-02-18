@@ -1,7 +1,7 @@
-﻿using MegaStorage.UI;
+﻿using MegaStorage.Framework.Interface;
 using StardewValley;
 
-namespace MegaStorage.Models
+namespace MegaStorage.Framework.Models
 {
     public class MagicChest : CustomChest
     {

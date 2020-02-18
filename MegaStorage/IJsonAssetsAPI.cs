@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-namespace MegaStorageAutomate
+namespace MegaStorage
 {
     public interface IJsonAssetsApi
     {

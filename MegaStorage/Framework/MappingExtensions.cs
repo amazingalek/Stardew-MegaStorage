@@ -1,9 +1,9 @@
-﻿using MegaStorage.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
 
-namespace MegaStorage.Mapping
+namespace MegaStorage.Framework
 {
     public static class MappingExtensions
     {

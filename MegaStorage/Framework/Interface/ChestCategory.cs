@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MegaStorage.Models;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 
-namespace MegaStorage.UI
+namespace MegaStorage.Framework.Interface
 {
     public class ChestCategory : ClickableComponent
     {

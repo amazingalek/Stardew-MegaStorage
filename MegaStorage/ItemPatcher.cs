@@ -1,6 +1,6 @@
 ﻿using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.Models;
+using MegaStorage.Framework;
+using MegaStorage.Framework.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
 

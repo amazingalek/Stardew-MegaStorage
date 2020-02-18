@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using MegaStorage.Models;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 
-namespace MegaStorage.UI
+namespace MegaStorage.Framework.Interface
 {
     public class MagicItemGrabMenu : LargeItemGrabMenu
     {
