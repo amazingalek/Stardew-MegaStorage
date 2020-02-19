@@ -14,6 +14,7 @@ namespace MegaStorage
         internal static IMonitor ModMonitor;
         internal static int LargeChestId { get; private set; }
         internal static int MagicChestId { get; private set; }
+        internal static int SuperMagicChestId { get; private set; }
 
         internal static IJsonAssetsApi JsonAssets;
         internal static IConvenientChestsApi ConvenientChests;
@@ -78,8 +79,10 @@ namespace MegaStorage
         {
             LargeChestId = JsonAssets.GetBigCraftableId("Large Chest");
             MagicChestId = JsonAssets.GetBigCraftableId("Magic Chest");
+            SuperMagicChestId = JsonAssets.GetBigCraftableId("Super Magic Chest");
             ModMonitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
             ModMonitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
+            ModMonitor.VerboseLog($"Super Magic Chest ID is {SuperMagicChestId}.");
         }
     }
 }

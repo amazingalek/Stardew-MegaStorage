@@ -19,11 +19,13 @@
   <ItemGroup>
     <None Remove="assets\JsonAssets\BigCraftables\LargeChest\big-craftable.png" />
     <None Remove="assets\JsonAssets\BigCraftables\MagicChest\big-craftable.png" />
+    <None Remove="assets\JsonAssets\BigCraftables\SuperMagicChest\big-craftable.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="assets\JsonAssets\BigCraftables\LargeChest\big-craftable.png" />
     <Content Include="assets\JsonAssets\BigCraftables\MagicChest\big-craftable.png" />
+    <Content Include="assets\JsonAssets\BigCraftables\SuperMagicChest\big-craftable.png" />
   </ItemGroup>
 
   <ItemGroup>
