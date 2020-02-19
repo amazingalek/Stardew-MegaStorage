@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using MegaStorage.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using System;
+using System.Linq;
 
-namespace MegaStorage.UI
+namespace MegaStorage.Framework.Interface
 {
     public class MagicItemGrabMenu : LargeItemGrabMenu
     {
@@ -38,7 +38,9 @@ namespace MegaStorage.UI
             ItemsToGrabMenu.actualInventory = filteredItems.Skip(ItemsPerRow * _currentRow).ToList();
             _maxRow = (filteredItems.Count - 1) / 12 + 1 - Rows;
             if (_currentRow > _maxRow)
+            {
                 _currentRow = _maxRow;
+            }
         }
 
         protected override void ChangeCategory(ChestCategory cat)

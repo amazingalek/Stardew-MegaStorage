@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MegaStorage.Persistence
+namespace MegaStorage.Framework.Persistence
 {
     public class LocationSaver : ISaver
     {
@@ -25,7 +24,10 @@ namespace MegaStorage.Persistence
             {
                 var customChestPositions = location.objects.Pairs.Where(x => x.Value is CustomChest).ToDictionary(pair => pair.Key, pair => (CustomChest)pair.Value);
                 if (!customChestPositions.Any())
+                {
                     continue;
+                }
+
                 var locationName = location.uniqueName?.Value ?? location.Name;
                 _locationCustomChests.Add(location, customChestPositions);
                 foreach (var customChestPosition in customChestPositions)
@@ -104,7 +106,7 @@ namespace MegaStorage.Persistence
                         continue;
                     }
                     var chest = (Chest)location.objects[position];
-                    var customChest = chest.ToCustomChest(deserializedChest.ChestType);
+                    var customChest = chest.ToCustomChest(deserializedChest.ChestType, position);
                     MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
                     MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
                     location.objects[position] = customChest;

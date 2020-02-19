@@ -1,4 +1,4 @@
-﻿namespace MegaStorage.Persistence
+﻿namespace MegaStorage.Framework.Persistence
 {
     public interface ISaver
     {

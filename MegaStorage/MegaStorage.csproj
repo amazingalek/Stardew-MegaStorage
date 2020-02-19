@@ -12,6 +12,8 @@
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <ItemGroup>

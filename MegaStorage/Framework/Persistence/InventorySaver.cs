@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.Models;
+﻿using MegaStorage.Framework.Models;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MegaStorage.Persistence
+namespace MegaStorage.Framework.Persistence
 {
     public class InventorySaver : ISaver
     {

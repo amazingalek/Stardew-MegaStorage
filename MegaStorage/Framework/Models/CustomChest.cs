@@ -1,8 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.UI;
+﻿using MegaStorage.Framework.Interface;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -10,8 +6,11 @@ using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Tools;
+using System;
+using System.IO;
+using System.Linq;
 
-namespace MegaStorage.Models
+namespace MegaStorage.Framework.Models
 {
     public abstract class CustomChest : Chest
     {
@@ -33,7 +32,7 @@ namespace MegaStorage.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected CustomChest(int parentSheetIndex, CustomChestConfig config) : base(true)
+        protected CustomChest(int parentSheetIndex, CustomChestConfig config, Vector2 tileLocation) : base(true, tileLocation)
         {
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 
@@ -56,7 +55,9 @@ namespace MegaStorage.Models
         public override Item addItem(Item itemToAdd)
         {
             if (itemToAdd is null)
+            {
                 return null;
+            }
 
             itemToAdd.resetState();
             clearNulls();
@@ -65,12 +66,16 @@ namespace MegaStorage.Models
             {
                 itemToAdd.Stack = item.addToStack(itemToAdd);
                 if (itemToAdd.Stack <= 0)
+                {
                     return null;
+                }
             }
 
             if (items.Count >= Capacity)
+            {
                 return itemToAdd;
-            
+            }
+
             items.Add(itemToAdd);
 
             return null;
@@ -79,7 +84,9 @@ namespace MegaStorage.Models
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
             if (time is null)
+            {
                 return;
+            }
 
             var currentLidFrameValue = CurrentLidFrame;
             fixLidFrame();
@@ -88,13 +95,18 @@ namespace MegaStorage.Models
             {
                 shakeTimer -= time.ElapsedGameTime.Milliseconds;
                 if (shakeTimer <= 0)
+                {
                     health = 10;
+                }
             }
             if (frameCounter.Value > -1 && currentLidFrameValue < ParentSheetIndex + 6)
             {
                 --frameCounter.Value;
                 if (frameCounter.Value > 0 || !mutex.IsLockHeld())
+                {
                     return;
+                }
+
                 if (currentLidFrameValue == ParentSheetIndex + 5)
                 {
                     _itemGrabMenu = CreateItemGrabMenu();
@@ -111,7 +123,10 @@ namespace MegaStorage.Models
             else
             {
                 if (frameCounter.Value != -1 || currentLidFrameValue <= ParentSheetIndex + 1 || Game1.activeClickableMenu != null || !mutex.IsLockHeld())
+                {
                     return;
+                }
+
                 mutex.ReleaseLock();
                 currentLidFrameValue = ParentSheetIndex + 5;
                 CurrentLidFrame = currentLidFrameValue;
@@ -123,11 +138,17 @@ namespace MegaStorage.Models
         public override void grabItemFromChest(Item item, Farmer who)
         {
             if (who is null || !who.couldInventoryAcceptThisItem(item))
+            {
                 return;
+            }
+
             items.Remove(item);
             clearNulls();
             if (_itemGrabMenu == null)
+            {
                 _itemGrabMenu = CreateItemGrabMenu();
+            }
+
             _itemGrabMenu.Refresh();
 
             Game1.activeClickableMenu = _itemGrabMenu;
@@ -136,23 +157,40 @@ namespace MegaStorage.Models
         public override void grabItemFromInventory(Item item, Farmer who)
         {
             if (item is null || who is null)
+            {
                 return;
+            }
+
             if (item.Stack == 0)
+            {
                 item.Stack = 1;
+            }
+
             var addedItem = addItem(item);
             if (addedItem == null)
+            {
                 who.removeItemFromInventory(item);
+            }
             else
+            {
                 addedItem = who.addItemToInventory(addedItem);
+            }
+
             clearNulls();
             var id = Game1.activeClickableMenu.currentlySnappedComponent != null ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
             if (_itemGrabMenu == null)
+            {
                 _itemGrabMenu = CreateItemGrabMenu();
+            }
+
             _itemGrabMenu.Refresh();
             _itemGrabMenu.heldItem = addedItem;
             Game1.activeClickableMenu = _itemGrabMenu;
             if (id == -1)
+            {
                 return;
+            }
+
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);
             Game1.activeClickableMenu.snapCursorToCurrentSnappedComponent();
         }
@@ -160,7 +198,10 @@ namespace MegaStorage.Models
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
             if (location is null)
+            {
                 return false;
+            }
+
             var objectKey = new Vector2(x / 64, y / 64);
             health = 10;
             owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
@@ -179,12 +220,21 @@ namespace MegaStorage.Models
         public override bool performToolAction(Tool t, GameLocation location)
         {
             if (t?.getLastFarmerToUse() != null && t.getLastFarmerToUse() != Game1.player)
+            {
                 return false;
+            }
+
             if (t == null || t is MeleeWeapon || !t.isHeavyHitter())
+            {
                 return false;
+            }
+
             var player = t.getLastFarmerToUse();
             if (player == null)
+            {
                 return false;
+            }
+
             var c = player.GetToolLocation() / 64f;
             c.X = (int)c.X;
             c.Y = (int)c.Y;
@@ -223,7 +273,10 @@ namespace MegaStorage.Models
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
             if (spriteBatch is null)
+            {
                 return;
+            }
+
             var lidFrameIndex = CurrentLidFrame - ParentSheetIndex - 1;
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
@@ -266,7 +319,10 @@ namespace MegaStorage.Models
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
             if (spriteBatch is null)
+            {
                 return;
+            }
+
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
                 spriteBatch.Draw(_sprite, location + new Vector2(32f, 32f), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), color * transparency, 0.0f, new Vector2(8f, 16f), (float)(4.0 * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.0)), SpriteEffects.None, layerDepth);

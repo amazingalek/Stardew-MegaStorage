@@ -1,4 +1,4 @@
-﻿namespace MegaStorage.Models
+﻿namespace MegaStorage.Framework.Models
 {
     public class CustomChestConfig
     {

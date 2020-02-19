@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MegaStorage.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace MegaStorage.UI
+namespace MegaStorage.Framework.Interface
 {
     public class ChestCategory : ClickableComponent
     {
@@ -29,8 +29,10 @@ namespace MegaStorage.UI
 
         public virtual void Draw(SpriteBatch b, int x, int y)
         {
-            if (ModConfig.Instance.EnableCategories)
+            if (!(b is null) && ModConfig.Instance.EnableCategories)
+            {
                 b.Draw(Game1.mouseCursors, new Vector2(x - 72, y + StartY + Index * Height), new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            }
         }
 
         public void DrawTooltip(SpriteBatch b)
