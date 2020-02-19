@@ -14,9 +14,12 @@ namespace MegaStorage.Framework.Interface
 
         protected override bool BelongsToCategory(Item i)
         {
-            if (i != null && (string.IsNullOrWhiteSpace(i.getCategoryName()) || i is Object obj &&
-                              obj.Type.Equals("Arch", StringComparison.InvariantCultureIgnoreCase)))
+            if (i is null || string.IsNullOrWhiteSpace(i.getCategoryName()))
                 return true;
+
+            if (i is Object obj && !(obj.Type is null) && obj.Type.Equals("Arch", StringComparison.InvariantCultureIgnoreCase))
+                return true;
+
             switch (i)
             {
                 case Tool _:
