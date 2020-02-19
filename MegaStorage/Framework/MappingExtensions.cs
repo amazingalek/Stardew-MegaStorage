@@ -11,7 +11,10 @@ namespace MegaStorage.Framework
         public static Chest ToChest(this CustomChest customChest)
         {
             if (customChest is null)
+            {
                 return null;
+            }
+
             var chest = new Chest(true);
             chest.items.AddRange(customChest.items);
             chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
@@ -26,7 +29,10 @@ namespace MegaStorage.Framework
         public static CustomChest ToCustomChest(this Chest chest, ChestType chestType, Vector2 tileLocation)
         {
             if (chest is null)
+            {
                 return null;
+            }
+
             var customChest = CustomChestFactory.Create(chestType, tileLocation);
             customChest.items.AddRange(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
@@ -80,7 +86,10 @@ namespace MegaStorage.Framework
         public static CustomChest ToCustomChest(this Item item, Vector2 tileLocation)
         {
             if (item is null)
+            {
                 return null;
+            }
+
             var customChest = CustomChestFactory.Create(item.ParentSheetIndex, tileLocation);
             customChest.name = item.Name;
             customChest.Stack = item.Stack;

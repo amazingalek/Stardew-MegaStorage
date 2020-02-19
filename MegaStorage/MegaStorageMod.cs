@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using MegaStorage.Framework.Persistence;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
+using System;
+using System.IO;
 
 namespace MegaStorage
 {
@@ -18,7 +18,6 @@ namespace MegaStorage
         internal static IJsonAssetsApi JsonAssets;
         internal static IConvenientChestsApi ConvenientChests;
         private ItemPatcher _itemPatcher;
-        private MenuChanger _menuChanger;
         private SaveManager _saveManager;
 
         /*********
@@ -55,10 +54,11 @@ namespace MegaStorage
 
             ConvenientChests = ModHelper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
             if (!(ConvenientChests is null))
+            {
                 ModConfig.Instance.EnableCategories = false;
+            }
 
             _itemPatcher = new ItemPatcher();
-            _menuChanger = new MenuChanger();
             _saveManager = new SaveManager(
                 new FarmhandMonitor(),
                 new InventorySaver(),
@@ -71,7 +71,7 @@ namespace MegaStorage
         {
             _itemPatcher.Start();
             _saveManager.Start();
-            _menuChanger.Start();
+            MenuChanger.Start();
         }
 
         private static void OnIdsAssigned(object sender, EventArgs e)

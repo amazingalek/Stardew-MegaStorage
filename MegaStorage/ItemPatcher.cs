@@ -1,8 +1,8 @@
-﻿using System.Linq;
-using MegaStorage.Framework;
+﻿using MegaStorage.Framework;
 using MegaStorage.Framework.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
+using System.Linq;
 
 namespace MegaStorage
 {
@@ -19,14 +19,20 @@ namespace MegaStorage
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged");
             if (!e.IsLocalPlayer || e.Added.Count() != 1)
+            {
                 return;
+            }
 
             var addedItem = e.Added.Single();
             if (addedItem is CustomChest)
+            {
                 return;
+            }
 
             if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
+            {
                 return;
+            }
 
             MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged: converting");
 
@@ -38,14 +44,20 @@ namespace MegaStorage
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged");
             if (e.Added.Count() != 1)
+            {
                 return;
+            }
 
             var addedItem = e.Added.Single();
             if (addedItem is CustomChest)
+            {
                 return;
+            }
 
             if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
+            {
                 return;
+            }
 
             MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged: converting");
 
@@ -57,15 +69,21 @@ namespace MegaStorage
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
             if (e.Added.Count() != 1)
+            {
                 return;
+            }
 
             var addedItemPosition = e.Added.Single();
             var addedItem = addedItemPosition.Value;
             if (addedItem is CustomChest)
+            {
                 return;
+            }
 
             if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
+            {
                 return;
+            }
 
             MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
 

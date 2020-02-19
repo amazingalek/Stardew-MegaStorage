@@ -8,14 +8,14 @@
         public ModConfig()
         {
             Instance = this;
-            
+
             LargeChest = new CustomChestConfig()
             {
                 SpritePath = "LargeChest.png",
                 SpriteBWPath = "LargeChestBW.png",
                 SpriteBracesPath = "LargeChestBraces.png"
             };
-            
+
             MagicChest = new CustomChestConfig()
             {
                 SpritePath = "MagicChest.png",

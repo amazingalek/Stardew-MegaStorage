@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework
@@ -21,7 +21,9 @@ namespace MegaStorage.Framework
         public static bool ShouldBeCustomChest(Item item)
         {
             if (!(item is SObject obj))
+            {
                 return false;
+            }
 
             return obj.bigCraftable.Value
                    && CustomChests.Any(x => x.ParentSheetIndex == item.ParentSheetIndex);

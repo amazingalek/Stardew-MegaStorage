@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MegaStorage.Framework.Persistence
 {
@@ -24,7 +24,10 @@ namespace MegaStorage.Framework.Persistence
             {
                 var chestPositions = location.objects.Pairs.Where(x => x.Value is Chest).ToDictionary(pair => pair.Key, pair => (Chest)pair.Value);
                 if (!chestPositions.Any())
+                {
                     continue;
+                }
+
                 var customChestsInChestPositions = new Dictionary<Vector2, Dictionary<int, CustomChest>>();
                 foreach (var chestPosition in chestPositions)
                 {
@@ -32,7 +35,10 @@ namespace MegaStorage.Framework.Persistence
                     var chest = chestPosition.Value;
                     var customChestsInChest = chest.items.OfType<CustomChest>().ToList();
                     if (!customChestsInChest.Any())
+                    {
                         continue;
+                    }
+
                     var customChestIndexes = new Dictionary<int, CustomChest>();
                     var locationName = location.uniqueName?.Value ?? location.Name;
                     foreach (var customChest in customChestsInChest)
