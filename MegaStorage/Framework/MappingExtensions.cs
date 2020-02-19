@@ -21,11 +21,13 @@ namespace MegaStorage.Framework
             return chest;
         }
 
-        public static CustomChest ToCustomChest(this Chest chest, ChestType chestType)
+        public static CustomChest ToCustomChest(this Chest chest, ChestType chestType) =>
+            chest.ToCustomChest(chestType, Vector2.Zero);
+        public static CustomChest ToCustomChest(this Chest chest, ChestType chestType, Vector2 tileLocation)
         {
             if (chest is null)
                 return null;
-            var customChest = CustomChestFactory.Create(chestType);
+            var customChest = CustomChestFactory.Create(chestType, tileLocation);
             customChest.items.AddRange(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
             customChest.name = chest.name;
@@ -74,14 +76,14 @@ namespace MegaStorage.Framework
             return deserializedChest;
         }
 
-        public static CustomChest ToCustomChest(this Item item)
+        public static CustomChest ToCustomChest(this Item item) => item.ToCustomChest(Vector2.Zero);
+        public static CustomChest ToCustomChest(this Item item, Vector2 tileLocation)
         {
             if (item is null)
                 return null;
-            var customChest = CustomChestFactory.Create(item.ParentSheetIndex);
+            var customChest = CustomChestFactory.Create(item.ParentSheetIndex, tileLocation);
             customChest.name = item.Name;
             customChest.Stack = item.Stack;
-
             return customChest;
         }
 

@@ -103,7 +103,7 @@ namespace MegaStorage.Framework.Persistence
                         continue;
                     }
                     var chest = (Chest)location.objects[position];
-                    var customChest = chest.ToCustomChest(deserializedChest.ChestType);
+                    var customChest = chest.ToCustomChest(deserializedChest.ChestType, position);
                     MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
                     MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
                     location.objects[position] = customChest;

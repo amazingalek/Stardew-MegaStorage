@@ -71,7 +71,7 @@ namespace MegaStorage
 
             var position = addedItemPosition.Key;
             var item = e.Location.objects[position];
-            e.Location.objects[position] = item.ToCustomChest();
+            e.Location.objects[position] = item.ToCustomChest(position);
         }
 
     }

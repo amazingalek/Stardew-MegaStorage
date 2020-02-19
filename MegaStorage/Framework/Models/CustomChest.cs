@@ -32,7 +32,7 @@ namespace MegaStorage.Framework.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected CustomChest(int parentSheetIndex, CustomChestConfig config) : base(true)
+        protected CustomChest(int parentSheetIndex, CustomChestConfig config, Vector2 tileLocation) : base(true, tileLocation)
         {
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 

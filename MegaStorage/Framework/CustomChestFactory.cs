@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MegaStorage.Framework.Models;
+using Microsoft.Xna.Framework;
 using StardewValley;
 using SObject = StardewValley.Object;
 
@@ -13,8 +14,8 @@ namespace MegaStorage.Framework
         public static List<CustomChest> CustomChests =>
             _customChests ?? (_customChests = new List<CustomChest>
             {
-                new LargeChest(),
-                new MagicChest()
+                new LargeChest(Vector2.Zero),
+                new MagicChest(Vector2.Zero)
             });
 
         public static bool ShouldBeCustomChest(Item item)
@@ -26,20 +27,22 @@ namespace MegaStorage.Framework
                    && CustomChests.Any(x => x.ParentSheetIndex == item.ParentSheetIndex);
         }
 
-        public static CustomChest Create(int id)
+        public static CustomChest Create(int id) => Create(id, Vector2.Zero);
+        public static CustomChest Create(int id, Vector2 tileLocation)
         {
             var chestType = CustomChests.Single(x => x.ParentSheetIndex == id).ChestType;
-            return Create(chestType);
+            return Create(chestType, tileLocation);
         }
 
-        public static CustomChest Create(ChestType chestType)
+        public static CustomChest Create(ChestType chestType) => Create(chestType, Vector2.Zero);
+        public static CustomChest Create(ChestType chestType, Vector2 tileLocation)
         {
             switch (chestType)
             {
                 case ChestType.LargeChest:
-                    return new LargeChest();
+                    return new LargeChest(tileLocation);
                 case ChestType.MagicChest:
-                    return new MagicChest();
+                    return new MagicChest(tileLocation);
                 default:
                     throw new InvalidOperationException("Invalid ChestType");
             }
