@@ -1,8 +1,8 @@
-﻿using MegaStorage.Framework.Models;
+﻿using System;
+using System.Linq;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using System;
-using System.Linq;
 
 namespace MegaStorage.Framework.Interface
 {
@@ -66,7 +66,7 @@ namespace MegaStorage.Framework.Interface
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            base.receiveLeftClick(x, y, true);
+            base.receiveLeftClick(x, y);
             if (UpArrow.containsPoint(x, y) && _currentRow > 0)
             {
                 Game1.playSound("coin");

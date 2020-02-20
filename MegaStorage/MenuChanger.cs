@@ -22,13 +22,13 @@ namespace MegaStorage
                 return;
             }
 
-            var oldBounds = new Rectangle()
+            var oldBounds = new Rectangle
             {
                 Width = e.OldSize.X,
                 Height = e.OldSize.Y
             };
 
-            var newBounds = new Rectangle()
+            var newBounds = new Rectangle
             {
                 Width = e.NewSize.X,
                 Height = e.NewSize.Y

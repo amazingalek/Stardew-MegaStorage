@@ -1,4 +1,7 @@
-﻿using MegaStorage.Framework.Interface;
+﻿using System;
+using System.IO;
+using System.Linq;
+using MegaStorage.Framework.Interface;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -6,9 +9,6 @@ using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Tools;
-using System;
-using System.IO;
-using System.Linq;
 
 namespace MegaStorage.Framework.Models
 {

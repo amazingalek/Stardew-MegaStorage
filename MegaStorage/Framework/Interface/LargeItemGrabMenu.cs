@@ -1,4 +1,7 @@
-﻿using MegaStorage.Framework.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -6,9 +9,6 @@ using StardewValley;
 using StardewValley.Buildings;
 using StardewValley.Menus;
 using StardewValley.Objects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Object = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
@@ -34,24 +34,24 @@ namespace MegaStorage.Framework.Interface
         private behaviorOnItemSelect BehaviorFunction => _behaviorFunctionReflected.GetValue();
         private readonly IReflectedField<behaviorOnItemSelect> _behaviorFunctionReflected;
 
-        public ClickableTextureComponent UpArrow;
-        public ClickableTextureComponent DownArrow;
-        public List<ClickableComponent> CategoryComponents;
+        private protected ClickableTextureComponent UpArrow;
+        private protected ClickableTextureComponent DownArrow;
+        private protected List<ClickableComponent> CategoryComponents;
 
-        protected readonly CustomChest CustomChest;
+        private protected readonly CustomChest CustomChest;
 
         private ChestCategory[] _chestCategories;
         private ChestCategory _hoverCategory;
-        protected ChestCategory SelectedCategory;
+        private protected ChestCategory SelectedCategory;
 
         public LargeItemGrabMenu(CustomChest customChest)
-            : base(customChest.items,
+            : base(NonNullCustomChest(customChest).items,
                 false,
                 true,
                 InventoryMenu.highlightAllItems,
-                customChest.grabItemFromInventory,
+                NonNullCustomChest(customChest).grabItemFromInventory,
                 null,
-                customChest.grabItemFromChest,
+                NonNullCustomChest(customChest).grabItemFromChest,
                 false,
                 true,
                 true,
@@ -97,19 +97,54 @@ namespace MegaStorage.Framework.Interface
         {
             _chestCategories = new[]
             {
-                new AllCategory(0, "All", xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(1, "Crops", new Vector2(640, 80), new []{ -81, -80, -79, -75 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(2, "Seeds", new Vector2(656, 64), new []{ -74, -19 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(3, "Materials", new Vector2(672, 64), new []{ -15, -16, -2, -12, -8, -28 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(4, "Cooking", new Vector2(688, 64), new []{ -25, -7, -18, -14, -6, -5, -27, -26 }, xPositionOnScreen, yPositionOnScreen),
-                new ChestCategory(5, "Fishing", new Vector2(640, 64), new []{ -4, -21, -22 }, xPositionOnScreen, yPositionOnScreen),
-                new MiscCategory(6, "Misc", new Vector2(672, 80), new []{ -24, -20 }, xPositionOnScreen, yPositionOnScreen)
+                new AllCategory(0,
+                    "All",
+                    xPositionOnScreen,
+                    yPositionOnScreen),
+                new ChestCategory(1,
+                    "Crops",
+                    new Vector2(640, 80),
+                    new[] {-81, -80, -79, -75},
+                    xPositionOnScreen,
+                    yPositionOnScreen),
+                new ChestCategory(2,
+                    "Seeds",
+                    new Vector2(656, 64),
+                    new[] {-74, -19},
+                    xPositionOnScreen,
+                    yPositionOnScreen),
+                new ChestCategory(3,
+                    "Materials",
+                    new Vector2(672, 64),
+                    new[] {-15, -16, -2, -12, -8, -28},
+                    xPositionOnScreen,
+                    yPositionOnScreen),
+                new ChestCategory(4,
+                    "Cooking",
+                    new Vector2(688, 64),
+                    new[] {-25, -7, -18, -14, -6, -5, -27, -26},
+                    xPositionOnScreen,
+                    yPositionOnScreen),
+                new ChestCategory(5,
+                    "Fishing",
+                    new Vector2(640, 64),
+                    new[] {-4, -21, -22},
+                    xPositionOnScreen,
+                    yPositionOnScreen),
+                new MiscCategory(6,
+                    "Misc",
+                    new Vector2(672, 80),
+                    new[] {-24, -20},
+                    xPositionOnScreen,
+                    yPositionOnScreen)
             };
             SelectedCategory = _chestCategories.First();
         }
 
         private void SetupControllerSupport()
         {
+            if (ItemsToGrabMenu is null) return;
+
             if (Game1.options.SnappyMenus)
             {
                 ItemsToGrabMenu.populateClickableComponentList();
@@ -126,14 +161,14 @@ namespace MegaStorage.Framework.Interface
 
             for (var index = 0; index < 12; ++index)
             {
-                if (!(ItemsToGrabMenu is null) && inventory?.inventory != null && inventory.inventory.Count >= 12)
+                if (!(inventory?.inventory is null) && inventory.inventory.Count >= 12)
                 {
-                    inventory.inventory[index].upNeighborID = discreteColorPickerCC == null || ItemsToGrabMenu == null || ItemsToGrabMenu.inventory.Count > index
+                    inventory.inventory[index].upNeighborID = discreteColorPickerCC is null || ItemsToGrabMenu.inventory.Count > index
                         ? ItemsToGrabMenu.inventory.Count > index ? 53910 + index : 53910
                         : 4343;
                 }
 
-                if (discreteColorPickerCC != null && ItemsToGrabMenu != null && ItemsToGrabMenu.inventory.Count > index)
+                if (!(discreteColorPickerCC is null) && ItemsToGrabMenu.inventory.Count > index)
                 {
                     ItemsToGrabMenu.inventory[index].upNeighborID = 4343;
                 }
@@ -141,7 +176,7 @@ namespace MegaStorage.Framework.Interface
 
             for (var index = 0; index < 36; ++index)
             {
-                if (inventory?.inventory == null || inventory.inventory.Count <= index)
+                if (inventory?.inventory is null || inventory.inventory.Count <= index)
                 {
                     continue;
                 }
@@ -150,25 +185,28 @@ namespace MegaStorage.Framework.Interface
                 inventory.inventory[index].upNeighborImmutable = true;
             }
 
-            if (trashCan != null && inventory.inventory.Count >= 12 && inventory.inventory[11] != null)
+            if (!(trashCan is null) && !(inventory?.inventory is null) && inventory.inventory.Count >= 12 && !(inventory.inventory[11] is null))
             {
                 inventory.inventory[11].rightNeighborID = 5948;
             }
 
-            if (trashCan != null)
+            if (!(trashCan is null))
             {
                 trashCan.leftNeighborID = 11;
             }
 
-            if (okButton != null)
+            if (!(okButton is null))
             {
                 okButton.leftNeighborID = 11;
             }
 
             for (var i = 0; i < 12; i++)
             {
-                var item = inventory.inventory[i];
-                item.upNeighborID = 53910 + 60 + i;
+                var item = inventory?.inventory?[i];
+                if (!(item is null))
+                {
+                    item.upNeighborID = 53910 + 60 + i;
+                }
             }
 
             var right0 = ItemsToGrabMenu.inventory[0 * 12 + 11];
@@ -260,14 +298,18 @@ namespace MegaStorage.Framework.Interface
 
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
-            if (_hoverCategory != null)
+            var itemGrabMenu = Game1.activeClickableMenu is ItemGrabMenu
+                ? (ItemGrabMenu) Game1.activeClickableMenu
+                : null;
+
+            if (!(_hoverCategory is null))
             {
                 ChangeCategory(_hoverCategory);
             }
 
             ReceiveLeftClickBase(x, y, !destroyItemOnClick);
 
-            if (chestColorPicker != null)
+            if (!(chestColorPicker is null))
             {
                 chestColorPicker.receiveLeftClick(x, y);
                 if (SourceItem is Chest chest)
@@ -283,10 +325,10 @@ namespace MegaStorage.Framework.Interface
                 Game1.playSound("drumkit6");
             }
 
-            if (whichSpecialButton != -1 && specialButton != null && specialButton.containsPoint(x, y))
+            if (whichSpecialButton != -1 && !(specialButton is null) && specialButton.containsPoint(x, y))
             {
                 Game1.playSound("drumkit6");
-                if (whichSpecialButton == 1 && context != null && context is JunimoHut hut)
+                if (whichSpecialButton == 1 && !(context is null) && context is JunimoHut hut)
                 {
                     hut.noHarvest.Value = !hut.noHarvest.Value;
                     specialButton.sourceRect.X = hut.noHarvest.Value ? 124 : 108;
@@ -299,17 +341,14 @@ namespace MegaStorage.Framework.Interface
                 heldItem = ItemsToGrabMenu.leftClick(x, y, heldItem, false);
                 var itemsAfter = ItemsToGrabMenu.actualInventory.ToList();
                 FixNulls(itemsBefore, itemsAfter);
-                if (heldItem != null && behaviorOnItemGrab != null)
+                if (!(itemGrabMenu is null) && !(heldItem is null) && !(behaviorOnItemGrab is null))
                 {
                     behaviorOnItemGrab(heldItem, Game1.player);
-                    if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
+                    itemGrabMenu.setSourceItem(SourceItem);
+                    if (Game1.options.SnappyMenus)
                     {
-                        ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
-                        if (Game1.options.SnappyMenus)
-                        {
-                            ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
-                            ((ItemGrabMenu)Game1.activeClickableMenu).snapCursorToCurrentSnappedComponent();
-                        }
+                        itemGrabMenu.currentlySnappedComponent = currentlySnappedComponent;
+                        itemGrabMenu.snapCursorToCurrentSnappedComponent();
                     }
                 }
 
@@ -366,13 +405,13 @@ namespace MegaStorage.Framework.Interface
             else if ((reverseGrab || BehaviorFunction != null) && isWithinBounds(x, y))
             {
                 BehaviorFunction(heldItem, Game1.player);
-                if (Game1.activeClickableMenu != null && Game1.activeClickableMenu is ItemGrabMenu)
+                if (!(itemGrabMenu is null))
                 {
-                    ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
+                    itemGrabMenu.setSourceItem(SourceItem);
                     if (Game1.options.SnappyMenus)
                     {
-                        ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
-                        ((ItemGrabMenu)Game1.activeClickableMenu).snapCursorToCurrentSnappedComponent();
+                        itemGrabMenu.currentlySnappedComponent = currentlySnappedComponent;
+                        itemGrabMenu.snapCursorToCurrentSnappedComponent();
                     }
                 }
                 if (destroyItemOnClick)
@@ -471,7 +510,7 @@ namespace MegaStorage.Framework.Interface
                         ((ItemGrabMenu)Game1.activeClickableMenu).setSourceItem(SourceItem);
                     }
 
-                    if (Game1.options.SnappyMenus)
+                    if (Game1.options.SnappyMenus && !(Game1.activeClickableMenu is null))
                     {
                         ((ItemGrabMenu)Game1.activeClickableMenu).currentlySnappedComponent = currentlySnappedComponent;
                         (Game1.activeClickableMenu as ItemGrabMenu)?.snapCursorToCurrentSnappedComponent();
@@ -542,7 +581,7 @@ namespace MegaStorage.Framework.Interface
             }
         }
 
-        private void FixNulls(List<Item> itemsBefore, List<Item> itemsAfter)
+        private void FixNulls(IReadOnlyList<Item> itemsBefore, IReadOnlyList<Item> itemsAfter)
         {
             for (var i = 0; i < itemsBefore.Count; i++)
             {
@@ -557,11 +596,17 @@ namespace MegaStorage.Framework.Interface
             }
         }
 
-        private TemporaryAnimatedSprite CreatePoof(int x, int y)
+        private static TemporaryAnimatedSprite CreatePoof(int x, int y)
         {
-            return new TemporaryAnimatedSprite("TileSheets/animations",
-                new Rectangle(0, 320, 64, 64), 50f, 8, 0,
-                new Vector2(x - x % 64 + 16, y - y % 64 + 16), false, false);
+            return new TemporaryAnimatedSprite(
+                "TileSheets/animations",
+                new Rectangle(0, 320, 64, 64),
+                50f,
+                8,
+                0,
+                new Vector2(x - x % 64 + 16, y - y % 64 + 16),
+                false,
+                false);
         }
 
         public override void draw(SpriteBatch b)
@@ -598,7 +643,7 @@ namespace MegaStorage.Framework.Interface
 
             // top inventory
             Game1.drawDialogueBox(ItemsToGrabMenu.xPositionOnScreen - borderWidth - spaceToClearSideBorder, ItemsToGrabMenu.yPositionOnScreen - borderWidth - spaceToClearTopBorder + TopBackgroundChange,
-                ItemsToGrabMenu.width + borderWidth * 2 + spaceToClearSideBorder * 2, ItemsToGrabMenu.height + spaceToClearTopBorder + borderWidth * 2 + TopHeightChange, false, true, null, false, true);
+                ItemsToGrabMenu.width + borderWidth * 2 + spaceToClearSideBorder * 2, ItemsToGrabMenu.height + spaceToClearTopBorder + borderWidth * 2 + TopHeightChange, false, true);
             ItemsToGrabMenu.draw(b);
 
             foreach (var chestCategory in _chestCategories)
@@ -641,6 +686,16 @@ namespace MegaStorage.Framework.Interface
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             // TBD
+        }
+
+        private static CustomChest NonNullCustomChest(CustomChest customChest)
+        {
+            if (customChest is null)
+            {
+                throw new ArgumentNullException(nameof(customChest));
+            }
+
+            return customChest;
         }
     }
 }

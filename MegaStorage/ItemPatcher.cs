@@ -1,8 +1,8 @@
-﻿using MegaStorage.Framework;
+﻿using System.Linq;
+using MegaStorage.Framework;
 using MegaStorage.Framework.Models;
 using StardewModdingAPI.Events;
 using StardewValley;
-using System.Linq;
 
 namespace MegaStorage
 {
