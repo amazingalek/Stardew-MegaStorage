@@ -683,6 +683,15 @@ namespace MegaStorage.Framework.Interface
             Game1.mouseCursorTransparency = 1f;
         }
 
+        // This fixes compatibility issues with Chests Anywhere
+        public override void update(GameTime time)
+        {
+            var tileLocation = CustomChest.TileLocation;
+            CustomChest.TileLocation = Vector2.Zero;
+            base.update(time);
+            CustomChest.TileLocation = tileLocation;
+        }
+
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             // TBD
