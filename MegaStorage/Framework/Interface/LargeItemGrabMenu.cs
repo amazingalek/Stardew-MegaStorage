@@ -46,7 +46,7 @@ namespace MegaStorage.Framework.Interface
                 message: null,
                 behaviorOnItemGrab: NonNullCustomChest(customChest).grabItemFromChest,
                 canBeExitedWithKey: true,
-                showOrganizeButton: true,
+                showOrganizeButton: false,
                 source: ItemGrabMenu.source_chest,
                 context: customChest)
         {
@@ -54,12 +54,79 @@ namespace MegaStorage.Framework.Interface
             _sourceItemReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<Item>(this, "sourceItem");
             _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
             _behaviorFunctionReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
+
             ItemsToGrabMenu = new InventoryMenu(xPositionOnScreen + 32, yPositionOnScreen, false, CustomChest.items, null, Capacity, Rows);
             ItemsToGrabMenu.movePosition(0, MoveTop);
             inventory.movePosition(0, MoveBottom);
+
+            SetupColorPicker();
+            SetupStackButton();
+            SetupOrganizeButton();
             SetupControllerSupport();
         }
 
+        private void SetupStackButton()
+        {
+            fillStacksButton = new ClickableTextureComponent(
+                "Fill Stacks",
+                new Rectangle(xPositionOnScreen + width, yPositionOnScreen + height / 3 - 86, 64, 64),
+                "",
+                Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"),
+                Game1.mouseCursors,
+                new Rectangle(103, 469, 16, 16),
+                4f)
+            {
+                myID = 12952,
+                upNeighborID = colorPickerToggleButton != null ? 27346 : (!(specialButton is null) ? 12485 : -500),
+                downNeighborID = 106,
+                leftNeighborID = 53921,
+                region = 15923
+            };
+        }
+        private void SetupOrganizeButton()
+        {
+            organizeButton = new ClickableTextureComponent(
+                "Organize",
+                new Rectangle(this.xPositionOnScreen + this.width, this.yPositionOnScreen + this.height / 3 - 6, 64, 64),
+                "",
+                Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"),
+                Game1.mouseCursors,
+                new Rectangle(162, 440, 16, 16),
+                4f)
+            {
+                myID = 106,
+                upNeighborID = 12952,
+                downNeighborID = 5948,
+                leftNeighborID = 53921,
+                region = 15923
+            };
+        }
+        private void SetupColorPicker()
+        {
+            chestColorPicker = new DiscreteColorPicker(
+                xPositionOnScreen,
+                yPositionOnScreen - 64 - IClickableMenu.borderWidth * 2,
+                0,
+                new Chest(true));
+
+            chestColorPicker.colorSelection = chestColorPicker.getSelectionFromColor(CustomChest.playerChoiceColor.Value);
+            CustomChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+
+            colorPickerToggleButton = new ClickableTextureComponent(
+                new Rectangle(xPositionOnScreen + width, yPositionOnScreen + height / 3 - 166, 64, 64),
+                Game1.mouseCursors,
+                new Rectangle(119, 469, 16, 16),
+                4f,
+                false)
+            {
+                hoverText = Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"),
+                myID = 27346,
+                downNeighborID = -99998,
+                leftNeighborID = 53921,
+                region = 15923
+            };
+        }
+        
         private void SetupControllerSupport()
         {
             if (ItemsToGrabMenu is null || inventory?.inventory is null) return;

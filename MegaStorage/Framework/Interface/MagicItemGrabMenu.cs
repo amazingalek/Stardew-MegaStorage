@@ -27,14 +27,14 @@ namespace MegaStorage.Framework.Interface
             _currentRow = 0;
 
             UpArrow = new ClickableTextureComponent(
-                new Rectangle(xPositionOnScreen + 840, yPositionOnScreen + 8, 64, 64), Game1.mouseCursors,
+                new Rectangle(xPositionOnScreen + 840, yPositionOnScreen - 8, 64, 64), Game1.mouseCursors,
                 Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12), 1f)
             {
                 myID = 88,
                 downNeighborID = 89
             };
             DownArrow = new ClickableTextureComponent(
-                new Rectangle(xPositionOnScreen + 840, yPositionOnScreen + 272, 64, 64),
+                new Rectangle(xPositionOnScreen + 840, yPositionOnScreen + 288, 64, 64),
                 Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11), 1f)
             {
                 myID = 89,
