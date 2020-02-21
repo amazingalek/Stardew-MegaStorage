@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using MegaStorage.Framework.Interface;
+﻿using MegaStorage.Framework.Interface;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -9,6 +6,9 @@ using StardewValley;
 using StardewValley.Locations;
 using StardewValley.Objects;
 using StardewValley.Tools;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace MegaStorage.Framework.Models
 {
@@ -137,10 +137,7 @@ namespace MegaStorage.Framework.Models
 
         public override void grabItemFromChest(Item item, Farmer who)
         {
-            if (who is null || !who.couldInventoryAcceptThisItem(item))
-            {
-                return;
-            }
+            if (who is null || !who.couldInventoryAcceptThisItem(item)) return;
 
             items.Remove(item);
             clearNulls();
@@ -149,17 +146,12 @@ namespace MegaStorage.Framework.Models
                 _itemGrabMenu = CreateItemGrabMenu();
             }
 
-            _itemGrabMenu.Refresh();
-
             Game1.activeClickableMenu = _itemGrabMenu;
         }
 
         public override void grabItemFromInventory(Item item, Farmer who)
         {
-            if (item is null || who is null)
-            {
-                return;
-            }
+            if (item is null || who is null) return;
 
             if (item.Stack == 0)
             {
@@ -183,13 +175,9 @@ namespace MegaStorage.Framework.Models
                 _itemGrabMenu = CreateItemGrabMenu();
             }
 
-            _itemGrabMenu.Refresh();
             _itemGrabMenu.heldItem = addedItem;
             Game1.activeClickableMenu = _itemGrabMenu;
-            if (id == -1)
-            {
-                return;
-            }
+            if (id == -1) return;
 
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);
             Game1.activeClickableMenu.snapCursorToCurrentSnappedComponent();

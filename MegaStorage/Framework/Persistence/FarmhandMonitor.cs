@@ -1,6 +1,6 @@
-﻿using System;
-using StardewModdingAPI.Events;
+﻿using StardewModdingAPI.Events;
 using StardewValley;
+using System;
 
 namespace MegaStorage.Framework.Persistence
 {

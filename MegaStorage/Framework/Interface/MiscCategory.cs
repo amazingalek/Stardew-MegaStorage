@@ -1,7 +1,7 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using System;
 using Object = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface

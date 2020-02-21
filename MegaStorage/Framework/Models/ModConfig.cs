@@ -9,7 +9,7 @@
         public ModConfig()
         {
             Instance = this;
-            
+
             EnableCategories = true;
 
             LargeChest = new CustomChestConfig
