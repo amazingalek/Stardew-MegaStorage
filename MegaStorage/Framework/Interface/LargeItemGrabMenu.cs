@@ -17,25 +17,26 @@ namespace MegaStorage.Framework.Interface
     {
         private const int TopHeightChange = -24;
         private const int TopBackgroundChange = 24;
-
         private const int MoveTop = -24;
         private const int MoveBottom = 116;
-
         protected const int Rows = 6;
         protected const int ItemsPerRow = 12;
         protected const int Capacity = ItemsPerRow * Rows;
 
+        /*********
+        ** Fields
+        *********/
         private Item SourceItem => _sourceItemReflected.GetValue();
         private readonly IReflectedField<Item> _sourceItemReflected;
-
         private TemporaryAnimatedSprite Poof { set => _poofReflected.SetValue(value); }
         private readonly IReflectedField<TemporaryAnimatedSprite> _poofReflected;
-
         private behaviorOnItemSelect BehaviorFunction => _behaviorFunctionReflected.GetValue();
         private readonly IReflectedField<behaviorOnItemSelect> _behaviorFunctionReflected;
-
         private protected readonly CustomChest CustomChest;
 
+        /*********
+        ** Public methods
+        *********/
         public LargeItemGrabMenu(CustomChest customChest)
             : base(
                 inventory: NonNullCustomChest(customChest).items,
@@ -87,7 +88,7 @@ namespace MegaStorage.Framework.Interface
         {
             organizeButton = new ClickableTextureComponent(
                 "Organize",
-                new Rectangle(this.xPositionOnScreen + this.width, this.yPositionOnScreen + this.height / 3 - 6, 64, 64),
+                new Rectangle(xPositionOnScreen + width, yPositionOnScreen + height / 3 - 6, 64, 64),
                 "",
                 Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"),
                 Game1.mouseCursors,
@@ -263,7 +264,7 @@ namespace MegaStorage.Framework.Interface
                     behaviorOnItemGrab(heldItem, Game1.player);
                     if (!(itemGrabMenu is null))
                     {
-                        itemGrabMenu.setSourceItem(SourceItem);
+                        _sourceItemReflected.SetValue(SourceItem);
                         if (Game1.options.SnappyMenus)
                         {
                             itemGrabMenu.currentlySnappedComponent = currentlySnappedComponent;
@@ -333,7 +334,7 @@ namespace MegaStorage.Framework.Interface
                 BehaviorFunction(heldItem, Game1.player);
                 if (!(itemGrabMenu is null))
                 {
-                    itemGrabMenu.setSourceItem(SourceItem);
+                    _sourceItemReflected.SetValue(SourceItem);
                     if (Game1.options.SnappyMenus)
                     {
                         itemGrabMenu.currentlySnappedComponent = currentlySnappedComponent;
@@ -416,7 +417,7 @@ namespace MegaStorage.Framework.Interface
                     behaviorOnItemGrab(heldItem, Game1.player);
                     if (!(itemGrabMenu is null))
                     {
-                        itemGrabMenu.setSourceItem(SourceItem);
+                        _sourceItemReflected.SetValue(SourceItem);
                         if (Game1.options.SnappyMenus)
                         {
                             itemGrabMenu.currentlySnappedComponent = currentlySnappedComponent;
@@ -475,7 +476,7 @@ namespace MegaStorage.Framework.Interface
             else if (reverseGrab || !(BehaviorFunction is null))
             {
                 BehaviorFunction(heldItem, Game1.player);
-                itemGrabMenu?.setSourceItem(SourceItem);
+                _sourceItemReflected.SetValue(SourceItem);
                 if (destroyItemOnClick)
                 {
                     heldItem = null;
@@ -564,6 +565,9 @@ namespace MegaStorage.Framework.Interface
                 false, true);
 
             ItemsToGrabMenu.draw(b);
+            chestColorPicker?.draw(b);
+            fillStacksButton?.draw(b);
+            organizeButton?.draw(b);
 
             if (!(colorPickerToggleButton is null))
             {
@@ -573,10 +577,6 @@ namespace MegaStorage.Framework.Interface
             {
                 specialButton?.draw(b);
             }
-
-            chestColorPicker?.draw(b);
-            fillStacksButton?.draw(b);
-            organizeButton?.draw(b);
 
             Game1.mouseCursorTransparency = 1f;
         }
