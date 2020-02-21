@@ -10,7 +10,7 @@ namespace MegaStorage.Framework.Interface
 {
     public class ChestCategory : ClickableComponent
     {
-        protected const int StartY = -56;
+        protected const int StartY = -40;
         protected const int Height = 60;
 
         protected readonly int Index;
@@ -31,7 +31,10 @@ namespace MegaStorage.Framework.Interface
         {
             if (!(b is null) && ModConfig.Instance.EnableCategories)
             {
-                b.Draw(Game1.mouseCursors, new Vector2(x - 72, y + StartY + Index * Height), new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16), Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+                b.Draw(Game1.mouseCursors,
+                    new Vector2(x - 72, y + StartY + Index * Height),
+                    new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16),
+                    Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
             }
         }
 
@@ -47,7 +50,7 @@ namespace MegaStorage.Framework.Interface
 
         protected virtual bool BelongsToCategory(Item i)
         {
-            return _categoryIds.Contains(i.Category);
+            return !(i is null) && _categoryIds.Contains(i.Category);
         }
     }
 }

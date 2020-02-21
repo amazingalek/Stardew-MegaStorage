@@ -36,7 +36,7 @@ namespace MegaStorage.Framework.Persistence
                 return;
             }
 
-            var saveData = new SaveData()
+            var saveData = new SaveData
             {
                 DeserializedChests = deserializedChests
             };

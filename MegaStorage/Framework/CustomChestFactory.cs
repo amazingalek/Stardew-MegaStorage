@@ -15,7 +15,8 @@ namespace MegaStorage.Framework
             _customChests ?? (_customChests = new List<CustomChest>
             {
                 new LargeChest(Vector2.Zero),
-                new MagicChest(Vector2.Zero)
+                new MagicChest(Vector2.Zero),
+                new SuperMagicChest(Vector2.Zero)
             });
 
         public static bool ShouldBeCustomChest(Item item)
@@ -45,6 +46,8 @@ namespace MegaStorage.Framework
                     return new LargeChest(tileLocation);
                 case ChestType.MagicChest:
                     return new MagicChest(tileLocation);
+                case ChestType.SuperMagicChest:
+                    return new SuperMagicChest(tileLocation);
                 default:
                     throw new InvalidOperationException("Invalid ChestType");
             }
