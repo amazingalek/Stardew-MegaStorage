@@ -1,4 +1,5 @@
-﻿using MegaStorage.Framework.Models;
+﻿using furyx639.Common;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
@@ -19,8 +20,7 @@ namespace MegaStorage.Framework.Persistence
             MegaStorageMod.ModMonitor.VerboseLog("LocationInventorySaver: HideAndSaveCustomChests");
             _locationInventoryCustomChests = new Dictionary<GameLocation, Dictionary<Vector2, Dictionary<int, CustomChest>>>();
             var deserializedChests = new List<DeserializedChest>();
-            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
-            foreach (var location in locations)
+            foreach (var location in CommonHelper.GetLocations())
             {
                 var chestPositions = location.objects.Pairs.Where(x => x.Value is Chest).ToDictionary(pair => pair.Key, pair => (Chest)pair.Value);
                 if (!chestPositions.Any())
@@ -110,8 +110,7 @@ namespace MegaStorage.Framework.Persistence
                 MegaStorageMod.ModMonitor.VerboseLog("Nothing to load");
                 return;
             }
-            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
-            foreach (var location in locations)
+            foreach (var location in CommonHelper.GetLocations())
             {
                 var locationName = location.uniqueName?.Value ?? location.Name;
                 var customChestsInLocation = saveData.DeserializedChests.Where(x => x.LocationName == locationName);
