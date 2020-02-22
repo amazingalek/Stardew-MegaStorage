@@ -9,6 +9,7 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using furyx639.Common;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
@@ -39,13 +40,13 @@ namespace MegaStorage.Framework.Interface
         *********/
         public LargeItemGrabMenu(CustomChest customChest)
             : base(
-                inventory: NonNullCustomChest(customChest).items,
+                inventory: CommonHelper.NonNull(customChest).items,
                 reverseGrab: false,
                 showReceivingMenu: true,
                 highlightFunction: InventoryMenu.highlightAllItems,
-                behaviorOnItemSelectFunction: NonNullCustomChest(customChest).grabItemFromInventory,
+                behaviorOnItemSelectFunction: CommonHelper.NonNull(customChest).grabItemFromInventory,
                 message: null,
-                behaviorOnItemGrab: NonNullCustomChest(customChest).grabItemFromChest,
+                behaviorOnItemGrab: CommonHelper.NonNull(customChest).grabItemFromChest,
                 canBeExitedWithKey: true,
                 showOrganizeButton: false,
                 source: ItemGrabMenu.source_chest,
@@ -117,8 +118,7 @@ namespace MegaStorage.Framework.Interface
                 new Rectangle(xPositionOnScreen + width, yPositionOnScreen + height / 3 - 166, 64, 64),
                 Game1.mouseCursors,
                 new Rectangle(119, 469, 16, 16),
-                4f,
-                false)
+                4f)
             {
                 hoverText = Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"),
                 myID = 27346,
@@ -603,16 +603,6 @@ namespace MegaStorage.Framework.Interface
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             // TBD
-        }
-
-        private static CustomChest NonNullCustomChest(CustomChest customChest)
-        {
-            if (customChest is null)
-            {
-                throw new ArgumentNullException(nameof(customChest));
-            }
-
-            return customChest;
         }
     }
 }
