@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
@@ -10,7 +8,7 @@ namespace MegaStorage.Framework
 {
     public static class MappingExtensions
     {
-        public static SObject ToObject(this CustomChest customChest)
+        public static Item ToObject(this CustomChest customChest)
         {
             if (customChest is null)
             {
@@ -23,11 +21,11 @@ namespace MegaStorage.Framework
             };
         }
 
-        public static SObject ToObject(this Chest chest, ChestType chestType)
+        public static Item ToObject(this Item item, ChestType chestType)
         {
-            if (chest is null)
+            if (!(item is SObject))
             {
-                return null;
+                return item;
             }
 
             var parentSheetIndex = chestType switch
@@ -40,7 +38,7 @@ namespace MegaStorage.Framework
 
             return new SObject(Vector2.Zero, parentSheetIndex)
             {
-                Stack = chest.Stack
+                Stack = item.Stack
             };
         }
         public static Chest ToChest(this CustomChest customChest)

@@ -182,9 +182,9 @@ namespace MegaStorage.Framework.Persistence
 
         private static void FixInventory(DeserializedChest deserializedChest)
         {
-            var chest = (Chest) Game1.player.Items[deserializedChest.InventoryIndex];
-            var sObject = chest.ToObject(deserializedChest.ChestType);
-            Game1.player.Items[deserializedChest.InventoryIndex] = sObject;
+            var index = deserializedChest.InventoryIndex;
+            var sObject = Game1.player.Items[index].ToObject(deserializedChest.ChestType);
+            Game1.player.Items[index] = sObject;
         }
 
         private static void FixFarmhandInventory(DeserializedChest deserializedChest)
@@ -196,9 +196,9 @@ namespace MegaStorage.Framework.Persistence
                 return;
             }
             var player = Game1.otherFarmers.Single(x => x.Key == playerId).Value;
-            var chest = (Chest) player.Items[deserializedChest.InventoryIndex];
-            var sObject = chest.ToObject(deserializedChest.ChestType);
-            player.Items[deserializedChest.InventoryIndex] = sObject;
+            var index = deserializedChest.InventoryIndex;
+            var sObject = player.Items[index].ToObject(deserializedChest.ChestType);
+            player.Items[index] = sObject;
         }
 
         private static void FixLocationInventory(DeserializedChest deserializedChest)
@@ -213,8 +213,7 @@ namespace MegaStorage.Framework.Persistence
                 }
                 var chest = (Chest) location.objects[pos];
                 var index = deserializedChest.InventoryIndex;
-                var hiddenCustomChest = (Chest)chest.items[index];
-                var sObject = hiddenCustomChest.ToObject(deserializedChest.ChestType);
+                var sObject = chest.items[index].ToObject(deserializedChest.ChestType);
                 chest.items[index] = sObject;
             }
         }
