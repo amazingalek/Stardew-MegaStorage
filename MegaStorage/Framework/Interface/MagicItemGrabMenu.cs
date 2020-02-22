@@ -6,11 +6,22 @@ using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
 {
     public class MagicItemGrabMenu : LargeItemGrabMenu
     {
+        public static readonly Dictionary<string, Vector2> Categories = new Dictionary<string, Vector2>()
+        {
+            {"Crops", new Vector2(640, 80)},
+            {"Seeds", new Vector2(656, 64)},
+            {"Materials", new Vector2(672, 64)},
+            {"Cooking", new Vector2(688, 64)},
+            {"Fishing", new Vector2(640, 64)},
+            {"Misc", new Vector2(672, 80)}
+        };
+
         private protected List<ClickableComponent> CategoryComponents;
         private protected ClickableTextureComponent UpArrow;
         private protected ClickableTextureComponent DownArrow;
@@ -50,55 +61,26 @@ namespace MegaStorage.Framework.Interface
         {
             if (!ModConfig.Instance.EnableCategories)
             {
-                SelectedCategory = new AllCategory(0, "All", xPositionOnScreen, yPositionOnScreen);
+                SelectedCategory = new AllCategory(0, xPositionOnScreen, yPositionOnScreen);
                 return;
             }
 
-            _chestCategories.AddRange(
-                new List<ChestCategory>()
+            var index = 0;
+            _chestCategories.Add(new AllCategory(index++, xPositionOnScreen, yPositionOnScreen));
+            foreach (var category in Categories)
+            {
+                if (!ModConfig.Instance.Categories.TryGetValue(category.Key, out var categoryIds))
                 {
-                    new AllCategory(0,
-                        "All",
-                        xPositionOnScreen,
-                        yPositionOnScreen),
-                    new ChestCategory(1,
-                        "Crops",
-                        new Vector2(640, 80),
-                        new[] {-81, -80, -79, -75},
-                        xPositionOnScreen,
-                        yPositionOnScreen),
-                    new ChestCategory(2,
-                        "Seeds",
-                        new Vector2(656, 64),
-                        new[] {-74, -19},
-                        xPositionOnScreen,
-                        yPositionOnScreen),
-                    new ChestCategory(3,
-                        "Materials",
-                        new Vector2(672, 64),
-                        new[] {-15, -16, -2, -12, -8, -28},
-                        xPositionOnScreen,
-                        yPositionOnScreen),
-                    new ChestCategory(4,
-                        "Cooking",
-                        new Vector2(688, 64),
-                        new[] {-25, -7, -18, -14, -6, -5, -27, -26},
-                        xPositionOnScreen,
-                        yPositionOnScreen),
-                    new ChestCategory(5,
-                        "Fishing",
-                        new Vector2(640, 64),
-                        new[] {-4, -21, -22},
-                        xPositionOnScreen,
-                        yPositionOnScreen),
-                    new MiscCategory(6,
-                        "Misc",
-                        new Vector2(672, 80),
-                        new[] {-24, -20},
-                        xPositionOnScreen,
-                        yPositionOnScreen)
-                });
-
+                    continue;
+                }
+                _chestCategories.Add(new ChestCategory(
+                    index++,
+                    category.Key,
+                    category.Value,
+                    categoryIds,
+                    xPositionOnScreen,
+                    yPositionOnScreen));
+            }
             SelectedCategory = _chestCategories.First();
         }
 

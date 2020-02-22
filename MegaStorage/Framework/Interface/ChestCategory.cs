@@ -18,9 +18,9 @@ namespace MegaStorage.Framework.Interface
         private readonly int _index;
         private readonly string _name;
         private readonly Vector2 _spritePos;
-        private readonly int[] _categoryIds;
+        private readonly IList<int> _categoryIds;
 
-        public ChestCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y)
+        public ChestCategory(int index, string name, Vector2 spritePos, IList<int> categoryIds, int x, int y)
             : base(new Rectangle(x - 72, y + StartY + index * Height, 64, Height), name)
         {
             _index = index;
