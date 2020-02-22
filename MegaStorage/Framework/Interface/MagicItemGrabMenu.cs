@@ -220,7 +220,7 @@ namespace MegaStorage.Framework.Interface
                 ChangeCategory(_hoverCategory);
             }
 
-            base.receiveLeftClick(x, y);
+            base.receiveLeftClick(x, y, playSound);
 
             if (UpArrow.containsPoint(x, y) && _currentRow > 0)
             {
