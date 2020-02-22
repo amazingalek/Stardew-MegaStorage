@@ -7,9 +7,10 @@
     <TargetFramework>net452</TargetFramework>
     <Platforms>x86</Platforms>
     <PlatformTarget>x86</PlatformTarget>
+    <LangVersion>8.0</LangVersion>
     <EnableHarmony>false</EnableHarmony>
 
-    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
 

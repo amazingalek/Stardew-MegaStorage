@@ -1,13 +1,48 @@
-﻿using MegaStorage.Framework.Models;
+﻿using System;
+using System.Reflection;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework
 {
     public static class MappingExtensions
     {
+        public static SObject ToObject(this CustomChest customChest)
+        {
+            if (customChest is null)
+            {
+                return null;
+            }
 
+            return new SObject(Vector2.Zero, customChest.ParentSheetIndex)
+            {
+                Stack = customChest.Stack
+            };
+        }
+
+        public static SObject ToObject(this Chest chest, ChestType chestType)
+        {
+            if (chest is null)
+            {
+                return null;
+            }
+
+            var parentSheetIndex = chestType switch
+            {
+                ChestType.LargeChest => MegaStorageMod.LargeChestId,
+                ChestType.MagicChest => MegaStorageMod.MagicChestId,
+                ChestType.SuperMagicChest => MegaStorageMod.SuperMagicChestId,
+                _ => 0
+            };
+
+            return new SObject(Vector2.Zero, parentSheetIndex)
+            {
+                Stack = chest.Stack
+            };
+        }
         public static Chest ToChest(this CustomChest customChest)
         {
             if (customChest is null)
@@ -15,11 +50,14 @@ namespace MegaStorage.Framework
                 return null;
             }
 
-            var chest = new Chest(true);
+            var chest = new Chest(true)
+            {
+                name = customChest.name,
+                Stack = customChest.Stack
+            };
+
             chest.items.AddRange(customChest.items);
             chest.playerChoiceColor.Value = customChest.playerChoiceColor.Value;
-            chest.name = customChest.name;
-            chest.Stack = customChest.Stack;
 
             return chest;
         }

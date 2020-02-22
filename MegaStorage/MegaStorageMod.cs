@@ -61,10 +61,6 @@ namespace MegaStorage
         {
             ItemPatcher.Start();
             MenuChanger.Start();
-            SaveManager.Savers.Add(new InventorySaver());
-            SaveManager.Savers.Add(new FarmhandInventorySaver());
-            SaveManager.Savers.Add(new LocationSaver());
-            SaveManager.Savers.Add(new LocationInventorySaver());
             SaveManager.Start(new FarmhandMonitor());
         }
 

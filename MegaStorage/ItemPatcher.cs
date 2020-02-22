@@ -18,29 +18,39 @@ namespace MegaStorage
         private static void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged");
-            if (!e.IsLocalPlayer || e.Added.Count() != 1) return;
+            if (!e.IsLocalPlayer || e.Added.Count() != 1)
+            {
+                return;
+            }
 
             var addedItem = e.Added.Single();
-            if (addedItem is CustomChest || !CustomChestFactory.ShouldBeCustomChest(addedItem)) return;
+            if (!(addedItem is CustomChest customChest))
+            {
+                return;
+            }
 
             MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged: converting");
-            var customChest = addedItem.ToCustomChest();
             var index = Game1.player.Items.IndexOf(addedItem);
-            Game1.player.Items[index] = customChest;
+            Game1.player.Items[index] = customChest.ToObject();
         }
 
         private static void OnChestInventoryChanged(object sender, ChestInventoryChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged");
-            if (e.Added.Count() != 1) return;
+            if (e.Added.Count() != 1)
+            {
+                return;
+            }
 
             var addedItem = e.Added.Single();
-            if (addedItem is CustomChest || !CustomChestFactory.ShouldBeCustomChest(addedItem)) return;
+            if (!(addedItem is CustomChest customChest))
+            {
+                return;
+            }
 
             MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged: converting");
-            var customChest = addedItem.ToCustomChest();
             var index = e.Chest.items.IndexOf(addedItem);
-            e.Chest.items[index] = customChest;
+            e.Chest.items[index] = customChest.ToObject();
         }
 
         private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
