@@ -230,17 +230,14 @@ namespace MegaStorage.Framework.Interface
             if (!(chestColorPicker is null))
             {
                 chestColorPicker.receiveLeftClick(x, y);
-                if (SourceItem is Chest chest)
-                {
-                    chest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-                }
-            }
+                CustomChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
 
-            if (!(chestColorPicker is null) && !(colorPickerToggleButton is null) && colorPickerToggleButton.containsPoint(x, y))
-            {
-                Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-                chestColorPicker.visible = Game1.player.showChestColorPicker;
-                Game1.playSound("drumkit6");
+                if (!(colorPickerToggleButton is null) && colorPickerToggleButton.containsPoint(x, y))
+                {
+                    Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+                    chestColorPicker.visible = Game1.player.showChestColorPicker;
+                    Game1.playSound("drumkit6");
+                }
             }
 
             if (whichSpecialButton != -1 && !(specialButton is null) && specialButton.containsPoint(x, y))
