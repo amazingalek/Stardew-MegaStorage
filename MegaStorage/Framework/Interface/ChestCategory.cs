@@ -13,15 +13,17 @@ namespace MegaStorage.Framework.Interface
         protected const int StartY = -40;
         protected const int Height = 60;
 
-        protected readonly int Index;
+        protected Texture2D Sprite { get; set; } = Game1.mouseCursors;
 
+        private readonly int _index;
         private readonly string _name;
         private readonly Vector2 _spritePos;
         private readonly int[] _categoryIds;
 
-        public ChestCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y) : base(new Rectangle(x - 72, y + StartY + index * Height, 64, Height), name)
+        public ChestCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y)
+            : base(new Rectangle(x - 72, y + StartY + index * Height, 64, Height), name)
         {
-            Index = index;
+            _index = index;
             _name = name;
             _spritePos = spritePos;
             _categoryIds = categoryIds;
@@ -29,13 +31,10 @@ namespace MegaStorage.Framework.Interface
 
         public virtual void Draw(SpriteBatch b, int x, int y)
         {
-            if (!(b is null) && ModConfig.Instance.EnableCategories)
-            {
-                b.Draw(Game1.mouseCursors,
-                    new Vector2(x - 72, y + StartY + Index * Height),
-                    new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16),
-                    Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
-            }
+            b?.Draw(Sprite,
+                new Vector2(x - 72, y + StartY + _index * Height),
+                new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16),
+                Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
         }
 
         public void DrawTooltip(SpriteBatch b)
