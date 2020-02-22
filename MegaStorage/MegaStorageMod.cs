@@ -4,6 +4,10 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using System;
 using System.IO;
+using MegaStorage.Framework.Interface;
+using Microsoft.Xna.Framework;
+using StardewValley;
+using StardewValley.Menus;
 
 namespace MegaStorage
 {
@@ -34,6 +38,8 @@ namespace MegaStorage
 
             ModHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
             ModHelper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+            ModHelper.Events.Display.MenuChanged += OnMenuChanged;
+            ModHelper.Events.Display.WindowResized += OnWindowResized;
         }
 
         /*********
@@ -60,7 +66,6 @@ namespace MegaStorage
         private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             ItemPatcher.Start();
-            MenuChanger.Start();
             SaveManager.Start(new FarmhandMonitor());
         }
 
@@ -72,6 +77,35 @@ namespace MegaStorage
             ModMonitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
             ModMonitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
             ModMonitor.VerboseLog($"Super Magic Chest ID is {SuperMagicChestId}.");
+        }
+
+        private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
+        {
+            MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
+            if (e.NewMenu is LargeItemGrabMenu)
+            {
+                return;
+            }
+
+            if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest))
+            {
+                return;
+            }
+
+            Game1.activeClickableMenu = customChest.GetItemGrabMenu();
+        }
+
+        private static void OnWindowResized(object sender, WindowResizedEventArgs e)
+        {
+            if (!(Game1.activeClickableMenu is LargeItemGrabMenu largeItemGrabMenu))
+            {
+                return;
+            }
+
+            var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
+            var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
+
+            largeItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
         }
     }
 }
