@@ -12,14 +12,11 @@ namespace MegaStorage
         internal static MegaStorageMod Instance { get; private set; }
         internal static IModHelper ModHelper;
         internal static IMonitor ModMonitor;
+        internal static IJsonAssetsApi JsonAssets;
+        internal static IConvenientChestsApi ConvenientChests;
         internal static int LargeChestId { get; private set; }
         internal static int MagicChestId { get; private set; }
         internal static int SuperMagicChestId { get; private set; }
-
-        internal static IJsonAssetsApi JsonAssets;
-        internal static IConvenientChestsApi ConvenientChests;
-        private ItemPatcher _itemPatcher;
-        private SaveManager _saveManager;
 
         /*********
         ** Public methods
@@ -58,21 +55,17 @@ namespace MegaStorage
             {
                 ModConfig.Instance.EnableCategories = false;
             }
-
-            _itemPatcher = new ItemPatcher();
-            _saveManager = new SaveManager(
-                new FarmhandMonitor(),
-                new InventorySaver(),
-                new FarmhandInventorySaver(),
-                new LocationSaver(),
-                new LocationInventorySaver());
         }
 
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
+        private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
-            _itemPatcher.Start();
-            _saveManager.Start();
+            ItemPatcher.Start();
             MenuChanger.Start();
+            SaveManager.Savers.Add(new InventorySaver());
+            SaveManager.Savers.Add(new FarmhandInventorySaver());
+            SaveManager.Savers.Add(new LocationSaver());
+            SaveManager.Savers.Add(new LocationInventorySaver());
+            SaveManager.Start(new FarmhandMonitor());
         }
 
         private static void OnIdsAssigned(object sender, EventArgs e)

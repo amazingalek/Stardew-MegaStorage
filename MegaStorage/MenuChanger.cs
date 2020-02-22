@@ -17,10 +17,7 @@ namespace MegaStorage
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)
         {
-            if (!(Game1.activeClickableMenu is LargeItemGrabMenu))
-            {
-                return;
-            }
+            if (!(Game1.activeClickableMenu is LargeItemGrabMenu)) return;
 
             var oldBounds = new Rectangle
             {
@@ -40,16 +37,8 @@ namespace MegaStorage
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
-            if (e.NewMenu is LargeItemGrabMenu)
-            {
-                return;
-            }
-
-            if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest))
-            {
-                return;
-            }
-
+            if (e.NewMenu is LargeItemGrabMenu) return;
+            if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest)) return;
             Game1.activeClickableMenu = customChest.GetItemGrabMenu();
         }
     }
