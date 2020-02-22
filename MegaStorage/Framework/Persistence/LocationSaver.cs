@@ -19,7 +19,11 @@ namespace MegaStorage.Framework.Persistence
             MegaStorageMod.ModMonitor.VerboseLog("LocationSaver: HideAndSaveCustomChests");
             _locationCustomChests = new Dictionary<GameLocation, Dictionary<Vector2, CustomChest>>();
             var deserializedChests = new List<DeserializedChest>();
-            var locations = Game1.locations.Concat(Game1.getFarm().buildings.Select(x => x.indoors.Value).Where(x => x != null));
+            var locations = Game1.locations.Concat(
+                Game1.getFarm().buildings
+                    .Select(x => x.indoors?.Value)
+                    .Where(x => !(x is null)));
+            
             foreach (var location in locations)
             {
                 var customChestPositions = location.objects.Pairs.Where(x => x.Value is CustomChest).ToDictionary(pair => pair.Key, pair => (CustomChest)pair.Value);
