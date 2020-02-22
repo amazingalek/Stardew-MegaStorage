@@ -1,4 +1,5 @@
-﻿using MegaStorage.Framework.Models;
+﻿using furyx639.Common;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -9,7 +10,6 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using furyx639.Common;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
@@ -127,10 +127,13 @@ namespace MegaStorage.Framework.Interface
                 region = 15923
             };
         }
-        
+
         private void SetupControllerSupport()
         {
-            if (ItemsToGrabMenu is null || inventory?.inventory is null) return;
+            if (ItemsToGrabMenu is null || inventory?.inventory is null)
+            {
+                return;
+            }
 
             if (Game1.options.SnappyMenus)
             {
@@ -163,7 +166,11 @@ namespace MegaStorage.Framework.Interface
 
             for (var index = 0; index < 36; ++index)
             {
-                if (inventory.inventory.Count <= index) continue;
+                if (inventory.inventory.Count <= index)
+                {
+                    continue;
+                }
+
                 inventory.inventory[index].upNeighborID = -7777;
                 inventory.inventory[index].upNeighborImmutable = true;
             }
@@ -385,7 +392,11 @@ namespace MegaStorage.Framework.Interface
                 Game1.playSound("bigDeSelect");
             }
 
-            if (trashCan is null || !trashCan.containsPoint(x, y) || heldItem is null || !heldItem.canBeTrashed()) return;
+            if (trashCan is null || !trashCan.containsPoint(x, y) || heldItem is null || !heldItem.canBeTrashed())
+            {
+                return;
+            }
+
             Utility.trashItem(heldItem);
             heldItem = null;
         }
@@ -487,7 +498,11 @@ namespace MegaStorage.Framework.Interface
             {
                 var itemBefore = itemsBefore[i];
                 var itemAfter = itemsAfter[i];
-                if (itemBefore == null || itemAfter != null) continue;
+                if (itemBefore == null || itemAfter != null)
+                {
+                    continue;
+                }
+
                 var index = CustomChest.items.IndexOf(itemBefore);
                 if (index > -1)
                 {
@@ -518,7 +533,10 @@ namespace MegaStorage.Framework.Interface
 
         protected void Draw(SpriteBatch b)
         {
-            if (b is null) return;
+            if (b is null)
+            {
+                return;
+            }
 
             // opaque background
             b.Draw(Game1.fadeToBlackRect, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), Color.Black * 0.5f);

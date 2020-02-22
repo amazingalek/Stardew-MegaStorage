@@ -8,9 +8,8 @@ namespace MegaStorage.Framework.Interface
 {
     public class MiscCategory : ChestCategory
     {
-        public MiscCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y) : base(index, name, spritePos, categoryIds, x, y)
-        {
-        }
+        public MiscCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y)
+            : base(index, name, spritePos, categoryIds, x, y) { }
 
         protected override bool BelongsToCategory(Item i)
         {
@@ -24,16 +23,14 @@ namespace MegaStorage.Framework.Interface
                 return true;
             }
 
-            switch (i)
+            return i switch
             {
-                case Tool _:
-                case Boots _:
-                case Ring _:
-                case Furniture _:
-                    return true;
-                default:
-                    return base.BelongsToCategory(i);
-            }
+                Tool _ => true,
+                Boots _ => true,
+                Ring _ => true,
+                Furniture _ => true,
+                _ => base.BelongsToCategory(i)
+            };
         }
     }
 }

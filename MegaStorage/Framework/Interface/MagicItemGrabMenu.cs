@@ -128,7 +128,10 @@ namespace MegaStorage.Framework.Interface
             DownArrow.downNeighborID = rightItems[5].myID;
             organizeButton.downNeighborID = DownArrow.myID;
 
-            if (!ModConfig.Instance.EnableCategories) return;
+            if (!ModConfig.Instance.EnableCategories)
+            {
+                return;
+            }
 
             var leftItems =
                 Enumerable.Range(0, 6)
@@ -144,7 +147,11 @@ namespace MegaStorage.Framework.Interface
             {
                 CategoryComponents[i].myID = i + 239865;
                 CategoryComponents[i].rightNeighborID = leftItems[i < 3 ? i : i - 1].myID;
-                if (i <= 0) continue;
+                if (i <= 0)
+                {
+                    continue;
+                }
+
                 leftItems[i - 1].leftNeighborID = CategoryComponents[i < 4 ? i - 1 : i].myID;
                 CategoryComponents[i - 1].downNeighborID = CategoryComponents[i].myID;
                 CategoryComponents[i].upNeighborID = CategoryComponents[i - 1].myID;

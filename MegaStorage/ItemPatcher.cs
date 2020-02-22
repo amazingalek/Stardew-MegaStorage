@@ -56,11 +56,17 @@ namespace MegaStorage
         private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
-            if (e.Added.Count() != 1) return;
+            if (e.Added.Count() != 1)
+            {
+                return;
+            }
 
             var addedItemPosition = e.Added.Single();
             var addedItem = addedItemPosition.Value;
-            if (addedItem is CustomChest || !CustomChestFactory.ShouldBeCustomChest(addedItem)) return;
+            if (addedItem is CustomChest || !CustomChestFactory.ShouldBeCustomChest(addedItem))
+            {
+                return;
+            }
 
             MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
             var position = addedItemPosition.Key;

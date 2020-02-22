@@ -137,7 +137,10 @@ namespace MegaStorage.Framework.Models
 
         public override void grabItemFromChest(Item item, Farmer who)
         {
-            if (who is null || !who.couldInventoryAcceptThisItem(item)) return;
+            if (who is null || !who.couldInventoryAcceptThisItem(item))
+            {
+                return;
+            }
 
             items.Remove(item);
             clearNulls();
@@ -151,7 +154,10 @@ namespace MegaStorage.Framework.Models
 
         public override void grabItemFromInventory(Item item, Farmer who)
         {
-            if (item is null || who is null) return;
+            if (item is null || who is null)
+            {
+                return;
+            }
 
             if (item.Stack == 0)
             {
@@ -177,7 +183,10 @@ namespace MegaStorage.Framework.Models
 
             _itemGrabMenu.heldItem = addedItem;
             Game1.activeClickableMenu = _itemGrabMenu;
-            if (id == -1) return;
+            if (id == -1)
+            {
+                return;
+            }
 
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);
             Game1.activeClickableMenu.snapCursorToCurrentSnappedComponent();
@@ -190,7 +199,7 @@ namespace MegaStorage.Framework.Models
                 return false;
             }
 
-            var objectKey = new Vector2(x / 64, y / 64);
+            var objectKey = new Vector2(x / 64f, y / 64f);
             health = 10;
             owner.Value = who?.UniqueMultiplayerID ?? Game1.player.UniqueMultiplayerID;
             if (location.objects.ContainsKey(objectKey) || location is MineShaft)
@@ -329,7 +338,7 @@ namespace MegaStorage.Framework.Models
         public LargeItemGrabMenu GetItemGrabMenu()
         {
             MegaStorageMod.ModMonitor.Log("GetItemGrabMenu");
-            return _itemGrabMenu ?? (_itemGrabMenu = CreateItemGrabMenu());
+            return _itemGrabMenu ??= CreateItemGrabMenu();
         }
     }
 }

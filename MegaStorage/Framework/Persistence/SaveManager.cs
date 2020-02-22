@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using furyx639.Common;
+﻿using furyx639.Common;
 using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MegaStorage.Framework.Persistence
 {
@@ -88,8 +88,8 @@ namespace MegaStorage.Framework.Persistence
                 var customChestPositions = location.objects.Pairs
                     .Where(x => x.Value is CustomChest)
                     .ToDictionary(pair => pair.Key,
-                        pair => (CustomChest) pair.Value);
-                
+                        pair => (CustomChest)pair.Value);
+
                 if (!customChestPositions.Any())
                 {
                     continue;
@@ -136,7 +136,7 @@ namespace MegaStorage.Framework.Persistence
             {
                 var location = customChestLocations.Key;
                 var customChestPositions = customChestLocations.Value;
-                
+
                 foreach (var customChestPosition in customChestPositions)
                 {
                     var position = customChestPosition.Key;
@@ -211,7 +211,7 @@ namespace MegaStorage.Framework.Persistence
                     MegaStorageMod.ModMonitor.VerboseLog("WARNING! Expected chest at position: " + pos);
                     return;
                 }
-                var chest = (Chest) location.objects[pos];
+                var chest = (Chest)location.objects[pos];
                 var index = deserializedChest.InventoryIndex;
                 var sObject = chest.items[index].ToObject(deserializedChest.ChestType);
                 chest.items[index] = sObject;
