@@ -48,9 +48,6 @@ namespace MegaStorage.Framework.Interface
             return items.Where(BelongsToCategory).ToList();
         }
 
-        protected virtual bool BelongsToCategory(Item i)
-        {
-            return !(i is null) && _categoryIds.Contains(i.Category);
-        }
+        protected virtual bool BelongsToCategory(Item i) => !(i is null) && _categoryIds.Contains(i.Category);
     }
 }

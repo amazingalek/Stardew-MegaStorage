@@ -26,9 +26,6 @@ namespace MegaStorage.Framework.Interface
             }
         }
 
-        protected override bool BelongsToCategory(Item i)
-        {
-            return true;
-        }
+        protected override bool BelongsToCategory(Item i) => true;
     }
 }
