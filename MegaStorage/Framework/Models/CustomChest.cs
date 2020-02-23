@@ -23,7 +23,7 @@ namespace MegaStorage.Framework.Models
         public abstract int Capacity { get; }
         public abstract ChestType ChestType { get; }
         public CustomChestConfig Config { get; }
-        protected CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
+        protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;

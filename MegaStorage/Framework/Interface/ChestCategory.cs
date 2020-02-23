@@ -32,7 +32,7 @@ namespace MegaStorage.Framework.Interface
             bounds.X = _x + (selected ? XOffset : 0);
             base.draw(b);
         }
-        public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();
+        public List<Item> Filter(List<Item> items) => items.Where(BelongsToCategory).ToList();
         protected virtual bool BelongsToCategory(Item i) => !(i is null) && _categoryIds.Contains(i.Category);
     }
 }
