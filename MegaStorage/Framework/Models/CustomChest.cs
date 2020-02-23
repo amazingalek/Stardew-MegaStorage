@@ -23,13 +23,13 @@ namespace MegaStorage.Framework.Models
         public abstract int Capacity { get; }
         public abstract ChestType ChestType { get; }
         public CustomChestConfig Config { get; }
-        protected MegaStorageMenu CreateItemGrabMenu() => new MegaStorageMenu(this);
+        protected CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
         private readonly Texture2D _spriteBraces;
 
-        private MegaStorageMenu _itemGrabMenu;
+        private CustomItemGrabMenu _itemGrabMenu;
 
         private readonly IReflectedField<int> _currentLidFrameReflected;
         private int CurrentLidFrame
@@ -44,7 +44,7 @@ namespace MegaStorage.Framework.Models
 
             if (config is null)
             {
-                MegaStorageMod.Instance.Monitor.Log("Cannot load CustomChest, missing config", LogLevel.Error);
+                MegaStorageMod.Instance.Monitor.Log("Cannot load _customChest, missing config", LogLevel.Error);
                 return;
             }
 
@@ -342,7 +342,7 @@ namespace MegaStorage.Framework.Models
             }
         }
 
-        public MegaStorageMenu GetItemGrabMenu()
+        public CustomItemGrabMenu GetItemGrabMenu()
         {
             MegaStorageMod.ModMonitor.Log("GetItemGrabMenu");
             return _itemGrabMenu ??= CreateItemGrabMenu();
