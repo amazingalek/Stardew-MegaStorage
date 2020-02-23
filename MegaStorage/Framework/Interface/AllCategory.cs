@@ -12,7 +12,8 @@ namespace MegaStorage.Framework.Interface
                 name,
                 spritePos,
                 MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(Path.Combine("assets", "AllTab.png")),
-                x, y, null) { }
+                x, y, null)
+        { }
         protected override bool BelongsToCategory(Item i) => true;
     }
 }

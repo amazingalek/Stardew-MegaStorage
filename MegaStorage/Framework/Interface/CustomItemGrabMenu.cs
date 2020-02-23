@@ -1,4 +1,5 @@
-﻿using MegaStorage.Framework.Models;
+﻿using furyx639.Common;
+using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -8,7 +9,6 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using furyx639.Common;
 
 namespace MegaStorage.Framework.Interface
 {
@@ -78,7 +78,7 @@ namespace MegaStorage.Framework.Interface
             {
                 xPositionOnScreen = 0;
             }
-            
+
             allClickableComponents = new List<ClickableComponent>();
 
             SetupInventoryMenu();
@@ -222,7 +222,7 @@ namespace MegaStorage.Framework.Interface
             _itemsToGrabMenu.draw(b);
             _inventory.draw(b);
             chestColorPicker.draw(b);
-            
+
             // Inventory Icon
             b.Draw(Game1.mouseCursors,
                 new Vector2(xPositionOnScreen - TileSize, _inventory.yPositionOnScreen + 108),
@@ -378,7 +378,7 @@ namespace MegaStorage.Framework.Interface
                                 Game1.playSound("trashcanlid");
                             }
 
-                            trashCanLidRotation = Math.Min(trashCanLidRotation + (float) Math.PI / 48f, 1.570796f);
+                            trashCanLidRotation = Math.Min(trashCanLidRotation + (float)Math.PI / 48f, 1.570796f);
 
                             if (!(heldItem is null) && Utility.getTrashReclamationPrice(heldItem, Game1.player) > 0)
                             {
@@ -388,7 +388,7 @@ namespace MegaStorage.Framework.Interface
                         }
                         else
                         {
-                            trashCanLidRotation = Math.Max(trashCanLidRotation - (float) Math.PI / 48f, 0.0f);
+                            trashCanLidRotation = Math.Max(trashCanLidRotation - (float)Math.PI / 48f, 0.0f);
                         }
                         break;
                 }
@@ -414,7 +414,7 @@ namespace MegaStorage.Framework.Interface
                 height = TileSize * Rows + (Rows - 1) * 4
             };
             ItemsToGrabMenu = _itemsToGrabMenu;
-            
+
             // Color Picker
             chestColorPicker = new DiscreteColorPicker(
                 xPositionOnScreen,

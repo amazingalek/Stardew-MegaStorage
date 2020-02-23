@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MegaStorage.Framework.Models;
+﻿using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Netcode;
 using StardewValley;
 using StardewValley.Menus;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MegaStorage.Framework.Interface
 {
@@ -68,7 +68,7 @@ namespace MegaStorage.Framework.Interface
                 var pos = new Vector2(
                     xPositionOnScreen + col * (Game1.tileSize + horizontalGap),
                     yPositionOnScreen + row * (Game1.tileSize + verticalGap));
-                
+
                 b.Draw(
                     Game1.menuTexture,
                     pos,
