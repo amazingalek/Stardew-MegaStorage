@@ -7,45 +7,32 @@ using System.Linq;
 
 namespace MegaStorage.Framework.Interface
 {
-    public class ChestCategory : ClickableComponent
+    public class ChestCategory : ClickableTextureComponent
     {
-        protected const int StartY = -40;
-        protected const int Height = 60;
-
-        protected Texture2D Sprite { get; set; } = Game1.mouseCursors;
-
-        private readonly int _index;
-        private readonly string _name;
-        private readonly Vector2 _spritePos;
+        private const int XOffset = 8;
         private readonly IList<int> _categoryIds;
-
-        public ChestCategory(int index, string name, Vector2 spritePos, IList<int> categoryIds, int x, int y)
-            : base(new Rectangle(x - 72, y + StartY + index * Height, 64, Height), name)
+        private readonly int _x;
+        public ChestCategory(int index, string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
+            : this(index, name, spritePos, Game1.mouseCursors, x, y, categoryIds) { }
+        public ChestCategory(int index, string name, Vector2 spritePos, Texture2D sprite, int x, int y, IList<int> categoryIds)
+            : base(
+                name,
+                new Rectangle(x, y, Game1.tileSize, Game1.tileSize),
+                "",
+                "",
+                sprite,
+                new Rectangle((int)spritePos.X, (int)spritePos.Y, 16, 16),
+                Game1.pixelZoom)
         {
-            _index = index;
-            _name = name;
-            _spritePos = spritePos;
+            _x = x;
             _categoryIds = categoryIds;
         }
-
-        public virtual void Draw(SpriteBatch b, int x, int y)
+        public void Draw(SpriteBatch b, bool selected)
         {
-            b?.Draw(Sprite,
-                new Vector2(x - 72, y + StartY + _index * Height),
-                new Rectangle((int)_spritePos.X, (int)_spritePos.Y, 16, 16),
-                Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
+            bounds.X = _x + (selected ? XOffset : 0);
+            base.draw(b);
         }
-
-        public void DrawTooltip(SpriteBatch b)
-        {
-            IClickableMenu.drawHoverText(b, _name, Game1.smallFont);
-        }
-
-        public List<Item> Filter(IList<Item> items)
-        {
-            return items.Where(BelongsToCategory).ToList();
-        }
-
+        public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();
         protected virtual bool BelongsToCategory(Item i) => !(i is null) && _categoryIds.Contains(i.Category);
     }
 }

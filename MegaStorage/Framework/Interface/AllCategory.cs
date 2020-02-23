@@ -7,12 +7,13 @@ namespace MegaStorage.Framework.Interface
 {
     public class AllCategory : ChestCategory
     {
-        public AllCategory(int index, int x, int y)
-            : base(index, "All", Vector2.Zero, null, x, y)
-        {
-            Sprite = MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(Path.Combine("assets", "AllTab.png"));
-        }
-
+        public AllCategory(int index, string name, Vector2 spritePos, int x, int y)
+            : base(
+                index,
+                name,
+                spritePos,
+                MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(Path.Combine("assets", "AllTab.png")),
+                x, y, null) { }
         protected override bool BelongsToCategory(Item i) => true;
     }
 }

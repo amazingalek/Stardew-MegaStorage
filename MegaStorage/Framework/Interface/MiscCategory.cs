@@ -2,14 +2,15 @@
 using StardewValley;
 using StardewValley.Objects;
 using System;
+using System.Collections.Generic;
 using Object = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
 {
     public class MiscCategory : ChestCategory
     {
-        public MiscCategory(int index, string name, Vector2 spritePos, int[] categoryIds, int x, int y)
-            : base(index, name, spritePos, categoryIds, x, y) { }
+        public MiscCategory(int index, string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
+            : base(index, name, spritePos, x, y, categoryIds) { }
 
         protected override bool BelongsToCategory(Item i)
         {
