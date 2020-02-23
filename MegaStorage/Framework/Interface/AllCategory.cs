@@ -7,9 +7,8 @@ namespace MegaStorage.Framework.Interface
 {
     public class AllCategory : ChestCategory
     {
-        public AllCategory(int index, string name, Vector2 spritePos, int x, int y)
+        public AllCategory(string name, Vector2 spritePos, int x, int y)
             : base(
-                index,
                 name,
                 spritePos,
                 MegaStorageMod.Instance.Helper.Content.Load<Texture2D>(Path.Combine("assets", "AllTab.png")),

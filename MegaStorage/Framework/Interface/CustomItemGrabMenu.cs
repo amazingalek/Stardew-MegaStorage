@@ -19,13 +19,13 @@ namespace MegaStorage.Framework.Interface
         *********/
         public static readonly Dictionary<string, Vector2> Categories = new Dictionary<string, Vector2>()
         {
-            {"All", Vector2.Zero },
-            {"Crops", new Vector2(640, 80)},
-            {"Seeds", new Vector2(656, 64)},
-            {"Materials", new Vector2(672, 64)},
-            {"Cooking", new Vector2(688, 64)},
-            {"Fishing", new Vector2(640, 64)},
-            {"Misc", new Vector2(672, 80)}
+            {"category.All", Vector2.Zero },
+            {"category.Crops", new Vector2(640, 80)},
+            {"category.Seeds", new Vector2(656, 64)},
+            {"category.Materials", new Vector2(672, 64)},
+            {"category.Cooking", new Vector2(688, 64)},
+            {"category.Fishing", new Vector2(640, 64)},
+            {"category.Misc", new Vector2(672, 80)}
         };
 
         private protected ClickableTextureComponent UpArrow;
@@ -40,8 +40,6 @@ namespace MegaStorage.Framework.Interface
         private static int SpaceToClearTopBorder => IClickableMenu.spaceToClearTopBorder;
         private static int TileSize => Game1.tileSize;
         private readonly CustomChest _customChest;
-
-        private ChestCategory _hoverCategory;
         private protected ChestCategory SelectedCategory;
 
         private int _currentRow = 0;
@@ -537,17 +535,15 @@ namespace MegaStorage.Framework.Interface
                 }
                 switch (category.Key)
                 {
-                    case "All":
+                    case "category.All":
                         allClickableComponents.Add(new AllCategory(
-                            index,
                             category.Key,
                             category.Value,
                             xPositionOnScreen - BorderWidth - 24,
                             yPositionOnScreen + index * 60 - 12));
                         break;
-                    case "Misc":
+                    case "category.Misc":
                         allClickableComponents.Add(new MiscCategory(
-                            index,
                             category.Key,
                             category.Value,
                             xPositionOnScreen - BorderWidth - 24,
@@ -556,7 +552,6 @@ namespace MegaStorage.Framework.Interface
                         break;
                     default:
                         allClickableComponents.Add(new ChestCategory(
-                            index,
                             category.Key,
                             category.Value,
                             xPositionOnScreen - BorderWidth - 24,

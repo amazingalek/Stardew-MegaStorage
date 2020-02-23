@@ -12,9 +12,9 @@ namespace MegaStorage.Framework.Interface
         private const int XOffset = 8;
         private readonly IList<int> _categoryIds;
         private readonly int _x;
-        public ChestCategory(int index, string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
-            : this(index, name, spritePos, Game1.mouseCursors, x, y, categoryIds) { }
-        public ChestCategory(int index, string name, Vector2 spritePos, Texture2D sprite, int x, int y, IList<int> categoryIds)
+        public ChestCategory(string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
+            : this(name, spritePos, Game1.mouseCursors, x, y, categoryIds) { }
+        public ChestCategory(string name, Vector2 spritePos, Texture2D sprite, int x, int y, IList<int> categoryIds)
             : base(
                 name,
                 new Rectangle(x, y, Game1.tileSize, Game1.tileSize),
