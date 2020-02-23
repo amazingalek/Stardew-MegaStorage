@@ -1,5 +1,4 @@
-﻿using MegaStorage.Framework.Interface;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewValley;
 
 namespace MegaStorage.Framework.Models

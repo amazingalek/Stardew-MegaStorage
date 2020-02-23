@@ -266,7 +266,7 @@ namespace MegaStorage.Framework.Interface
                     item.upNeighborID = 53910 + 60 + i;
                 }
             }
-            
+
             var rightItems =
                 Enumerable.Range(0, 6)
                     .Select(i => ItemsToGrabMenu.inventory.ElementAt(i * 12 + 11))
