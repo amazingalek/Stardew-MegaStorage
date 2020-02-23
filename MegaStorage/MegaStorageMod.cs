@@ -82,7 +82,7 @@ namespace MegaStorage
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
-            if (e.NewMenu is LargeItemGrabMenu)
+            if (e.NewMenu is MegaStorageMenu)
             {
                 return;
             }
@@ -97,7 +97,7 @@ namespace MegaStorage
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)
         {
-            if (!(Game1.activeClickableMenu is LargeItemGrabMenu largeItemGrabMenu))
+            if (!(Game1.activeClickableMenu is MegaStorageMenu largeItemGrabMenu))
             {
                 return;
             }

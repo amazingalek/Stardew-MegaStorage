@@ -23,13 +23,13 @@ namespace MegaStorage.Framework.Models
         public abstract int Capacity { get; }
         public abstract ChestType ChestType { get; }
         public CustomChestConfig Config { get; }
-        protected abstract LargeItemGrabMenu CreateItemGrabMenu();
+        protected MegaStorageMenu CreateItemGrabMenu() => new MegaStorageMenu(this);
 
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
         private readonly Texture2D _spriteBraces;
 
-        private LargeItemGrabMenu _itemGrabMenu;
+        private MegaStorageMenu _itemGrabMenu;
 
         private readonly IReflectedField<int> _currentLidFrameReflected;
         private int CurrentLidFrame
@@ -68,6 +68,7 @@ namespace MegaStorage.Framework.Models
             itemToAdd.resetState();
             clearNulls();
 
+            // Find Stackable slot
             foreach (var item in items.Where(item => item != null && item.canStackWith(itemToAdd)))
             {
                 itemToAdd.Stack = item.addToStack(itemToAdd);
@@ -341,7 +342,7 @@ namespace MegaStorage.Framework.Models
             }
         }
 
-        public LargeItemGrabMenu GetItemGrabMenu()
+        public MegaStorageMenu GetItemGrabMenu()
         {
             MegaStorageMod.ModMonitor.Log("GetItemGrabMenu");
             return _itemGrabMenu ??= CreateItemGrabMenu();

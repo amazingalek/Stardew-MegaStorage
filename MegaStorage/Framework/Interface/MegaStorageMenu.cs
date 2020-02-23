@@ -14,8 +14,18 @@ using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
 {
-    public class LargeItemGrabMenu : ItemGrabMenu
+    public class MegaStorageMenu : ItemGrabMenu
     {
+        public static readonly Dictionary<string, Vector2> Categories = new Dictionary<string, Vector2>()
+        {
+            {"Crops", new Vector2(640, 80)},
+            {"Seeds", new Vector2(656, 64)},
+            {"Materials", new Vector2(672, 64)},
+            {"Cooking", new Vector2(688, 64)},
+            {"Fishing", new Vector2(640, 64)},
+            {"Misc", new Vector2(672, 80)}
+        };
+
         private const int TopHeightChange = -24;
         private const int TopBackgroundChange = 24;
         private const int MoveTop = -24;
@@ -27,6 +37,17 @@ namespace MegaStorage.Framework.Interface
         /*********
         ** Fields
         *********/
+        private protected List<ClickableComponent> CategoryComponents;
+        private protected ClickableTextureComponent UpArrow;
+        private protected ClickableTextureComponent DownArrow;
+
+        private readonly List<ChestCategory> _chestCategories = new List<ChestCategory>();
+        private ChestCategory _hoverCategory;
+        private protected ChestCategory SelectedCategory;
+
+        private int _currentRow;
+        private int _maxRow;
+
         private Item SourceItem => _sourceItemReflected.GetValue();
         private readonly IReflectedField<Item> _sourceItemReflected;
         private TemporaryAnimatedSprite Poof { set => _poofReflected.SetValue(value); }
@@ -38,7 +59,7 @@ namespace MegaStorage.Framework.Interface
         /*********
         ** Public methods
         *********/
-        public LargeItemGrabMenu(CustomChest customChest)
+        public MegaStorageMenu(CustomChest customChest)
             : base(
                 inventory: CommonHelper.NonNull(customChest).items,
                 reverseGrab: false,
@@ -57,16 +78,64 @@ namespace MegaStorage.Framework.Interface
             _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
             _behaviorFunctionReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
 
+            _currentRow = 0;
+
             ItemsToGrabMenu = new InventoryMenu(xPositionOnScreen + 32, yPositionOnScreen, false, CustomChest.items, null, Capacity, Rows);
             ItemsToGrabMenu.movePosition(0, MoveTop);
             inventory.movePosition(0, MoveBottom);
 
+            SetupArrows();
+            SetupCategories();
             SetupColorPicker();
             SetupStackButton();
             SetupOrganizeButton();
             SetupControllerSupport();
+            Refresh();
         }
 
+        private void SetupArrows()
+        {
+            UpArrow = new ClickableTextureComponent(
+                new Rectangle(xPositionOnScreen + 840, yPositionOnScreen - 8, 64, 64), Game1.mouseCursors,
+                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12), 1f)
+            {
+                myID = 88,
+                downNeighborID = 89
+            };
+            DownArrow = new ClickableTextureComponent(
+                new Rectangle(xPositionOnScreen + 840, yPositionOnScreen + 288, 64, 64),
+                Game1.mouseCursors, Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11), 1f)
+            {
+                myID = 89,
+                upNeighborID = 88
+            };
+        }
+        private void SetupCategories()
+        {
+            if (!ModConfig.Instance.EnableCategories)
+            {
+                SelectedCategory = new AllCategory(0, xPositionOnScreen, yPositionOnScreen);
+                return;
+            }
+
+            var index = 0;
+            _chestCategories.Add(new AllCategory(index++, xPositionOnScreen, yPositionOnScreen));
+            foreach (var category in Categories)
+            {
+                if (!ModConfig.Instance.Categories.TryGetValue(category.Key, out var categoryIds))
+                {
+                    continue;
+                }
+                _chestCategories.Add(new ChestCategory(
+                    index++,
+                    category.Key,
+                    category.Value,
+                    categoryIds,
+                    xPositionOnScreen,
+                    yPositionOnScreen));
+            }
+            SelectedCategory = _chestCategories.First();
+        }
         private void SetupStackButton()
         {
             fillStacksButton = new ClickableTextureComponent(
@@ -127,7 +196,6 @@ namespace MegaStorage.Framework.Interface
                 region = 15923
             };
         }
-
         private void SetupControllerSupport()
         {
             if (ItemsToGrabMenu is null || inventory?.inventory is null)
@@ -198,7 +266,7 @@ namespace MegaStorage.Framework.Interface
                     item.upNeighborID = 53910 + 60 + i;
                 }
             }
-
+            
             var rightItems =
                 Enumerable.Range(0, 6)
                     .Select(i => ItemsToGrabMenu.inventory.ElementAt(i * 12 + 11))
@@ -206,56 +274,72 @@ namespace MegaStorage.Framework.Interface
 
             for (var i = 0; i < rightItems.Count; ++i)
             {
-                rightItems[i].rightNeighborID = i < 3
-                    ? colorPickerToggleButton?.myID
-                      ?? organizeButton.myID
-                    : organizeButton.myID;
+                rightItems[i].rightNeighborID = i switch
+                {
+                    0 => UpArrow.myID,
+                    1 => UpArrow.myID,
+                    2 => colorPickerToggleButton.myID,
+                    3 => organizeButton.myID,
+                    4 => DownArrow.myID,
+                    5 => DownArrow.myID,
+                    6 => DownArrow.myID,
+                    _ => organizeButton.myID
+                };
             }
 
             if (!(colorPickerToggleButton is null))
             {
                 colorPickerToggleButton.leftNeighborID = rightItems[2].myID;
+                colorPickerToggleButton.upNeighborID = UpArrow.myID;
+                UpArrow.rightNeighborID = colorPickerToggleButton.myID;
             }
+
+            UpArrow.leftNeighborID = rightItems[0].myID;
+            DownArrow.rightNeighborID = organizeButton.myID;
+            DownArrow.leftNeighborID = rightItems[4].myID;
+            DownArrow.downNeighborID = rightItems[5].myID;
+            organizeButton.leftNeighborID = rightItems[3].myID;
+            organizeButton.downNeighborID = DownArrow.myID;
 
             //fillStacksButton.upNeighborID = colorPickerToggleButton.myID;
             //fillStacksButton.downNeighborID = organizeButton.myID;
 
-            organizeButton.leftNeighborID = rightItems[3].myID;
+            if (ModConfig.Instance.EnableCategories)
+            {
+                var leftItems =
+                    Enumerable.Range(0, 6)
+                        .Select(i => ItemsToGrabMenu.inventory.ElementAt(i * 12))
+                        .ToList();
+
+                CategoryComponents =
+                    Enumerable.Range(0, _chestCategories.Count)
+                        .Select(i => (ClickableComponent)_chestCategories[i])
+                        .ToList();
+
+                for (var i = 0; i < CategoryComponents.Count; ++i)
+                {
+                    if (i > 0)
+                    {
+                        leftItems[i - 1].leftNeighborID = CategoryComponents[i < 4 ? i - 1 : i].myID;
+                        CategoryComponents[i - 1].downNeighborID = CategoryComponents[i].myID;
+                        CategoryComponents[i].upNeighborID = CategoryComponents[i - 1].myID;
+                    }
+                    CategoryComponents[i].myID = i + 239865;
+                    CategoryComponents[i].rightNeighborID = leftItems[i < 3 ? i : i - 1].myID;
+                }
+            }
 
             populateClickableComponentList();
             snapToDefaultClickableComponent();
         }
-
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             var itemGrabMenu = Game1.activeClickableMenu is ItemGrabMenu
                 ? (ItemGrabMenu)Game1.activeClickableMenu
                 : null;
 
-            ReceiveLeftClickBase(x, y, !destroyItemOnClick);
-
-            if (!(chestColorPicker is null))
-            {
-                chestColorPicker.receiveLeftClick(x, y);
-                CustomChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-
-                if (!(colorPickerToggleButton is null) && colorPickerToggleButton.containsPoint(x, y))
-                {
-                    Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-                    chestColorPicker.visible = Game1.player.showChestColorPicker;
-                    Game1.playSound("drumkit6");
-                }
-            }
-
-            if (whichSpecialButton != -1 && !(specialButton is null) && specialButton.containsPoint(x, y))
-            {
-                Game1.playSound("drumkit6");
-                if (whichSpecialButton == 1 && !(context is null) && context is JunimoHut hut)
-                {
-                    hut.noHarvest.Value = !hut.noHarvest.Value;
-                    specialButton.sourceRect.X = hut.noHarvest.Value ? 124 : 108;
-                }
-            }
+            // Held Item from Inventory
+            heldItem = inventory.leftClick(x, y, heldItem, playSound);
 
             if (heldItem is null && showReceivingMenu)
             {
@@ -302,7 +386,9 @@ namespace MegaStorage.Framework.Interface
                             }
                             else if (obj.IsRecipe)
                             {
-                                var key = heldItem.Name.Substring(0, heldItem.Name.IndexOf("Recipe", StringComparison.InvariantCultureIgnoreCase) - 1);
+                                var key = heldItem.Name.Substring(0,
+                                    heldItem.Name.IndexOf("Recipe", StringComparison.InvariantCultureIgnoreCase) -
+                                    1);
                                 try
                                 {
                                     if (obj.Category == -7)
@@ -324,18 +410,20 @@ namespace MegaStorage.Framework.Interface
 
                                 heldItem = null;
                             }
-                            else if (Game1.player.addItemToInventoryBool(heldItem))
-                            {
-                                heldItem = null;
-                                Game1.playSound("coin");
-                            }
                             break;
                     }
+                }
+
+                if (!(heldItem is null) && Game1.player.addItemToInventoryBool(heldItem))
+                {
+                    heldItem = null;
+                    Game1.playSound("coin");
                 }
             }
             else if ((reverseGrab || !(BehaviorFunction is null)) && isWithinBounds(x, y))
             {
                 BehaviorFunction(heldItem, Game1.player);
+                Refresh();
                 if (!(itemGrabMenu is null))
                 {
                     _sourceItemReflected.SetValue(SourceItem);
@@ -345,62 +433,101 @@ namespace MegaStorage.Framework.Interface
                         itemGrabMenu.snapCursorToCurrentSnappedComponent();
                     }
                 }
-                if (destroyItemOnClick)
-                {
-                    heldItem = null;
-                    return;
-                }
             }
 
-            if (organizeButton != null && organizeButton.containsPoint(x, y))
+            // Chest Color Picker
+            if (!(chestColorPicker is null))
+            {
+                chestColorPicker.receiveLeftClick(x, y);
+                CustomChest.playerChoiceColor.Value =
+                    chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+            }
+
+            // Category (tab)
+            if (!(_hoverCategory is null))
+            {
+                SelectedCategory = _hoverCategory;
+                _currentRow = 0;
+                Refresh();
+            }
+
+            // Up Arrow
+            else if (_currentRow > 0 && UpArrow.containsPoint(x, y))
+            {
+                Game1.playSound("coin");
+                _currentRow--;
+                UpArrow.scale = UpArrow.baseScale;
+                Refresh();
+            }
+
+            // Down Arrow
+            else if (_currentRow < _maxRow && DownArrow.containsPoint(x, y))
+            {
+                Game1.playSound("coin");
+                _currentRow++;
+                DownArrow.scale = DownArrow.baseScale;
+                Refresh();
+            }
+
+            // Organize
+            else if (!(organizeButton is null) && organizeButton.containsPoint(x, y))
             {
                 organizeItemsInList(CustomChest.items);
                 Game1.playSound("Ship");
+                Refresh();
             }
-            else if (fillStacksButton != null && fillStacksButton.containsPoint(x, y))
+
+            // Fill Stacks
+            else if (!(fillStacksButton is null) && fillStacksButton.containsPoint(x, y))
             {
                 FillOutStacks();
                 Game1.playSound("Ship");
-            }
-            else if (!(heldItem is null) && !isWithinBounds(x, y) && heldItem.canBeTrashed())
-            {
-                DropHeldItem();
-                //Game1.playSound("throwDownITem");
-                //Game1.createItemDebris(heldItem, Game1.player.getStandingPosition(), Game1.player.FacingDirection);
-                //inventory.onAddItem?.Invoke(heldItem, Game1.player);
-                //heldItem = null;
-            }
-        }
-
-        private void ReceiveLeftClickBase(int x, int y, bool playSound = true)
-        {
-            heldItem = inventory.leftClick(x, y, heldItem, playSound);
-
-            if (!isWithinBounds(x, y) && readyToClose())
-            {
-                trashCan?.containsPoint(x, y);
+                Refresh();
             }
 
-            if (!(okButton is null) && okButton.containsPoint(x, y) && readyToClose())
+            // OK Button
+            else if (!(okButton is null) && okButton.containsPoint(x, y) && readyToClose())
             {
                 exitThisMenu();
                 if (!(Game1.currentLocation.currentEvent is null))
                 {
                     ++Game1.currentLocation.currentEvent.CurrentCommand;
                 }
-
                 Game1.playSound("bigDeSelect");
             }
 
-            if (trashCan is null || !trashCan.containsPoint(x, y) || heldItem is null || !heldItem.canBeTrashed())
+            // Trash Can
+            else if (!(trashCan is null) && trashCan.containsPoint(x, y) && !(heldItem is null) && heldItem.canBeTrashed())
             {
-                return;
+                Utility.trashItem(heldItem);
+                heldItem = null;
             }
 
-            Utility.trashItem(heldItem);
-            heldItem = null;
-        }
+            // Special Button
+            else if (whichSpecialButton != -1 && !(specialButton is null) && specialButton.containsPoint(x, y))
+            {
+                Game1.playSound("drumkit6");
+                if (whichSpecialButton == 1 && !(context is null) && context is JunimoHut hut)
+                {
+                    hut.noHarvest.Value = !hut.noHarvest.Value;
+                    specialButton.sourceRect.X = hut.noHarvest.Value ? 124 : 108;
+                }
+            }
 
+            // Color Picker Toggle
+            else if (!(chestColorPicker is null) && !(colorPickerToggleButton is null) && colorPickerToggleButton.containsPoint(x, y))
+            {
+                Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+                chestColorPicker.visible = Game1.player.showChestColorPicker;
+                Game1.playSound("drumkit6");
+            }
+
+            // Drop Item
+            else if (!(heldItem is null) && !isWithinBounds(x, y) && heldItem.canBeTrashed())
+            {
+                DropHeldItem();
+            }
+        }
         public override void receiveRightClick(int x, int y, bool playSound = true)
         {
             if (!allowRightClick)
@@ -491,7 +618,43 @@ namespace MegaStorage.Framework.Interface
                 }
             }
         }
+        public override void receiveScrollWheelAction(int direction)
+        {
+            MegaStorageMod.Instance.Monitor.VerboseLog("receiveScrollWheelAction");
+            if (direction < 0 && _currentRow < _maxRow)
+            {
+                _currentRow++;
+                Refresh();
+            }
+            else if (direction > 0 && _currentRow > 0)
+            {
+                _currentRow--;
+                Refresh();
+            }
+        }
+        public override void performHoverAction(int x, int y)
+        {
+            base.performHoverAction(x, y);
 
+            if (ModConfig.Instance.EnableCategories)
+            {
+                _hoverCategory = _chestCategories.FirstOrDefault(c => c.containsPoint(x, y));
+            }
+
+            if (!(UpArrow is null))
+            {
+                UpArrow.scale = UpArrow.containsPoint(x, y)
+                    ? Math.Min(UpArrow.scale + 0.02f, UpArrow.baseScale + 0.1f)
+                    : Math.Max(UpArrow.scale - 0.02f, UpArrow.baseScale);
+            }
+
+            if (!(DownArrow is null))
+            {
+                DownArrow.scale = DownArrow.containsPoint(x, y)
+                    ? Math.Min(DownArrow.scale + 0.02f, DownArrow.baseScale + 0.1f)
+                    : Math.Max(DownArrow.scale - 0.02f, DownArrow.baseScale);
+            }
+        }
         private void FixNulls(IReadOnlyList<Item> itemsBefore, IReadOnlyList<Item> itemsAfter)
         {
             for (var i = 0; i < itemsBefore.Count; i++)
@@ -507,10 +670,10 @@ namespace MegaStorage.Framework.Interface
                 if (index > -1)
                 {
                     CustomChest.items.RemoveAt(index);
+                    Refresh();
                 }
             }
         }
-
         private static TemporaryAnimatedSprite CreatePoof(int x, int y)
         {
             return new TemporaryAnimatedSprite(
@@ -523,14 +686,12 @@ namespace MegaStorage.Framework.Interface
                 false,
                 false);
         }
-
         public override void draw(SpriteBatch b)
         {
             Draw(b);
             DrawHover(b);
             drawMouse(b);
         }
-
         protected void Draw(SpriteBatch b)
         {
             if (b is null)
@@ -541,6 +702,21 @@ namespace MegaStorage.Framework.Interface
             // opaque background
             b.Draw(Game1.fadeToBlackRect, new Rectangle(0, 0, Game1.viewport.Width, Game1.viewport.Height), Color.Black * 0.5f);
 
+            // categories (if enabled)
+            foreach (var chestCategory in _chestCategories)
+            {
+                var xOffset = chestCategory == SelectedCategory ? 8 : 0;
+                chestCategory.Draw(b, xPositionOnScreen + xOffset, yPositionOnScreen);
+            }
+
+            // top inventory
+            Game1.drawDialogueBox(
+                ItemsToGrabMenu.xPositionOnScreen - borderWidth - spaceToClearSideBorder,
+                ItemsToGrabMenu.yPositionOnScreen - borderWidth - spaceToClearTopBorder + TopBackgroundChange,
+                ItemsToGrabMenu.width + borderWidth * 2 + spaceToClearSideBorder * 2,
+                ItemsToGrabMenu.height + spaceToClearTopBorder + borderWidth * 2 + TopHeightChange,
+                false, true);
+
             // bottom inventory
             Game1.drawDialogueBox(
                 xPositionOnScreen - borderWidth / 2,
@@ -548,9 +724,6 @@ namespace MegaStorage.Framework.Interface
                 width,
                 height - (borderWidth + spaceToClearTopBorder + 192),
                 false, true);
-
-            okButton?.draw(b);
-            inventory.draw(b);
 
             // bottom inventory icon
             b.Draw(
@@ -571,18 +744,24 @@ namespace MegaStorage.Framework.Interface
                 new Rectangle(4, 372, 8, 11),
                 Color.White, 0.0f, Vector2.Zero, 4f, SpriteEffects.None, 1f);
 
-            // top inventory
-            Game1.drawDialogueBox(
-                ItemsToGrabMenu.xPositionOnScreen - borderWidth - spaceToClearSideBorder,
-                ItemsToGrabMenu.yPositionOnScreen - borderWidth - spaceToClearTopBorder + TopBackgroundChange,
-                ItemsToGrabMenu.width + borderWidth * 2 + spaceToClearSideBorder * 2,
-                ItemsToGrabMenu.height + spaceToClearTopBorder + borderWidth * 2 + TopHeightChange,
-                false, true);
+            // arrows (if scrolling)
+            if (_currentRow < _maxRow)
+            {
+                DownArrow.draw(b);
+            }
 
+            if (_currentRow > 0)
+            {
+                UpArrow.draw(b);
+            }
+
+            // buttons
+            okButton.draw(b);
+            inventory.draw(b);
             ItemsToGrabMenu.draw(b);
-            chestColorPicker?.draw(b);
-            fillStacksButton?.draw(b);
-            organizeButton?.draw(b);
+            chestColorPicker.draw(b);
+            fillStacksButton.draw(b);
+            organizeButton.draw(b);
 
             if (!(colorPickerToggleButton is null))
             {
@@ -596,8 +775,17 @@ namespace MegaStorage.Framework.Interface
             Game1.mouseCursorTransparency = 1f;
         }
 
+        public override bool isWithinBounds(int x, int y)
+        {
+            return x >= ItemsToGrabMenu.xPositionOnScreen
+                   && x <= ItemsToGrabMenu.xPositionOnScreen + ItemsToGrabMenu.width
+                   && y >= ItemsToGrabMenu.yPositionOnScreen
+                   && y <= inventory.yPositionOnScreen + inventory.height;
+        }
         protected void DrawHover(SpriteBatch b)
         {
+            _hoverCategory?.DrawTooltip(b);
+
             if (!(hoverText is null) && hoveredItem is null)
             {
                 drawHoverText(b, hoverText, Game1.smallFont);
@@ -614,10 +802,19 @@ namespace MegaStorage.Framework.Interface
 
             heldItem?.drawInMenu(b, new Vector2(Game1.getOldMouseX() + 8, Game1.getOldMouseY() + 8), 1f);
         }
-
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             // TBD
+        }
+        protected internal void Refresh()
+        {
+            var filteredItems = SelectedCategory.Filter(CustomChest.items);
+            ItemsToGrabMenu.actualInventory = filteredItems.Skip(ItemsPerRow * _currentRow).ToList();
+            _maxRow = (filteredItems.Count - 1) / 12 + 1 - Rows;
+            if (_currentRow > _maxRow)
+            {
+                _currentRow = _maxRow;
+            }
         }
     }
 }
