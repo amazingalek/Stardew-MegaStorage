@@ -84,7 +84,6 @@ namespace MegaStorage.Framework.Interface
             SetupInventoryMenu();
             SetupItemsMenu();
             SetControllerSupport();
-            //Refresh();
         }
         private void SetControllerSupport()
         {
@@ -320,10 +319,32 @@ namespace MegaStorage.Framework.Interface
         }
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            chestColorPicker.receiveLeftClick(x, y);
+            _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
             foreach (var clickableComponent in allClickableComponents.Where(c => c.containsPoint(x, y)))
             {
                 switch (clickableComponent.name)
                 {
+
+                    case "colorPickerToggleButton":
+                        Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+                        chestColorPicker.visible = Game1.player.showChestColorPicker;
+                        Game1.playSound("drumkit6");
+                        break;
+                    case "okButton":
+                        exitThisMenu();
+                        Game1.playSound("bigDeSelect");
+                        break;
+                    case "trashCan":
+                        Utility.trashItem(heldItem);
+                        heldItem = null;
+                        break;
+                    case "upArrow":
+                        _itemsToGrabMenu.ScrollUp();
+                        break;
+                    case "downArrow":
+                        _itemsToGrabMenu.ScrollDown();
+                        break;
                     default:
                         if (clickableComponent is ChestCategory chestCategory)
                         {
@@ -358,7 +379,6 @@ namespace MegaStorage.Framework.Interface
 
                 switch (clickableComponent.name)
                 {
-                    case "colorPickerToggleButton":
                     case "fillStacksButton":
                     case "organizeButton":
                         clickableComponent.scale = clickableComponent.containsPoint(x, y)
@@ -396,7 +416,48 @@ namespace MegaStorage.Framework.Interface
         }
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
-            // TBD
+            initialize(
+                (Game1.viewport.Width - MenuWidth) / 2 - BorderWidth,
+                (Game1.viewport.Height - MenuHeight) / 2 - BorderWidth,
+                MenuWidth + BorderWidth * 2,
+                MenuHeight + BorderWidth * 2);
+            if (yPositionOnScreen < BorderWidth + SpaceToClearTopBorder)
+            {
+                yPositionOnScreen = BorderWidth + SpaceToClearTopBorder;
+            }
+            if (xPositionOnScreen < 0)
+            {
+                xPositionOnScreen = 0;
+            }
+            _itemsToGrabMenu.xPositionOnScreen = xPositionOnScreen + BorderWidth;
+            _itemsToGrabMenu.yPositionOnScreen = yPositionOnScreen;
+            _inventory.xPositionOnScreen = xPositionOnScreen + BorderWidth;
+            _inventory.yPositionOnScreen = yPositionOnScreen + (TileSize + 4) * Rows + BorderWidth + SpaceToClearSideBorder;
+            okButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
+            okButton.bounds.Y = _inventory.yPositionOnScreen + 140;
+            trashCan.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder - 4;
+            trashCan.bounds.Y = _inventory.yPositionOnScreen + 4;
+            chestColorPicker.xPositionOnScreen = xPositionOnScreen;
+            chestColorPicker.yPositionOnScreen = yPositionOnScreen - 172;
+            colorPickerToggleButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
+            colorPickerToggleButton.bounds.Y = yPositionOnScreen + _itemsToGrabMenu.height / 4 - 32;
+            fillStacksButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
+            fillStacksButton.bounds.Y = yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 - 32;
+            organizeButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
+            organizeButton.bounds.Y = yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 - 32;
+            UpArrow.bounds.X = xPositionOnScreen + width + 8;
+            UpArrow.bounds.Y = yPositionOnScreen - 24;
+            DownArrow.bounds.X = xPositionOnScreen + width + 8;
+            DownArrow.bounds.Y = yPositionOnScreen + 356;
+            var index = 0;
+            foreach (var chestCategory in Categories.Select(category => allClickableComponents
+                .OfType<ChestCategory>()
+                .First(c => c.name == category.Key)))
+            {
+                chestCategory.xPosition = xPositionOnScreen - BorderWidth - 24;
+                chestCategory.yPosition = yPositionOnScreen + index * 60 - 12;
+                index++;
+            }
         }
 
         /*********

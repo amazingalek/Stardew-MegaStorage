@@ -11,6 +11,8 @@ namespace MegaStorage.Framework.Interface
     {
         private const int XOffset = 8;
         private readonly IList<int> _categoryIds;
+        public int xPosition;
+        public int yPosition;
         private readonly int _x;
         public ChestCategory(string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
             : this(name, spritePos, Game1.mouseCursors, x, y, categoryIds) { }
@@ -19,20 +21,22 @@ namespace MegaStorage.Framework.Interface
                 name,
                 new Rectangle(x, y, Game1.tileSize, Game1.tileSize),
                 "",
-                "",
+                MegaStorageMod.ModHelper.Translation.Get($"category.{name}"),
                 sprite,
                 new Rectangle((int)spritePos.X, (int)spritePos.Y, 16, 16),
                 Game1.pixelZoom)
         {
-            _x = x;
+            xPosition = x;
+            yPosition = y;
             _categoryIds = categoryIds;
         }
         public void Draw(SpriteBatch b, bool selected)
         {
-            bounds.X = _x + (selected ? XOffset : 0);
+            bounds.X = xPosition + (selected ? XOffset : 0);
+            bounds.Y = yPosition;
             base.draw(b);
         }
-        public List<Item> Filter(List<Item> items) => items.Where(BelongsToCategory).ToList();
+        public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();
         protected virtual bool BelongsToCategory(Item i) => !(i is null) && _categoryIds.Contains(i.Category);
     }
 }

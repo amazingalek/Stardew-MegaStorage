@@ -97,7 +97,7 @@ namespace MegaStorage
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)
         {
-            if (!(Game1.activeClickableMenu is CustomItemGrabMenu largeItemGrabMenu))
+            if (!(Game1.activeClickableMenu is CustomItemGrabMenu customItemGrabMenu))
             {
                 return;
             }
@@ -105,7 +105,7 @@ namespace MegaStorage
             var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
             var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
 
-            largeItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
+            customItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
         }
     }
 }
