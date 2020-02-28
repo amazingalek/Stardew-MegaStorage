@@ -29,6 +29,10 @@ namespace MegaStorage.Framework.Interface
 
         public int MaxRows;
         public IList<Item> VisibleItems;
+        public Vector2 Dimensions => new Vector2(width, height);
+
+        protected CustomItemGrabMenu ParentMenu;
+        protected Vector2 Offset;
 
         // Padding for Items Grid
         private const int XPadding = 24;
@@ -44,13 +48,15 @@ namespace MegaStorage.Framework.Interface
         ** Public methods
         *********/
         public CustomInventoryMenu(
-            int xPosition,
-            int yPosition,
+            CustomItemGrabMenu parentMenu,
+            Vector2 offset,
             int capacity = -1,
             int rows = 3,
             Chest chest = null)
-            : base(xPosition, yPosition, false, chest?.items ?? Game1.player.Items, InventoryMenu.highlightAllItems, capacity, rows)
+            : base(parentMenu.xPositionOnScreen + (int)offset.X, parentMenu.yPositionOnScreen + (int)offset.Y, false, chest?.items ?? Game1.player.Items, InventoryMenu.highlightAllItems, capacity, rows)
         {
+            ParentMenu = parentMenu;
+            Offset = offset;
             width = (Game1.tileSize + horizontalGap) * ItemsPerRow + XPadding * 2;
             height = (Game1.tileSize + verticalGap) * rows + YPadding * 2;
 
@@ -180,8 +186,10 @@ namespace MegaStorage.Framework.Interface
             }
         }
 
-        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
+        public void GameWindowSizeChanged()
         {
+            xPositionOnScreen = ParentMenu.xPositionOnScreen + (int)Offset.X;
+            yPositionOnScreen = ParentMenu.yPositionOnScreen + (int)Offset.Y;
             UpArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize / 2 + 8;
             UpArrow.bounds.Y = yPositionOnScreen;
             DownArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize / 2 + 8;
