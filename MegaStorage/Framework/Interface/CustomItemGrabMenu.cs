@@ -19,10 +19,15 @@ namespace MegaStorage.Framework.Interface
         /*********
         ** Fields
         *********/
+        public const int Rows = 6;
+        public const int ItemsPerRow = 12;
+        public const int Capacity = ItemsPerRow * Rows;
+        public const int MenuWidth = 768;
+        public const int MenuHeight = 680;
 
         public static readonly Dictionary<string, Rectangle> Categories = new Dictionary<string, Rectangle>()
         {
-            {"All", Rectangle.Empty },
+            {"All", Rectangle.Empty},
             {"Crops", new Rectangle(640, 80, 16, 16)},
             {"Seeds", new Rectangle(656, 64, 16, 16)},
             {"Materials", new Rectangle(672, 64, 16, 16)},
@@ -30,19 +35,21 @@ namespace MegaStorage.Framework.Interface
             {"Fishing", new Rectangle(640, 64, 16, 16)},
             {"Misc", new Rectangle(672, 80, 16, 16)}
         };
-
-        public const int Rows = 6;
-        public const int ItemsPerRow = 12;
-        public const int Capacity = ItemsPerRow * Rows;
-        public const int MenuWidth = 768;
-        public const int MenuHeight = 680;
-
+        internal Rectangle GetItemsToGrabMenuBounds => _itemsToGrabMenu.Bounds;
+        internal Rectangle GetInventoryBounds => _inventory.Bounds;
+        internal Vector2 GetItemsToGrabMenuDimensions => _itemsToGrabMenu.Dimensions;
+        internal Vector2 GetInventoryDimensions => _inventory.Dimensions;
+        internal Vector2 GetItemsToGrabMenuPosition => _itemsToGrabMenu.Position;
+        internal Vector2 GetInventoryPosition => _inventory.Position;
         // Offsets to ItemsToGrabMenu and Inventory
         private static readonly Vector2 Offset = new Vector2(-48, -36);
+
         // Offsets to Color Picker
         private static readonly Vector2 TopOffset = new Vector2(0, -104);
+
         // Offsets to Categories
         private static readonly Vector2 LeftOffset = new Vector2(-80, -8);
+
         // Offsets to Color Toggle, Organize, Stack, OK, and Trash
         private static readonly Vector2 RightOffset = new Vector2(56, -32);
 
@@ -50,7 +57,11 @@ namespace MegaStorage.Framework.Interface
         private CustomInventoryMenu _itemsToGrabMenu;
         private CustomInventoryMenu _inventory;
 
-        private TemporaryAnimatedSprite Poof { set => _poofReflected.SetValue(value); }
+        private TemporaryAnimatedSprite Poof
+        {
+            set => _poofReflected.SetValue(value);
+        }
+
         private readonly IReflectedField<TemporaryAnimatedSprite> _poofReflected;
         private behaviorOnItemSelect BehaviorFunction => _behaviorFunction.GetValue();
         private readonly IReflectedField<behaviorOnItemSelect> _behaviorFunction;
@@ -73,7 +84,8 @@ namespace MegaStorage.Framework.Interface
 
             _customChest = customChest;
             _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
-            _behaviorFunction = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
+            _behaviorFunction =
+                MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
             _behaviorFunction.SetValue(customChest.grabItemFromInventory);
             behaviorOnItemGrab = customChest.grabItemFromChest;
             playRightClickSound = true;
@@ -85,108 +97,12 @@ namespace MegaStorage.Framework.Interface
             SetupInventoryMenu();
             SetControllerSupport();
         }
-        private void SetControllerSupport()
-        {
-            if (Game1.options.SnappyMenus)
-            {
-                foreach (var cc in _itemsToGrabMenu.inventory.Where(cc => !(cc is null)))
-                {
-                    cc.myID += 53910;
-                    cc.upNeighborID += 53910;
-                    cc.rightNeighborID += 53910;
-                    cc.downNeighborID = -7777;
-                    cc.leftNeighborID += 53910;
-                    cc.fullyImmutable = true;
-                }
-            }
 
-            for (var index = 0; index < 12; ++index)
-            {
-                if (_inventory.inventory.Count >= 12)
-                {
-                    _inventory.inventory[index].upNeighborID = discreteColorPickerCC is null || _itemsToGrabMenu.inventory.Count > index
-                        ? _itemsToGrabMenu.inventory.Count > index ? 53910 + index : 53910
-                        : 4343;
-                }
-
-                _itemsToGrabMenu.inventory[index].upNeighborID = 4343;
-            }
-
-            for (var index = 0; index < 36; ++index)
-            {
-                if (_inventory.inventory.Count <= index)
-                    continue;
-
-                _inventory.inventory[index].upNeighborID = -7777;
-                _inventory.inventory[index].upNeighborImmutable = true;
-            }
-
-            _inventory.inventory[11].rightNeighborID = 5948;
-
-            trashCan.leftNeighborID = 11;
-
-            okButton.leftNeighborID = 11;
-
-            for (var i = 0; i < 12; i++)
-            {
-                var item = _inventory.inventory[i];
-                if (!(item is null))
-                {
-                    item.upNeighborID = 53910 + 60 + i;
-                }
-            }
-
-            var rightItems =
-                Enumerable.Range(0, 6)
-                    .Select(i => _itemsToGrabMenu.inventory.ElementAt(i * 12 + 11))
-                    .ToList();
-
-            for (var i = 0; i < rightItems.Count; ++i)
-            {
-                rightItems[i].rightNeighborID = i switch
-                {
-                    0 => colorPickerToggleButton.myID,
-                    1 => colorPickerToggleButton.myID,
-                    2 => colorPickerToggleButton.myID,
-                    3 => organizeButton.myID,
-                    4 => organizeButton.myID,
-                    5 => organizeButton.myID,
-                    6 => organizeButton.myID,
-                    _ => organizeButton.myID
-                };
-            }
-
-            colorPickerToggleButton.leftNeighborID = rightItems[2].myID;
-            organizeButton.leftNeighborID = rightItems[3].myID;
-            /*
-            if (ModConfig.Instance.EnableCategories)
-            {
-                var leftItems =
-                    Enumerable.Range(0, 6)
-                        .Select(i => _itemsToGrabMenu.inventory.ElementAt(i * 12))
-                        .ToList();
-                
-                CategoryComponents =
-                    Enumerable.Range(0, _chestCategories.Count)
-                        .Select(i => (ClickableComponent)_chestCategories[i])
-                        .ToList();
-
-                for (var i = 0; i < CategoryComponents.Count; ++i)
-                {
-                    if (i > 0)
-                    {
-                        leftItems[i - 1].leftNeighborID = CategoryComponents[i < 4 ? i - 1 : i].myID;
-                        CategoryComponents[i - 1].downNeighborID = CategoryComponents[i].myID;
-                        CategoryComponents[i].upNeighborID = CategoryComponents[i - 1].myID;
-                    }
-                    CategoryComponents[i].myID = i + 239865;
-                    CategoryComponents[i].rightNeighborID = leftItems[i < 3 ? i : i - 1].myID;
-                }
-            }
-            */
-        }
         public override void draw(SpriteBatch b)
         {
+            if (b is null)
+                return;
+
             // Background
             if (!Game1.options.showMenuBackground)
             {
@@ -226,6 +142,7 @@ namespace MegaStorage.Framework.Interface
                         {
                             clickableComponent.draw(b);
                         }
+
                         break;
                 }
             }
@@ -264,12 +181,14 @@ namespace MegaStorage.Framework.Interface
             Game1.mouseCursorTransparency = 1f;
             drawMouse(b);
         }
+
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
             heldItem = _inventory.leftClick(x, y, heldItem, playSound);
 
             chestColorPicker.receiveLeftClick(x, y);
-            _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+            _customChest.playerChoiceColor.Value =
+                chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
 
             if (heldItem is null)
             {
@@ -332,6 +251,7 @@ namespace MegaStorage.Framework.Interface
 
                                 heldItem = null;
                             }
+
                             break;
                     }
                 }
@@ -356,8 +276,7 @@ namespace MegaStorage.Framework.Interface
 
             _itemsToGrabMenu.receiveLeftClick(x, y, playSound);
             _inventory.receiveLeftClick(x, y, playSound);
-            _itemsToGrabMenu.RefreshItems();
-            _inventory.RefreshItems();
+            RefreshItems();
         }
 
         public override void receiveRightClick(int x, int y, bool playSound = true)
@@ -455,9 +374,9 @@ namespace MegaStorage.Framework.Interface
 
             _itemsToGrabMenu.receiveRightClick(x, y, playSound && playRightClickSound);
             _inventory.receiveRightClick(x, y, playSound && playRightClickSound);
-            _itemsToGrabMenu.RefreshItems();
-            _inventory.RefreshItems();
+            RefreshItems();
         }
+
         public override void receiveScrollWheelAction(int direction)
         {
             var mouseX = Game1.getOldMouseX();
@@ -472,8 +391,11 @@ namespace MegaStorage.Framework.Interface
                 {
                     chestColorPicker.colorSelection--;
                 }
-                ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-                _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+
+                ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
+                    chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+                _customChest.playerChoiceColor.Value =
+                    chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
             }
             else if (_itemsToGrabMenu.isWithinBounds(mouseX, mouseY))
             {
@@ -485,10 +407,11 @@ namespace MegaStorage.Framework.Interface
                     .OfType<CustomClickableTextureComponent>()
                     .Where(c => c.containsPoint(mouseX, mouseY) && !(c.ScrollAction is null)))
                 {
-                    clickableComponent.ScrollAction(clickableComponent, direction);
+                    clickableComponent.ScrollAction(direction, clickableComponent);
                 }
             }
         }
+
         public override void performHoverAction(int x, int y)
         {
             hoveredItem = _inventory.hover(x, y, heldItem) ?? _itemsToGrabMenu.hover(x, y, heldItem);
@@ -535,10 +458,12 @@ namespace MegaStorage.Framework.Interface
                         {
                             trashCanLidRotation = Math.Max(trashCanLidRotation - (float)Math.PI / 48f, 0.0f);
                         }
+
                         break;
                 }
             }
         }
+
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             initialize(
@@ -561,6 +486,111 @@ namespace MegaStorage.Framework.Interface
             {
                 clickableComponent.GameWindowSizeChanged();
             }
+        }
+
+        private CustomChestEventArgs CustomChestEventArgs => new CustomChestEventArgs()
+        {
+            VisibleItems = _itemsToGrabMenu.VisibleItems,
+            AllItems = _itemsToGrabMenu.actualInventory,
+            CurrentCategory = _itemsToGrabMenu.SelectedCategory.name,
+            HeldItem = heldItem
+        };
+
+        internal void RefreshItems()
+        {
+            _itemsToGrabMenu.RefreshItems();
+            _inventory.RefreshItems();
+            MegaStorageApi.InvokeVisibleItemsRefreshed(this, CustomChestEventArgs);
+        }
+
+        internal void ClickColorPickerToggleButton(CustomClickableTextureComponent clickableComponent = null)
+        {
+            Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+            chestColorPicker.visible = Game1.player.showChestColorPicker;
+            Game1.playSound("drumkit6");
+            MegaStorageApi.InvokeColorPickerToggleButtonClicked(this, CustomChestEventArgs);
+        }
+
+        internal void ClickFillStacksButton(CustomClickableTextureComponent clickableComponent = null)
+        {
+            MegaStorageApi.InvokeBeforeFillStacksButtonClicked(this, CustomChestEventArgs);
+            FillOutStacks();
+            Game1.player.Items = _inventory.actualInventory;
+            Game1.playSound("Ship");
+            MegaStorageApi.InvokeAfterFillStacksButtonClicked(this, CustomChestEventArgs);
+        }
+
+        internal void ClickOrganizeButton(CustomClickableTextureComponent clickableComponent = null)
+        {
+            MegaStorageApi.InvokeBeforeOrganizeButtonClicked(this, CustomChestEventArgs);
+            organizeItemsInList(_itemsToGrabMenu.actualInventory);
+            Game1.playSound("Ship");
+            MegaStorageApi.InvokeAfterOrganizeButtonClicked(this, CustomChestEventArgs);
+        }
+
+        internal void ClickOkButton(CustomClickableTextureComponent clickableComponent = null)
+        {
+            MegaStorageApi.InvokeBeforeOkButtonClicked(this, CustomChestEventArgs);
+            exitThisMenu();
+            if (!(Game1.currentLocation.currentEvent is null))
+                ++Game1.currentLocation.currentEvent.CurrentCommand;
+            Game1.playSound("bigDeSelect");
+            MegaStorageApi.InvokeAfterOkButtonClicked(this, CustomChestEventArgs);
+        }
+
+        internal void ClickTrashCan(CustomClickableTextureComponent clickableComponent = null)
+        {
+            MegaStorageApi.InvokeBeforeTrashCanClicked(this, CustomChestEventArgs);
+            if (heldItem is null)
+                return;
+            Utility.trashItem(heldItem);
+            heldItem = null;
+            MegaStorageApi.InvokeAfterTrashCanClicked(this, CustomChestEventArgs);
+        }
+
+        internal void ClickCategoryButton(string categoryName)
+        {
+            var clickableComponent = allClickableComponents
+                .OfType<ChestCategory>()
+                .First(c => c.name.Equals(categoryName, StringComparison.InvariantCultureIgnoreCase));
+            ClickCategoryButton(clickableComponent);
+        }
+
+        internal void ClickCategoryButton(CustomClickableTextureComponent clickableComponent)
+        {
+            MegaStorageApi.InvokeBeforeCategoryChanged(this, CustomChestEventArgs);
+            if (clickableComponent is ChestCategory chestCategory)
+                _itemsToGrabMenu.SelectedCategory = chestCategory;
+            MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
+        }
+        internal void ScrollCategory(int direction, CustomClickableTextureComponent clickableComponent = null)
+        {
+            ChestCategory savedCategory = null;
+            ChestCategory beforeCategory = null;
+            ChestCategory nextCategory = null;
+            foreach (var currentCategory in allClickableComponents.OfType<ChestCategory>())
+            {
+                if (savedCategory == _itemsToGrabMenu.SelectedCategory)
+                {
+                    nextCategory = currentCategory;
+                    break;
+                }
+                else
+                {
+                    beforeCategory = savedCategory;
+                }
+                savedCategory = currentCategory;
+            }
+            MegaStorageApi.InvokeBeforeCategoryChanged(this, CustomChestEventArgs);
+            if (direction < 0 && !(nextCategory is null))
+            {
+                _itemsToGrabMenu.SelectedCategory = nextCategory;
+            }
+            else if (direction > 0 && !(beforeCategory is null))
+            {
+                _itemsToGrabMenu.SelectedCategory = beforeCategory;
+            }
+            MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
         }
 
         /*********
@@ -732,73 +762,105 @@ namespace MegaStorage.Framework.Interface
             allClickableComponents.Add(okButton);
             allClickableComponents.Add(trashCan);
         }
-        private void ClickColorPickerToggleButton(CustomClickableTextureComponent clickableComponent)
+        private void SetControllerSupport()
         {
-            Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-            chestColorPicker.visible = Game1.player.showChestColorPicker;
-            Game1.playSound("drumkit6");
-        }
-
-        private void ClickFillStacksButton(CustomClickableTextureComponent clickableComponent)
-        {
-            FillOutStacks();
-            Game1.player.Items = _inventory.actualInventory;
-            Game1.playSound("Ship");
-        }
-
-        private void ClickOrganizeButton(CustomClickableTextureComponent clickableComponent)
-        {
-            organizeItemsInList(_itemsToGrabMenu.actualInventory);
-            Game1.playSound("Ship");
-        }
-
-        private void ClickOkButton(CustomClickableTextureComponent clickableComponent)
-        {
-            exitThisMenu();
-            if (!(Game1.currentLocation.currentEvent is null))
-                ++Game1.currentLocation.currentEvent.CurrentCommand;
-            Game1.playSound("bigDeSelect");
-        }
-
-        private void ClickTrashCan(CustomClickableTextureComponent clickableComponent)
-        {
-            if (heldItem is null) return;
-            Utility.trashItem(heldItem);
-            heldItem = null;
-        }
-
-        private void ClickCategoryButton(CustomClickableTextureComponent clickableComponent)
-        {
-            if (clickableComponent is ChestCategory chestCategory) 
-                _itemsToGrabMenu.SelectedCategory = chestCategory;
-        }
-        private void ScrollCategory(CustomClickableTextureComponent clickableComponent, int direction)
-        {
-            ChestCategory savedCategory = null;
-            ChestCategory beforeCategory = null;
-            ChestCategory nextCategory = null;
-            foreach (var currentCategory in allClickableComponents.OfType<ChestCategory>())
+            if (Game1.options.SnappyMenus)
             {
-                if (savedCategory == _itemsToGrabMenu.SelectedCategory)
+                foreach (var cc in _itemsToGrabMenu.inventory.Where(cc => !(cc is null)))
                 {
-                    nextCategory = currentCategory;
-                    break;
+                    cc.myID += 53910;
+                    cc.upNeighborID += 53910;
+                    cc.rightNeighborID += 53910;
+                    cc.downNeighborID = -7777;
+                    cc.leftNeighborID += 53910;
+                    cc.fullyImmutable = true;
                 }
-                else
-                {
-                    beforeCategory = savedCategory;
-                }
-                savedCategory = currentCategory;
             }
 
-            if (direction < 0 && !(nextCategory is null))
+            for (var index = 0; index < 12; ++index)
             {
-                _itemsToGrabMenu.SelectedCategory = nextCategory;
+                if (_inventory.inventory.Count >= 12)
+                {
+                    _inventory.inventory[index].upNeighborID = discreteColorPickerCC is null || _itemsToGrabMenu.inventory.Count > index
+                        ? _itemsToGrabMenu.inventory.Count > index ? 53910 + index : 53910
+                        : 4343;
+                }
+
+                _itemsToGrabMenu.inventory[index].upNeighborID = 4343;
             }
-            else if (direction > 0 && !(beforeCategory is null))
+
+            for (var index = 0; index < 36; ++index)
             {
-                _itemsToGrabMenu.SelectedCategory = beforeCategory;
+                if (_inventory.inventory.Count <= index)
+                    continue;
+
+                _inventory.inventory[index].upNeighborID = -7777;
+                _inventory.inventory[index].upNeighborImmutable = true;
             }
+
+            _inventory.inventory[11].rightNeighborID = 5948;
+
+            trashCan.leftNeighborID = 11;
+
+            okButton.leftNeighborID = 11;
+
+            for (var i = 0; i < 12; i++)
+            {
+                var item = _inventory.inventory[i];
+                if (!(item is null))
+                {
+                    item.upNeighborID = 53910 + 60 + i;
+                }
+            }
+
+            var rightItems =
+                Enumerable.Range(0, 6)
+                    .Select(i => _itemsToGrabMenu.inventory.ElementAt(i * 12 + 11))
+                    .ToList();
+
+            for (var i = 0; i < rightItems.Count; ++i)
+            {
+                rightItems[i].rightNeighborID = i switch
+                {
+                    0 => colorPickerToggleButton.myID,
+                    1 => colorPickerToggleButton.myID,
+                    2 => colorPickerToggleButton.myID,
+                    3 => organizeButton.myID,
+                    4 => organizeButton.myID,
+                    5 => organizeButton.myID,
+                    6 => organizeButton.myID,
+                    _ => organizeButton.myID
+                };
+            }
+
+            colorPickerToggleButton.leftNeighborID = rightItems[2].myID;
+            organizeButton.leftNeighborID = rightItems[3].myID;
+            /*
+            if (ModConfig.Instance.EnableCategories)
+            {
+                var leftItems =
+                    Enumerable.Range(0, 6)
+                        .Select(i => _itemsToGrabMenu.inventory.ElementAt(i * 12))
+                        .ToList();
+                
+                CategoryComponents =
+                    Enumerable.Range(0, _chestCategories.Count)
+                        .Select(i => (ClickableComponent)_chestCategories[i])
+                        .ToList();
+
+                for (var i = 0; i < CategoryComponents.Count; ++i)
+                {
+                    if (i > 0)
+                    {
+                        leftItems[i - 1].leftNeighborID = CategoryComponents[i < 4 ? i - 1 : i].myID;
+                        CategoryComponents[i - 1].downNeighborID = CategoryComponents[i].myID;
+                        CategoryComponents[i].upNeighborID = CategoryComponents[i - 1].myID;
+                    }
+                    CategoryComponents[i].myID = i + 239865;
+                    CategoryComponents[i].rightNeighborID = leftItems[i < 3 ? i : i - 1].myID;
+                }
+            }
+            */
         }
         private static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(
             "TileSheets/animations",
