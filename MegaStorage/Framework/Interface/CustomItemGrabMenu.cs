@@ -19,15 +19,16 @@ namespace MegaStorage.Framework.Interface
         /*********
         ** Fields
         *********/
-        public static readonly Dictionary<string, Vector2> Categories = new Dictionary<string, Vector2>()
+
+        public static readonly Dictionary<string, Rectangle> Categories = new Dictionary<string, Rectangle>()
         {
-            {"All", Vector2.Zero },
-            {"Crops", new Vector2(640, 80)},
-            {"Seeds", new Vector2(656, 64)},
-            {"Materials", new Vector2(672, 64)},
-            {"Cooking", new Vector2(688, 64)},
-            {"Fishing", new Vector2(640, 64)},
-            {"Misc", new Vector2(672, 80)}
+            {"All", Rectangle.Empty },
+            {"Crops", new Rectangle(640, 80, 16, 16)},
+            {"Seeds", new Rectangle(656, 64, 16, 16)},
+            {"Materials", new Rectangle(672, 64, 16, 16)},
+            {"Cooking", new Rectangle(688, 64, 16, 16)},
+            {"Fishing", new Rectangle(640, 64, 16, 16)},
+            {"Misc", new Rectangle(672, 80, 16, 16)}
         };
 
         public const int Rows = 6;
@@ -37,22 +38,14 @@ namespace MegaStorage.Framework.Interface
         public const int MenuHeight = 680;
 
         // Offsets to ItemsToGrabMenu and Inventory
-        private const int XOffset = -48;
-        private const int YOffset = -36;
-
+        private static readonly Vector2 Offset = new Vector2(-48, -36);
         // Offsets to Color Picker
-        private const int TopXOffset = 0;
-        private const int TopYOffset = -104;
-
+        private static readonly Vector2 TopOffset = new Vector2(0, -104);
         // Offsets to Categories
-        private const int LeftXOffset = -80;
-        private const int LeftYOffset = -8;
-
+        private static readonly Vector2 LeftOffset = new Vector2(-80, -8);
         // Offsets to Color Toggle, Organize, Stack, OK, and Trash
-        private const int RightXOffset = 56;
-        private const int RightYOffset = -32;
+        private static readonly Vector2 RightOffset = new Vector2(56, -32);
 
-        private static int TileSize => Game1.tileSize;
         private readonly CustomChest _customChest;
         private CustomInventoryMenu _itemsToGrabMenu;
         private CustomInventoryMenu _inventory;
@@ -74,13 +67,9 @@ namespace MegaStorage.Framework.Interface
                 MenuWidth,
                 MenuHeight);
             if (yPositionOnScreen < IClickableMenu.spaceToClearTopBorder)
-            {
                 yPositionOnScreen = IClickableMenu.spaceToClearTopBorder;
-            }
             if (xPositionOnScreen < 0)
-            {
                 xPositionOnScreen = 0;
-            }
 
             _customChest = customChest;
             _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
@@ -209,35 +198,7 @@ namespace MegaStorage.Framework.Interface
             chestColorPicker.draw(b);
 
             // Inventory Icon
-            b.Draw(Game1.mouseCursors,
-                new Vector2(_inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 124),
-                new Rectangle(16, 368, 12, 16),
-                Color.White,
-                4.712389f,
-                Vector2.Zero,
-                Game1.pixelZoom,
-                SpriteEffects.None,
-                1f);
-            b.Draw(Game1.mouseCursors,
-                new Vector2(_inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 92),
-                new Rectangle(21, 368, 11, 16),
-                Color.White,
-                4.712389f,
-                Vector2.Zero,
-                Game1.pixelZoom,
-                SpriteEffects.None,
-                1f);
-            b.Draw(Game1.mouseCursors,
-                new Vector2(_inventory.xPositionOnScreen - 56, _inventory.yPositionOnScreen + 64),
-                new Rectangle(4, 372, 8, 11),
-                Color.White,
-                0.0f,
-                Vector2.Zero,
-                Game1.pixelZoom,
-                SpriteEffects.None,
-                1f);
-
-            //poof?.draw(b, true);
+            CommonHelper.DrawInventoryIcon(b, _inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 64);
 
             foreach (var clickableComponent in allClickableComponents.OfType<ClickableTextureComponent>())
             {
@@ -386,51 +347,19 @@ namespace MegaStorage.Framework.Interface
                 BehaviorFunction(heldItem, Game1.player);
             }
 
-            foreach (var clickableComponent in allClickableComponents.Where(c => c.containsPoint(x, y)))
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<CustomClickableTextureComponent>()
+                .Where(c => c.containsPoint(x, y) && !(c.LeftClickAction is null)))
             {
-                switch (clickableComponent.name)
-                {
-
-                    case "colorPickerToggleButton":
-                        Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
-                        chestColorPicker.visible = Game1.player.showChestColorPicker;
-                        Game1.playSound("drumkit6");
-                        break;
-                    case "fillStacksButton":
-                        FillOutStacks();
-                        Game1.player.Items = _inventory.actualInventory;
-                        Game1.playSound("Ship");
-                        break;
-                    case "organizeButton":
-                        organizeItemsInList(_itemsToGrabMenu.actualInventory);
-                        Game1.playSound("Ship");
-                        break;
-                    case "okButton":
-                        exitThisMenu();
-                        if (!(Game1.currentLocation.currentEvent is null))
-                            ++Game1.currentLocation.currentEvent.CurrentCommand;
-                        Game1.playSound("bigDeSelect");
-                        break;
-                    case "trashCan":
-                        if (!(heldItem is null))
-                        {
-                            Utility.trashItem(heldItem);
-                            heldItem = null;
-                        }
-                        break;
-                    default:
-                        if (clickableComponent is ChestCategory chestCategory)
-                        {
-                            _itemsToGrabMenu.SelectedCategory = chestCategory;
-                        }
-                        break;
-                }
+                clickableComponent.LeftClickAction(clickableComponent);
             }
+
             _itemsToGrabMenu.receiveLeftClick(x, y, playSound);
             _inventory.receiveLeftClick(x, y, playSound);
             _itemsToGrabMenu.RefreshItems();
             _inventory.RefreshItems();
         }
+
         public override void receiveRightClick(int x, int y, bool playSound = true)
         {
             if (!allowRightClick)
@@ -516,6 +445,14 @@ namespace MegaStorage.Framework.Interface
             {
                 BehaviorFunction(heldItem, Game1.player);
             }
+
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<CustomClickableTextureComponent>()
+                .Where(c => c.containsPoint(x, y) && !(c.RightClickAction is null)))
+            {
+                clickableComponent.RightClickAction(clickableComponent);
+            }
+
             _itemsToGrabMenu.receiveRightClick(x, y, playSound && playRightClickSound);
             _inventory.receiveRightClick(x, y, playSound && playRightClickSound);
             _itemsToGrabMenu.RefreshItems();
@@ -542,32 +479,13 @@ namespace MegaStorage.Framework.Interface
             {
                 _itemsToGrabMenu.receiveScrollWheelAction(direction);
             }
-            else if (allClickableComponents.OfType<ChestCategory>().Any(c => c.containsPoint(mouseX, mouseY)))
+            else
             {
-                ChestCategory savedCategory = null;
-                ChestCategory beforeCategory = null;
-                ChestCategory nextCategory = null;
-                foreach (var currentCategory in allClickableComponents.OfType<ChestCategory>())
+                foreach (var clickableComponent in allClickableComponents
+                    .OfType<CustomClickableTextureComponent>()
+                    .Where(c => c.containsPoint(mouseX, mouseY) && !(c.ScrollAction is null)))
                 {
-                    if (savedCategory == _itemsToGrabMenu.SelectedCategory)
-                    {
-                        nextCategory = currentCategory;
-                        break;
-                    }
-                    else
-                    {
-                        beforeCategory = savedCategory;
-                    }
-                    savedCategory = currentCategory;
-                }
-
-                if (direction < 0 && !(nextCategory is null))
-                {
-                    _itemsToGrabMenu.SelectedCategory = nextCategory;
-                }
-                else if (direction > 0 && !(beforeCategory is null))
-                {
-                    _itemsToGrabMenu.SelectedCategory = beforeCategory;
+                    clickableComponent.ScrollAction(clickableComponent, direction);
                 }
             }
         }
@@ -629,40 +547,20 @@ namespace MegaStorage.Framework.Interface
                 MenuWidth,
                 MenuHeight);
             if (yPositionOnScreen < IClickableMenu.spaceToClearTopBorder)
-            {
                 yPositionOnScreen = IClickableMenu.spaceToClearTopBorder;
-            }
             if (xPositionOnScreen < 0)
-            {
                 xPositionOnScreen = 0;
-            }
-            _itemsToGrabMenu.xPositionOnScreen = xPositionOnScreen + XOffset;
-            _itemsToGrabMenu.yPositionOnScreen = yPositionOnScreen + YOffset;
-            _inventory.xPositionOnScreen = _itemsToGrabMenu.xPositionOnScreen;
-            _inventory.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height + 80;
-            okButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            okButton.bounds.Y = _inventory.yPositionOnScreen + 140;
-            trashCan.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            trashCan.bounds.Y = _inventory.yPositionOnScreen + 4;
-            chestColorPicker.xPositionOnScreen = _itemsToGrabMenu.xPositionOnScreen + TopXOffset;
-            chestColorPicker.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + TopYOffset;
-            colorPickerToggleButton.bounds.X = _itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            colorPickerToggleButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height / 4 + RightYOffset;
-            fillStacksButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            fillStacksButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 + RightYOffset;
-            organizeButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            organizeButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 + RightYOffset;
-            var index = 0;
-            foreach (var chestCategory in Categories.Select(category => allClickableComponents
-                .OfType<ChestCategory>()
-                .First(c => c.name == category.Key)))
+
+            _itemsToGrabMenu.GameWindowSizeChanged();
+            _inventory.GameWindowSizeChanged();
+
+            chestColorPicker.xPositionOnScreen = _itemsToGrabMenu.xPositionOnScreen + (int)TopOffset.X;
+            chestColorPicker.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + (int)TopOffset.Y;
+
+            foreach (var clickableComponent in allClickableComponents.OfType<CustomClickableTextureComponent>())
             {
-                chestCategory.XPosition = _itemsToGrabMenu.xPositionOnScreen + LeftXOffset;
-                chestCategory.YPosition = _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset;
-                index++;
+                clickableComponent.GameWindowSizeChanged();
             }
-            _itemsToGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
-            _inventory.gameWindowSizeChanged(oldBounds, newBounds);
         }
 
         /*********
@@ -670,18 +568,13 @@ namespace MegaStorage.Framework.Interface
         *********/
         private void SetupItemsMenu()
         {
-            _itemsToGrabMenu = new CustomInventoryMenu(
-                xPositionOnScreen + XOffset,
-                yPositionOnScreen + YOffset,
-                Capacity,
-                Rows,
-                _customChest);
+            _itemsToGrabMenu = new CustomInventoryMenu(this, Offset, Capacity, Rows, _customChest);
             ItemsToGrabMenu = _itemsToGrabMenu;
 
             // Color Picker
             chestColorPicker = new DiscreteColorPicker(
-                _itemsToGrabMenu.xPositionOnScreen + TopXOffset,
-                _itemsToGrabMenu.yPositionOnScreen + TopYOffset,
+                _itemsToGrabMenu.xPositionOnScreen + (int)TopOffset.X,
+                _itemsToGrabMenu.yPositionOnScreen + (int)TopOffset.Y,
                 0,
                 new Chest(true));
             chestColorPicker.colorSelection =
@@ -690,61 +583,58 @@ namespace MegaStorage.Framework.Interface
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
 
             // Color Picker Toggle
-            colorPickerToggleButton = new ClickableTextureComponent(
+            colorPickerToggleButton = new CustomClickableTextureComponent(
                 "colorPickerToggleButton",
-                new Rectangle(_itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset,
-                    _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height / 4 + RightYOffset,
-                    TileSize, TileSize),
-                "",
-                "",
+                _itemsToGrabMenu,
+                RightOffset + _itemsToGrabMenu.Dimensions * new Vector2(1, 1f / 4f),
                 Game1.mouseCursors,
                 new Rectangle(119, 469, 16, 16),
-                Game1.pixelZoom)
+                Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"))
             {
-                hoverText = Game1.content.LoadString("Strings\\UI:Toggle_ColorPicker"),
                 myID = 27346,
                 downNeighborID = -99998,
                 leftNeighborID = 53921,
-                region = 15923
+                region = 15923,
+                LeftClickAction = ClickColorPickerToggleButton
             };
 
             // Stack
-            fillStacksButton = new ClickableTextureComponent(
+            fillStacksButton = new CustomClickableTextureComponent(
                 "fillStacksButton",
-                new Rectangle(_itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset,
-                    _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 + RightYOffset,
-                    TileSize, TileSize),
-                "",
-                Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"),
+                _itemsToGrabMenu,
+                RightOffset + _itemsToGrabMenu.Dimensions * new Vector2(1, 2f / 4f),
                 Game1.mouseCursors,
                 new Rectangle(103, 469, 16, 16),
-                Game1.pixelZoom)
+                Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"))
             {
                 myID = 12952,
                 upNeighborID = 27346,
                 downNeighborID = 106,
                 leftNeighborID = 53921,
-                region = 15923
+                region = 15923,
+                LeftClickAction = ClickFillStacksButton
             };
 
             // Organize
-            organizeButton = new ClickableTextureComponent(
+            organizeButton = new CustomClickableTextureComponent(
                 "organizeButton",
-                new Rectangle(_itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset,
-                    _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 + RightYOffset,
-                    TileSize, TileSize),
-                "",
-                Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"),
+                _itemsToGrabMenu,
+                RightOffset + _itemsToGrabMenu.Dimensions * new Vector2(1, 3f / 4f),
                 Game1.mouseCursors,
                 new Rectangle(162, 440, 16, 16),
-                Game1.pixelZoom)
+                Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"))
             {
                 myID = 106,
                 upNeighborID = 12952,
                 downNeighborID = 5948,
                 leftNeighborID = 53921,
-                region = 15923
+                region = 15923,
+                LeftClickAction = ClickOrganizeButton
             };
+
+            allClickableComponents.Add(colorPickerToggleButton);
+            allClickableComponents.Add(fillStacksButton);
+            allClickableComponents.Add(organizeButton);
 
             // Categories
             var index = 0;
@@ -760,80 +650,81 @@ namespace MegaStorage.Framework.Interface
                     case "All":
                         allClickableComponents.Add(new AllCategory(
                             category.Key,
-                            category.Value,
-                            _itemsToGrabMenu.xPositionOnScreen + LeftXOffset,
-                            _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset));
+                            _itemsToGrabMenu,
+                            LeftOffset + new Vector2(0, index * 60),
+                            category.Value)
+                        {
+                            LeftClickAction = ClickCategoryButton,
+                            ScrollAction = ScrollCategory
+                        });
                         break;
                     case "Misc":
                         allClickableComponents.Add(new MiscCategory(
                             category.Key,
+                            _itemsToGrabMenu,
+                            LeftOffset + new Vector2(0, index * 60),
                             category.Value,
-                            _itemsToGrabMenu.xPositionOnScreen + LeftXOffset,
-                            _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset,
-                            categoryIds));
+                            categoryIds)
+                        {
+                            LeftClickAction = ClickCategoryButton,
+                            ScrollAction = ScrollCategory
+                        });
                         break;
                     default:
                         allClickableComponents.Add(new ChestCategory(
                             category.Key,
+                            _itemsToGrabMenu,
+                            LeftOffset + new Vector2(0, index * 60),
                             category.Value,
-                            _itemsToGrabMenu.xPositionOnScreen + LeftXOffset,
-                            _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset,
-                            categoryIds));
+                            categoryIds)
+                        {
+                            LeftClickAction = ClickCategoryButton,
+                            ScrollAction = ScrollCategory
+                        });
                         break;
                 }
                 index++;
             }
             _itemsToGrabMenu.SelectedCategory = allClickableComponents.OfType<ChestCategory>().First();
-
-            allClickableComponents.Add(colorPickerToggleButton);
-            allClickableComponents.Add(fillStacksButton);
-            allClickableComponents.Add(organizeButton);
         }
         private void SetupInventoryMenu()
         {
-            _inventory = new CustomInventoryMenu(
-                _itemsToGrabMenu.xPositionOnScreen,
-                _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height + 80)
+            _inventory = new CustomInventoryMenu(this, new Vector2(0, _itemsToGrabMenu.height + 80) + Offset)
             {
                 showGrayedOutSlots = true
             };
             inventory = _inventory;
 
             // OK Button
-            okButton = new ClickableTextureComponent(
+            okButton = new CustomClickableTextureComponent(
                 "okButton",
-                new Rectangle(
-                    _inventory.xPositionOnScreen + _inventory.width + RightXOffset,
-                    _inventory.yPositionOnScreen + 140,
-                    TileSize, TileSize),
-                "",
-                "",
+                _inventory,
+                new Vector2(_inventory.width + RightOffset.X, 140),
                 Game1.mouseCursors,
                 Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 46),
-                1f)
+                scale: 1f)
             {
                 myID = 4857,
                 upNeighborID = 5948,
-                leftNeighborID = 11
+                leftNeighborID = 11,
+                LeftClickAction = ClickOkButton
             };
 
             // Trash Can
-            trashCan = new ClickableTextureComponent(
+            trashCan = new CustomClickableTextureComponent(
                 "trashCan",
-                new Rectangle(
-                    _inventory.xPositionOnScreen + _inventory.width + RightXOffset,
-                    _inventory.yPositionOnScreen + 4,
-                    TileSize, 104),
-                "",
-                "",
+                _inventory,
+                new Vector2(_inventory.width + RightOffset.X, 4),
                 Game1.mouseCursors,
                 new Rectangle(564 + Game1.player.trashCanLevel * 18, 102, 18, 26),
-                Game1.pixelZoom)
+                width: Game1.tileSize,
+                height: 104)
             {
                 myID = 106,
                 downNeighborID = 4857,
                 leftNeighborID = 11,
-                upNeighborID = 106
+                upNeighborID = 106,
+                LeftClickAction = ClickTrashCan
             };
 
             // Add Invisible Drop Item Button?
@@ -841,13 +732,81 @@ namespace MegaStorage.Framework.Interface
             allClickableComponents.Add(okButton);
             allClickableComponents.Add(trashCan);
         }
+        private void ClickColorPickerToggleButton(CustomClickableTextureComponent clickableComponent)
+        {
+            Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
+            chestColorPicker.visible = Game1.player.showChestColorPicker;
+            Game1.playSound("drumkit6");
+        }
+
+        private void ClickFillStacksButton(CustomClickableTextureComponent clickableComponent)
+        {
+            FillOutStacks();
+            Game1.player.Items = _inventory.actualInventory;
+            Game1.playSound("Ship");
+        }
+
+        private void ClickOrganizeButton(CustomClickableTextureComponent clickableComponent)
+        {
+            organizeItemsInList(_itemsToGrabMenu.actualInventory);
+            Game1.playSound("Ship");
+        }
+
+        private void ClickOkButton(CustomClickableTextureComponent clickableComponent)
+        {
+            exitThisMenu();
+            if (!(Game1.currentLocation.currentEvent is null))
+                ++Game1.currentLocation.currentEvent.CurrentCommand;
+            Game1.playSound("bigDeSelect");
+        }
+
+        private void ClickTrashCan(CustomClickableTextureComponent clickableComponent)
+        {
+            if (heldItem is null) return;
+            Utility.trashItem(heldItem);
+            heldItem = null;
+        }
+
+        private void ClickCategoryButton(CustomClickableTextureComponent clickableComponent)
+        {
+            if (clickableComponent is ChestCategory chestCategory) 
+                _itemsToGrabMenu.SelectedCategory = chestCategory;
+        }
+        private void ScrollCategory(CustomClickableTextureComponent clickableComponent, int direction)
+        {
+            ChestCategory savedCategory = null;
+            ChestCategory beforeCategory = null;
+            ChestCategory nextCategory = null;
+            foreach (var currentCategory in allClickableComponents.OfType<ChestCategory>())
+            {
+                if (savedCategory == _itemsToGrabMenu.SelectedCategory)
+                {
+                    nextCategory = currentCategory;
+                    break;
+                }
+                else
+                {
+                    beforeCategory = savedCategory;
+                }
+                savedCategory = currentCategory;
+            }
+
+            if (direction < 0 && !(nextCategory is null))
+            {
+                _itemsToGrabMenu.SelectedCategory = nextCategory;
+            }
+            else if (direction > 0 && !(beforeCategory is null))
+            {
+                _itemsToGrabMenu.SelectedCategory = beforeCategory;
+            }
+        }
         private static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(
             "TileSheets/animations",
-            new Rectangle(0, 320, TileSize, TileSize),
+            new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
             50f,
             8,
             0,
-            new Vector2(x - x % TileSize + 16, y - y % TileSize + 16),
+            new Vector2(x - x % Game1.tileSize + 16, y - y % Game1.tileSize + 16),
             false,
             false);
     }
