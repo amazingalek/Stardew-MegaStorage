@@ -26,10 +26,11 @@ namespace MegaStorage.Framework.Interface
                 RefreshItems();
             }
         }
-
         public int MaxRows;
         public IList<Item> VisibleItems;
-        public Vector2 Dimensions => new Vector2(width, height);
+        internal Rectangle Bounds => new Rectangle(xPositionOnScreen, yPositionOnScreen, height, width);
+        internal Vector2 Position => new Vector2(xPositionOnScreen, yPositionOnScreen);
+        internal Vector2 Dimensions => new Vector2(width, height);
 
         protected CustomItemGrabMenu ParentMenu;
         protected Vector2 Offset;
