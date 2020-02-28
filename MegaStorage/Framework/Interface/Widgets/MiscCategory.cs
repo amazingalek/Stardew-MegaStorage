@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Object = StardewValley.Object;
 
-namespace MegaStorage.Framework.Interface
+namespace MegaStorage.Framework.Interface.Widgets
 {
     public class MiscCategory : ChestCategory
     {

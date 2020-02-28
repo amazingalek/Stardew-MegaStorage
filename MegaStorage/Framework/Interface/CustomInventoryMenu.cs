@@ -1,4 +1,5 @@
 ﻿using furyx639.Common;
+using MegaStorage.Framework.Interface.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;

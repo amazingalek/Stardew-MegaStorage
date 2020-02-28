@@ -5,7 +5,7 @@ using StardewValley.Menus;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace MegaStorage.Framework.Interface
+namespace MegaStorage.Framework.Interface.Widgets
 {
     public class ChestCategory : ClickableTextureComponent
     {

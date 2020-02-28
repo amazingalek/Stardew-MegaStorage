@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using System.IO;
 
-namespace MegaStorage.Framework.Interface
+namespace MegaStorage.Framework.Interface.Widgets
 {
     public class AllCategory : ChestCategory
     {
