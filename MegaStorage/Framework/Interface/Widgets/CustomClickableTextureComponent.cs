@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
+using System;
 
 namespace MegaStorage.Framework.Interface.Widgets
 {
@@ -12,7 +12,7 @@ namespace MegaStorage.Framework.Interface.Widgets
         protected Vector2 Offset;
         public Action<CustomClickableTextureComponent> LeftClickAction;
         public Action<CustomClickableTextureComponent> RightClickAction;
-        public Action<CustomClickableTextureComponent, int> ScrollAction;
+        public Action<int, CustomClickableTextureComponent> ScrollAction;
 
         public CustomClickableTextureComponent(
             string name,
