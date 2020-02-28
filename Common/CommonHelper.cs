@@ -3,11 +3,27 @@ using StardewValley.Locations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace furyx639.Common
 {
     internal static class CommonHelper
     {
+        /*********
+        ** Fields
+        *********/
+        // Dialogue Box Tiles
+        public static Rectangle MenuBackground => CommonHelper.GetTile(1, 2);
+        public static Rectangle MenuBorderTop => CommonHelper.GetTile(2, 0);
+        public static Rectangle MenuBorderRight => CommonHelper.GetTile(3, 2);
+        public static Rectangle MenuBorderBottom => CommonHelper.GetTile(2, 3);
+        public static Rectangle MenuBorderLeft => CommonHelper.GetTile(0, 2);
+        public static Rectangle MenuBorderTopRight => CommonHelper.GetTile(3, 0);
+        public static Rectangle MenuBorderBottomRight => CommonHelper.GetTile(3, 3);
+        public static Rectangle MenuBorderBottomLeft => CommonHelper.GetTile(0, 3);
+        public static Rectangle MenuBorderTopLeft => CommonHelper.GetTile(0, 0);
+
         /*********
         ** Public methods
         *********/
@@ -20,6 +36,94 @@ namespace furyx639.Common
                     where building.indoors.Value != null
                     select building.indoors.Value
                 );
+        }
+        public static Rectangle GetTile(int x, int y) =>
+            new Rectangle(
+                Game1.tileSize * x,
+                Game1.tileSize * y,
+                Game1.tileSize,
+                Game1.tileSize);
+
+        public static void DrawDialogueBox(SpriteBatch b, int x, int y, int width, int height)
+        {
+            // Background
+            b.Draw(
+                Game1.menuTexture,
+                new Rectangle(x, y, width, height),
+                MenuBackground,
+                Color.White);
+            
+            // Top Border
+            b.Draw(
+                Game1.menuTexture,
+                new Rectangle(
+                    x,
+                    y - Game1.tileSize / 2,
+                    width,
+                    Game1.tileSize),
+                MenuBorderTop,
+                Color.White);
+            
+            // Bottom Border
+            b.Draw(
+                Game1.menuTexture,
+                new Rectangle(
+                    x,
+                    y + height - Game1.tileSize / 2,
+                    width,
+                    Game1.tileSize),
+                MenuBorderBottom,
+                Color.White);
+            
+            // Left Border
+            b.Draw(
+                Game1.menuTexture,
+                new Rectangle(
+                    x - Game1.tileSize / 2,
+                    y,
+                    Game1.tileSize,
+                    height),
+                MenuBorderLeft,
+                Color.White);
+            
+            // Right Border
+            b.Draw(
+                Game1.menuTexture,
+                new Rectangle(
+                    x + width - Game1.tileSize / 2,
+                    y,
+                    Game1.tileSize,
+                    height),
+                MenuBorderRight,
+                Color.White);
+
+            // Top-Right Corner
+            b.Draw(
+                Game1.menuTexture,
+                new Vector2(x + width - Game1.tileSize / 2, y - Game1.tileSize / 2),
+                MenuBorderTopRight,
+                Color.White);
+
+            // Top-Left Corner
+            b.Draw(
+                Game1.menuTexture,
+                new Vector2(x - Game1.tileSize / 2, y - Game1.tileSize / 2),
+                MenuBorderTopLeft,
+                Color.White);
+
+            // Bottom-Right Corner
+            b.Draw(
+                Game1.menuTexture,
+                new Vector2(x + width - Game1.tileSize / 2, y + height - Game1.tileSize / 2),
+                MenuBorderBottomRight,
+                Color.White);
+
+            // Bottom-Left Corner
+            b.Draw(
+                Game1.menuTexture,
+                new Vector2(x - Game1.tileSize / 2, y + height - Game1.tileSize / 2),
+                MenuBorderBottomLeft,
+                Color.White);
         }
 
         public static T NonNull<T>(T obj)
