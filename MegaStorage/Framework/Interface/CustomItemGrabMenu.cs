@@ -9,6 +9,7 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface
 {
@@ -28,27 +29,37 @@ namespace MegaStorage.Framework.Interface
             {"Misc", new Vector2(672, 80)}
         };
 
-        private protected ClickableTextureComponent UpArrow;
-        private protected ClickableTextureComponent DownArrow;
-        private const int Rows = 6;
-        private const int ItemsPerRow = 12;
-        private const int Capacity = ItemsPerRow * Rows;
-        private static int MenuWidth => ItemsPerRow * TileSize;
-        private static int MenuHeight => (Rows + 3) * TileSize + (Rows + 1) * 4 + 56;
-        private static int BorderWidth => IClickableMenu.borderWidth;
-        private static int SpaceToClearSideBorder => IClickableMenu.spaceToClearSideBorder;
-        private static int SpaceToClearTopBorder => IClickableMenu.spaceToClearTopBorder;
+        public const int Rows = 6;
+        public const int ItemsPerRow = 12;
+        public const int Capacity = ItemsPerRow * Rows;
+        public const int MenuWidth = 768;
+        public const int MenuHeight = 680;
+
+        // Offsets to ItemsToGrabMenu and Inventory
+        private const int XOffset = -48;
+        private const int YOffset = -36;
+
+        // Offsets to Color Picker
+        private const int TopXOffset = 0;
+        private const int TopYOffset = -104;
+
+        // Offsets to Categories
+        private const int LeftXOffset = -80;
+        private const int LeftYOffset = -8;
+
+        // Offsets to Color Toggle, Organize, Stack, OK, and Trash
+        private const int RightXOffset = 56;
+        private const int RightYOffset = -32;
+
         private static int TileSize => Game1.tileSize;
         private readonly CustomChest _customChest;
         private CustomInventoryMenu _itemsToGrabMenu;
         private CustomInventoryMenu _inventory;
 
-        private Item SourceItem => _sourceItemReflected.GetValue();
-        private readonly IReflectedField<Item> _sourceItemReflected;
         private TemporaryAnimatedSprite Poof { set => _poofReflected.SetValue(value); }
         private readonly IReflectedField<TemporaryAnimatedSprite> _poofReflected;
-        private behaviorOnItemSelect BehaviorFunction => _behaviorFunctionReflected.GetValue();
-        private readonly IReflectedField<behaviorOnItemSelect> _behaviorFunctionReflected;
+        private behaviorOnItemSelect BehaviorFunction => _behaviorFunction.GetValue();
+        private readonly IReflectedField<behaviorOnItemSelect> _behaviorFunction;
 
         /*********
         ** Public methods
@@ -57,32 +68,31 @@ namespace MegaStorage.Framework.Interface
             : base(CommonHelper.NonNull(customChest).items, customChest)
         {
             initialize(
-                (Game1.viewport.Width - MenuWidth) / 2 - BorderWidth,
-                (Game1.viewport.Height - MenuHeight) / 2 - BorderWidth,
-                MenuWidth + BorderWidth * 2,
-                MenuHeight + BorderWidth * 2);
-
-            _customChest = customChest;
-            _sourceItemReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<Item>(this, "sourceItem");
-            _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
-            _behaviorFunctionReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
-
-            // Shift yPosition down if too high up
-            if (yPositionOnScreen < BorderWidth + SpaceToClearTopBorder)
+                (Game1.viewport.Width - MenuWidth) / 2,
+                (Game1.viewport.Height - MenuHeight) / 2,
+                MenuWidth,
+                MenuHeight);
+            if (yPositionOnScreen < IClickableMenu.spaceToClearTopBorder)
             {
-                yPositionOnScreen = BorderWidth + SpaceToClearTopBorder;
+                yPositionOnScreen = IClickableMenu.spaceToClearTopBorder;
             }
-
-            // Shift xPosition right if too far left
             if (xPositionOnScreen < 0)
             {
                 xPositionOnScreen = 0;
             }
 
+            _customChest = customChest;
+            _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
+            _behaviorFunction = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
+            _behaviorFunction.SetValue(customChest.grabItemFromInventory);
+            behaviorOnItemGrab = customChest.grabItemFromChest;
+            playRightClickSound = true;
+            allowRightClick = true;
+
             allClickableComponents = new List<ClickableComponent>();
 
-            SetupInventoryMenu();
             SetupItemsMenu();
+            SetupInventoryMenu();
             SetControllerSupport();
         }
         private void SetControllerSupport()
@@ -109,37 +119,23 @@ namespace MegaStorage.Framework.Interface
                         : 4343;
                 }
 
-                if (!(discreteColorPickerCC is null) && _itemsToGrabMenu.inventory.Count > index)
-                {
-                    _itemsToGrabMenu.inventory[index].upNeighborID = 4343;
-                }
+                _itemsToGrabMenu.inventory[index].upNeighborID = 4343;
             }
 
             for (var index = 0; index < 36; ++index)
             {
                 if (_inventory.inventory.Count <= index)
-                {
                     continue;
-                }
 
                 _inventory.inventory[index].upNeighborID = -7777;
                 _inventory.inventory[index].upNeighborImmutable = true;
             }
 
-            if (!(trashCan is null) && _inventory.inventory.Count >= 12 && !(_inventory.inventory[11] is null))
-            {
-                _inventory.inventory[11].rightNeighborID = 5948;
-            }
+            _inventory.inventory[11].rightNeighborID = 5948;
 
-            if (!(trashCan is null))
-            {
-                trashCan.leftNeighborID = 11;
-            }
+            trashCan.leftNeighborID = 11;
 
-            if (!(okButton is null))
-            {
-                okButton.leftNeighborID = 11;
-            }
+            okButton.leftNeighborID = 11;
 
             for (var i = 0; i < 12; i++)
             {
@@ -159,30 +155,19 @@ namespace MegaStorage.Framework.Interface
             {
                 rightItems[i].rightNeighborID = i switch
                 {
-                    0 => UpArrow.myID,
-                    1 => UpArrow.myID,
+                    0 => colorPickerToggleButton.myID,
+                    1 => colorPickerToggleButton.myID,
                     2 => colorPickerToggleButton.myID,
                     3 => organizeButton.myID,
-                    4 => DownArrow.myID,
-                    5 => DownArrow.myID,
-                    6 => DownArrow.myID,
+                    4 => organizeButton.myID,
+                    5 => organizeButton.myID,
+                    6 => organizeButton.myID,
                     _ => organizeButton.myID
                 };
             }
 
-            if (!(colorPickerToggleButton is null))
-            {
-                colorPickerToggleButton.leftNeighborID = rightItems[2].myID;
-                colorPickerToggleButton.upNeighborID = UpArrow.myID;
-                UpArrow.rightNeighborID = colorPickerToggleButton.myID;
-            }
-
-            UpArrow.leftNeighborID = rightItems[0].myID;
-            DownArrow.rightNeighborID = organizeButton.myID;
-            DownArrow.leftNeighborID = rightItems[4].myID;
-            DownArrow.downNeighborID = rightItems[5].myID;
+            colorPickerToggleButton.leftNeighborID = rightItems[2].myID;
             organizeButton.leftNeighborID = rightItems[3].myID;
-            organizeButton.downNeighborID = DownArrow.myID;
             /*
             if (ModConfig.Instance.EnableCategories)
             {
@@ -224,7 +209,7 @@ namespace MegaStorage.Framework.Interface
 
             // Inventory Icon
             b.Draw(Game1.mouseCursors,
-                new Vector2(xPositionOnScreen - TileSize, _inventory.yPositionOnScreen + 108),
+                new Vector2(_inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 124),
                 new Rectangle(16, 368, 12, 16),
                 Color.White,
                 4.712389f,
@@ -233,7 +218,7 @@ namespace MegaStorage.Framework.Interface
                 SpriteEffects.None,
                 1f);
             b.Draw(Game1.mouseCursors,
-                new Vector2(xPositionOnScreen - TileSize, _inventory.yPositionOnScreen + 76),
+                new Vector2(_inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 92),
                 new Rectangle(21, 368, 11, 16),
                 Color.White,
                 4.712389f,
@@ -242,7 +227,7 @@ namespace MegaStorage.Framework.Interface
                 SpriteEffects.None,
                 1f);
             b.Draw(Game1.mouseCursors,
-                new Vector2(xPositionOnScreen - BorderWidth, _inventory.yPositionOnScreen + 48),
+                new Vector2(_inventory.xPositionOnScreen - 56, _inventory.yPositionOnScreen + 64),
                 new Rectangle(4, 372, 8, 11),
                 Color.White,
                 0.0f,
@@ -319,8 +304,87 @@ namespace MegaStorage.Framework.Interface
         }
         public override void receiveLeftClick(int x, int y, bool playSound = true)
         {
+            heldItem = _inventory.leftClick(x, y, heldItem, playSound);
+
             chestColorPicker.receiveLeftClick(x, y);
             _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+            
+            if (heldItem is null)
+            {
+                heldItem = _itemsToGrabMenu.leftClick(x, y, heldItem, false);
+                if (!(heldItem is null))
+                {
+                    behaviorOnItemGrab(heldItem, Game1.player);
+                    if (Game1.options.SnappyMenus)
+                        snapCursorToCurrentSnappedComponent();
+                }
+
+                if (heldItem is SObject obj)
+                {
+                    switch (obj.ParentSheetIndex)
+                    {
+                        case 326:
+                            heldItem = null;
+                            Game1.player.canUnderstandDwarves = true;
+                            Poof = CreatePoof(x, y);
+                            Game1.playSound("fireball");
+                            break;
+                        case 102:
+                            heldItem = null;
+                            Game1.player.foundArtifact(102, 1);
+                            Poof = CreatePoof(x, y);
+                            Game1.playSound("fireball");
+                            break;
+                        default:
+                            if (Utility.IsNormalObjectAtParentSheetIndex(heldItem, 434))
+                            {
+                                heldItem = null;
+                                exitThisMenu(false);
+                                Game1.player.eatObject(obj, true);
+                            }
+                            else if (obj.IsRecipe)
+                            {
+                                var key = heldItem.Name.Substring(0,
+                                    heldItem.Name.IndexOf("Recipe",
+                                        StringComparison.InvariantCultureIgnoreCase) -
+                                    1);
+                                try
+                                {
+                                    if (obj.Category == -7)
+                                    {
+                                        Game1.player.cookingRecipes.Add(key, 0);
+                                    }
+                                    else
+                                    {
+                                        Game1.player.craftingRecipes.Add(key, 0);
+                                    }
+
+                                    Poof = CreatePoof(x, y);
+                                    Game1.playSound("newRecipe");
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    throw;
+                                }
+
+                                heldItem = null;
+                            }
+                            break;
+                    }
+                }
+
+                if (!(heldItem is null) && Game1.player.addItemToInventoryBool(heldItem))
+                {
+                    heldItem = null;
+                    Game1.playSound("coin");
+                }
+            }
+            else if (isWithinBounds(x, y))
+            {
+                BehaviorFunction(heldItem, Game1.player);
+            }
+
             foreach (var clickableComponent in allClickableComponents.Where(c => c.containsPoint(x, y)))
             {
                 switch (clickableComponent.name)
@@ -331,19 +395,27 @@ namespace MegaStorage.Framework.Interface
                         chestColorPicker.visible = Game1.player.showChestColorPicker;
                         Game1.playSound("drumkit6");
                         break;
+                    case "fillStacksButton":
+                        FillOutStacks();
+                        Game1.player.Items = _inventory.actualInventory;
+                        Game1.playSound("Ship");
+                        break;
+                    case "organizeButton":
+                        organizeItemsInList(_itemsToGrabMenu.actualInventory);
+                        Game1.playSound("Ship");
+                        break;
                     case "okButton":
                         exitThisMenu();
+                        if (!(Game1.currentLocation.currentEvent is null))
+                            ++Game1.currentLocation.currentEvent.CurrentCommand;
                         Game1.playSound("bigDeSelect");
                         break;
                     case "trashCan":
-                        Utility.trashItem(heldItem);
-                        heldItem = null;
-                        break;
-                    case "upArrow":
-                        _itemsToGrabMenu.ScrollUp();
-                        break;
-                    case "downArrow":
-                        _itemsToGrabMenu.ScrollDown();
+                        if (!(heldItem is null))
+                        {
+                            Utility.trashItem(heldItem);
+                            heldItem = null;
+                        }
                         break;
                     default:
                         if (clickableComponent is ChestCategory chestCategory)
@@ -353,23 +425,157 @@ namespace MegaStorage.Framework.Interface
                         break;
                 }
             }
+            _itemsToGrabMenu.receiveLeftClick(x, y, playSound);
+            _inventory.receiveLeftClick(x, y, playSound);
+            _itemsToGrabMenu.RefreshItems();
+            _inventory.RefreshItems();
         }
         public override void receiveRightClick(int x, int y, bool playSound = true)
         {
+            if (!allowRightClick)
+            {
+                heldItem = _inventory.rightClick(x, y, heldItem, playSound && playRightClickSound, true);
+                return;
+            }
 
+            heldItem = _inventory.rightClick(x, y, heldItem, playSound && playRightClickSound);
+            if (heldItem is null)
+            {
+                heldItem = _itemsToGrabMenu.rightClick(x, y, heldItem, false);
+                if (!(heldItem is null))
+                {
+                    behaviorOnItemGrab(heldItem, Game1.player);
+                    if (Game1.options.SnappyMenus)
+                        snapCursorToCurrentSnappedComponent();
+                }
+
+                if (heldItem is SObject obj)
+                {
+                    switch (obj.ParentSheetIndex)
+                    {
+                        case 326:
+                            heldItem = null;
+                            Game1.player.canUnderstandDwarves = true;
+                            Poof = CreatePoof(x, y);
+                            Game1.playSound("fireball");
+                            break;
+                        case 102:
+                            heldItem = null;
+                            Game1.player.foundArtifact(102, 1);
+                            Poof = CreatePoof(x, y);
+                            Game1.playSound("fireball");
+                            break;
+                        default:
+                            if (Utility.IsNormalObjectAtParentSheetIndex(heldItem, 434))
+                            {
+                                heldItem = null;
+                                exitThisMenu(false);
+                                Game1.player.eatObject(obj, true);
+                            }
+                            else if (obj.IsRecipe)
+                            {
+                                var key = heldItem.Name.Substring(0,
+                                    heldItem.Name.IndexOf("Recipe",
+                                        StringComparison.InvariantCultureIgnoreCase) -
+                                    1);
+                                try
+                                {
+                                    if (obj.Category == -7)
+                                    {
+                                        Game1.player.cookingRecipes.Add(key, 0);
+                                    }
+                                    else
+                                    {
+                                        Game1.player.craftingRecipes.Add(key, 0);
+                                    }
+
+                                    Poof = CreatePoof(x, y);
+                                    Game1.playSound("newRecipe");
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e);
+                                    throw;
+                                }
+
+                                heldItem = null;
+                            }
+
+                            break;
+                    }
+                }
+
+                if (!(heldItem is null) && Game1.player.addItemToInventoryBool(heldItem))
+                {
+                    heldItem = null;
+                    Game1.playSound("coin");
+                }
+            }
+            else if (isWithinBounds(x, y))
+            {
+                BehaviorFunction(heldItem, Game1.player);
+            }
+            _itemsToGrabMenu.receiveRightClick(x, y, playSound && playRightClickSound);
+            _inventory.receiveRightClick(x, y, playSound && playRightClickSound);
+            _itemsToGrabMenu.RefreshItems();
+            _inventory.RefreshItems();
         }
         public override void receiveScrollWheelAction(int direction)
         {
-            if (_itemsToGrabMenu.isWithinBounds(Game1.getOldMouseX(), Game1.getOldMouseY()))
+            var mouseX = Game1.getOldMouseX();
+            var mouseY = Game1.getOldMouseY();
+            if (chestColorPicker.isWithinBounds(mouseX, mouseY))
+            {
+                if (direction < 0 && chestColorPicker.colorSelection < chestColorPicker.totalColors - 1)
+                {
+                    chestColorPicker.colorSelection++;
+                }
+                else if (direction > 0 && chestColorPicker.colorSelection > 0)
+                {
+                    chestColorPicker.colorSelection--;
+                }
+                ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+                _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+            }
+            else if (_itemsToGrabMenu.isWithinBounds(mouseX, mouseY))
             {
                 _itemsToGrabMenu.receiveScrollWheelAction(direction);
+            }
+            else if (allClickableComponents.OfType<ChestCategory>().Any(c => c.containsPoint(mouseX, mouseY)))
+            {
+                ChestCategory savedCategory = null;
+                ChestCategory beforeCategory = null;
+                ChestCategory nextCategory = null;
+                foreach (var currentCategory in allClickableComponents.OfType<ChestCategory>())
+                {
+                    if (savedCategory == _itemsToGrabMenu.SelectedCategory)
+                    {
+                        nextCategory = currentCategory;
+                        break;
+                    }
+                    else
+                    {
+                        beforeCategory = savedCategory;
+                    }
+                    savedCategory = currentCategory;
+                }
+
+                if (direction < 0 && !(nextCategory is null))
+                {
+                    _itemsToGrabMenu.SelectedCategory = nextCategory;
+                }
+                else if (direction > 0 && !(beforeCategory is null))
+                {
+                    _itemsToGrabMenu.SelectedCategory = beforeCategory;
+                }
             }
         }
         public override void performHoverAction(int x, int y)
         {
-            hoveredItem = _inventory.hover(x, y, heldItem);
-            hoverText = _inventory.hoverText;
+            hoveredItem = _inventory.hover(x, y, heldItem) ?? _itemsToGrabMenu.hover(x, y, heldItem);
+            hoverText = _inventory.hoverText ?? _itemsToGrabMenu.hoverText;
             hoverAmount = 0;
+            chestColorPicker.performHoverAction(x, y);
             foreach (var clickableComponent in allClickableComponents.OfType<ClickableTextureComponent>())
             {
                 if (!(clickableComponent.hoverText is null) && clickableComponent.containsPoint(x, y))
@@ -417,47 +623,45 @@ namespace MegaStorage.Framework.Interface
         public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
         {
             initialize(
-                (Game1.viewport.Width - MenuWidth) / 2 - BorderWidth,
-                (Game1.viewport.Height - MenuHeight) / 2 - BorderWidth,
-                MenuWidth + BorderWidth * 2,
-                MenuHeight + BorderWidth * 2);
-            if (yPositionOnScreen < BorderWidth + SpaceToClearTopBorder)
+                (Game1.viewport.Width - MenuWidth) / 2,
+                (Game1.viewport.Height - MenuHeight) / 2,
+                MenuWidth,
+                MenuHeight);
+            if (yPositionOnScreen < IClickableMenu.spaceToClearTopBorder)
             {
-                yPositionOnScreen = BorderWidth + SpaceToClearTopBorder;
+                yPositionOnScreen = IClickableMenu.spaceToClearTopBorder;
             }
             if (xPositionOnScreen < 0)
             {
                 xPositionOnScreen = 0;
             }
-            _itemsToGrabMenu.xPositionOnScreen = xPositionOnScreen + BorderWidth;
-            _itemsToGrabMenu.yPositionOnScreen = yPositionOnScreen;
-            _inventory.xPositionOnScreen = xPositionOnScreen + BorderWidth;
-            _inventory.yPositionOnScreen = yPositionOnScreen + (TileSize + 4) * Rows + BorderWidth + SpaceToClearSideBorder;
-            okButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
+            _itemsToGrabMenu.xPositionOnScreen = xPositionOnScreen + XOffset;
+            _itemsToGrabMenu.yPositionOnScreen = yPositionOnScreen + YOffset;
+            _inventory.xPositionOnScreen = _itemsToGrabMenu.xPositionOnScreen;
+            _inventory.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height + 80;
+            okButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
             okButton.bounds.Y = _inventory.yPositionOnScreen + 140;
-            trashCan.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder - 4;
+            trashCan.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width  + RightXOffset;
             trashCan.bounds.Y = _inventory.yPositionOnScreen + 4;
-            chestColorPicker.xPositionOnScreen = xPositionOnScreen;
-            chestColorPicker.yPositionOnScreen = yPositionOnScreen - 172;
-            colorPickerToggleButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
-            colorPickerToggleButton.bounds.Y = yPositionOnScreen + _itemsToGrabMenu.height / 4 - 32;
-            fillStacksButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
-            fillStacksButton.bounds.Y = yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 - 32;
-            organizeButton.bounds.X = xPositionOnScreen + width + SpaceToClearSideBorder;
-            organizeButton.bounds.Y = yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 - 32;
-            UpArrow.bounds.X = xPositionOnScreen + width + 8;
-            UpArrow.bounds.Y = yPositionOnScreen - 24;
-            DownArrow.bounds.X = xPositionOnScreen + width + 8;
-            DownArrow.bounds.Y = yPositionOnScreen + 356;
+            chestColorPicker.xPositionOnScreen = _itemsToGrabMenu.xPositionOnScreen + TopXOffset;
+            chestColorPicker.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + TopYOffset;
+            colorPickerToggleButton.bounds.X = _itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
+            colorPickerToggleButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height / 4  + RightYOffset;
+            fillStacksButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
+            fillStacksButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4  + RightYOffset;
+            organizeButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
+            organizeButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4  + RightYOffset;
             var index = 0;
             foreach (var chestCategory in Categories.Select(category => allClickableComponents
                 .OfType<ChestCategory>()
                 .First(c => c.name == category.Key)))
             {
-                chestCategory.xPosition = xPositionOnScreen - BorderWidth - 24;
-                chestCategory.yPosition = yPositionOnScreen + index * 60 - 12;
+                chestCategory.xPosition = _itemsToGrabMenu.xPositionOnScreen + LeftXOffset;
+                chestCategory.yPosition = _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset;
                 index++;
             }
+            _itemsToGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
+            _inventory.gameWindowSizeChanged(oldBounds, newBounds);
         }
 
         /*********
@@ -466,31 +670,30 @@ namespace MegaStorage.Framework.Interface
         private void SetupItemsMenu()
         {
             _itemsToGrabMenu = new CustomInventoryMenu(
-                xPositionOnScreen + BorderWidth,
-                yPositionOnScreen,
+                xPositionOnScreen + XOffset,
+                yPositionOnScreen + YOffset,
                 Capacity,
                 Rows,
-                _customChest)
-            {
-                height = TileSize * Rows + (Rows - 1) * 4
-            };
+                _customChest);
             ItemsToGrabMenu = _itemsToGrabMenu;
 
             // Color Picker
             chestColorPicker = new DiscreteColorPicker(
-                xPositionOnScreen,
-                yPositionOnScreen - 172,
+                _itemsToGrabMenu.xPositionOnScreen + TopXOffset,
+                _itemsToGrabMenu.yPositionOnScreen + TopYOffset,
                 0,
                 new Chest(true));
             chestColorPicker.colorSelection =
                 chestColorPicker.getSelectionFromColor(_customChest.playerChoiceColor.Value);
-            _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-
+            ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
+                chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
+            
             // Color Picker Toggle
             colorPickerToggleButton = new ClickableTextureComponent(
                 "colorPickerToggleButton",
-                new Rectangle(xPositionOnScreen + width + SpaceToClearSideBorder,
-                    yPositionOnScreen + _itemsToGrabMenu.height / 4 - 32, TileSize, TileSize),
+                new Rectangle(_itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset,
+                    _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height / 4 + RightYOffset,
+                    TileSize, TileSize),
                 "",
                 "",
                 Game1.mouseCursors,
@@ -507,8 +710,9 @@ namespace MegaStorage.Framework.Interface
             // Stack
             fillStacksButton = new ClickableTextureComponent(
                 "fillStacksButton",
-                new Rectangle(xPositionOnScreen + width + SpaceToClearSideBorder,
-                    yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 - 32, TileSize, TileSize),
+                new Rectangle(_itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset,
+                    _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 + RightYOffset,
+                    TileSize, TileSize),
                 "",
                 Game1.content.LoadString("Strings\\UI:ItemGrab_FillStacks"),
                 Game1.mouseCursors,
@@ -525,8 +729,9 @@ namespace MegaStorage.Framework.Interface
             // Organize
             organizeButton = new ClickableTextureComponent(
                 "organizeButton",
-                new Rectangle(xPositionOnScreen + width + SpaceToClearSideBorder,
-                    yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 - 32, TileSize, TileSize),
+                new Rectangle(_itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset,
+                    _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 + RightYOffset,
+                    TileSize, TileSize),
                 "",
                 Game1.content.LoadString("Strings\\UI:ItemGrab_Organize"),
                 Game1.mouseCursors,
@@ -538,34 +743,6 @@ namespace MegaStorage.Framework.Interface
                 downNeighborID = 5948,
                 leftNeighborID = 53921,
                 region = 15923
-            };
-
-            // Up Arrow
-            UpArrow = new ClickableTextureComponent(
-                "upArrow",
-                new Rectangle(xPositionOnScreen + width + 8, yPositionOnScreen - 24, TileSize, TileSize),
-                "",
-                "",
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12),
-                1f)
-            {
-                myID = 88,
-                downNeighborID = 89
-            };
-
-            // Down Arrow
-            DownArrow = new ClickableTextureComponent(
-                "downArrow",
-                new Rectangle(xPositionOnScreen + width + 8, yPositionOnScreen + 356, TileSize, TileSize),
-                "",
-                "",
-                Game1.mouseCursors,
-                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11),
-                1f)
-            {
-                myID = 89,
-                upNeighborID = 88
             };
 
             // Categories
@@ -583,23 +760,23 @@ namespace MegaStorage.Framework.Interface
                         allClickableComponents.Add(new AllCategory(
                             category.Key,
                             category.Value,
-                            xPositionOnScreen - BorderWidth - 24,
-                            yPositionOnScreen + index * 60 - 12));
+                            _itemsToGrabMenu.xPositionOnScreen + LeftXOffset,
+                            _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset));
                         break;
                     case "Misc":
                         allClickableComponents.Add(new MiscCategory(
                             category.Key,
                             category.Value,
-                            xPositionOnScreen - BorderWidth - 24,
-                            yPositionOnScreen + index * 60 - 12,
+                            _itemsToGrabMenu.xPositionOnScreen + LeftXOffset,
+                            _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset,
                             categoryIds));
                         break;
                     default:
                         allClickableComponents.Add(new ChestCategory(
                             category.Key,
                             category.Value,
-                            xPositionOnScreen - BorderWidth - 24,
-                            yPositionOnScreen + index * 60 - 12,
+                            _itemsToGrabMenu.xPositionOnScreen + LeftXOffset,
+                            _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset,
                             categoryIds));
                         break;
                 }
@@ -610,16 +787,13 @@ namespace MegaStorage.Framework.Interface
             allClickableComponents.Add(colorPickerToggleButton);
             allClickableComponents.Add(fillStacksButton);
             allClickableComponents.Add(organizeButton);
-            allClickableComponents.Add(UpArrow);
-            allClickableComponents.Add(DownArrow);
         }
         private void SetupInventoryMenu()
         {
             _inventory = new CustomInventoryMenu(
-                xPositionOnScreen + BorderWidth,
-                yPositionOnScreen + (TileSize + 4) * Rows + BorderWidth + SpaceToClearSideBorder)
+                _itemsToGrabMenu.xPositionOnScreen,
+                _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height + 80)
             {
-                height = TileSize * 3 + 8,
                 showGrayedOutSlots = true
             };
             inventory = _inventory;
@@ -627,7 +801,9 @@ namespace MegaStorage.Framework.Interface
             // OK Button
             okButton = new ClickableTextureComponent(
                 "okButton",
-                new Rectangle(xPositionOnScreen + width + SpaceToClearSideBorder, _inventory.yPositionOnScreen + 140,
+                new Rectangle(
+                    _inventory.xPositionOnScreen + _inventory.width + RightXOffset,
+                    _inventory.yPositionOnScreen + 140,
                     TileSize, TileSize),
                 "",
                 "",
@@ -643,7 +819,9 @@ namespace MegaStorage.Framework.Interface
             // Trash Can
             trashCan = new ClickableTextureComponent(
                 "trashCan",
-                new Rectangle(xPositionOnScreen + width + SpaceToClearSideBorder - 4, _inventory.yPositionOnScreen + 4,
+                new Rectangle(
+                    _inventory.xPositionOnScreen + _inventory.width + RightXOffset,
+                    _inventory.yPositionOnScreen + 4,
                     TileSize, 104),
                 "",
                 "",
