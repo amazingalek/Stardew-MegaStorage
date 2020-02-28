@@ -1,38 +1,32 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using StardewValley.Menus;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MegaStorage.Framework.Interface.Widgets
 {
-    public class ChestCategory : ClickableTextureComponent
+    internal class ChestCategory : CustomClickableTextureComponent
     {
-        private const int XOffset = 8;
+        private const int SelectedOffset = 8;
         private readonly IList<int> _categoryIds;
-        public int XPosition { get; set; }
-        public int YPosition { get; set; }
-        public ChestCategory(string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
-            : this(name, spritePos, Game1.mouseCursors, x, y, categoryIds) { }
-        public ChestCategory(string name, Vector2 spritePos, Texture2D sprite, int x, int y, IList<int> categoryIds)
+        public ChestCategory(string name, CustomInventoryMenu parentMenu, Vector2 offset, Rectangle sourceRect, IList<int> categoryIds)
+            : this(name, parentMenu, offset, Game1.mouseCursors, sourceRect, categoryIds) { }
+        public ChestCategory(string name, CustomInventoryMenu parentMenu, Vector2 offset, Texture2D texture, Rectangle sourceRect, IList<int> categoryIds)
             : base(
-                name,
-                new Rectangle(x, y, Game1.tileSize, Game1.tileSize),
-                "",
-                MegaStorageMod.ModHelper.Translation.Get($"category.{name}"),
-                sprite,
-                new Rectangle((int)spritePos.X, (int)spritePos.Y, 16, 16),
-                Game1.pixelZoom)
+                    name,
+                    parentMenu,
+                    offset,
+                    texture,
+                    sourceRect,
+                    MegaStorageMod.ModHelper.Translation.Get($"category.{name}"))
         {
-            XPosition = x;
-            YPosition = y;
             _categoryIds = categoryIds;
         }
-        public void Draw(SpriteBatch b, bool selected)
+        public void Draw(SpriteBatch b, bool selected = false)
         {
-            bounds.X = XPosition + (selected ? XOffset : 0);
-            bounds.Y = YPosition;
+            bounds.X = ParentMenu.xPositionOnScreen + (int)Offset.X + (selected ? SelectedOffset : 0);
+            bounds.Y = ParentMenu.yPositionOnScreen + (int)Offset.Y;
             base.draw(b);
         }
         public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();

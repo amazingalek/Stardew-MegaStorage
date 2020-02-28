@@ -7,11 +7,10 @@ using Object = StardewValley.Object;
 
 namespace MegaStorage.Framework.Interface.Widgets
 {
-    public class MiscCategory : ChestCategory
+    internal class MiscCategory : ChestCategory
     {
-        public MiscCategory(string name, Vector2 spritePos, int x, int y, IList<int> categoryIds)
-            : base(name, spritePos, x, y, categoryIds) { }
-
+        public MiscCategory(string name, CustomInventoryMenu parentMenu, Vector2 offset, Rectangle sourceRect, IList<int> categoryIds)
+            : base(name, parentMenu, offset, Game1.mouseCursors, sourceRect, categoryIds) { }
         protected override bool BelongsToCategory(Item i)
         {
             if (i is null || string.IsNullOrWhiteSpace(i.getCategoryName()))
