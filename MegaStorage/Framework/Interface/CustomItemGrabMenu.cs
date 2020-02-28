@@ -656,8 +656,8 @@ namespace MegaStorage.Framework.Interface
                 .OfType<ChestCategory>()
                 .First(c => c.name == category.Key)))
             {
-                chestCategory.xPosition = _itemsToGrabMenu.xPositionOnScreen + LeftXOffset;
-                chestCategory.yPosition = _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset;
+                chestCategory.XPosition = _itemsToGrabMenu.xPositionOnScreen + LeftXOffset;
+                chestCategory.YPosition = _itemsToGrabMenu.yPositionOnScreen + index * 60 + LeftYOffset;
                 index++;
             }
             _itemsToGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
