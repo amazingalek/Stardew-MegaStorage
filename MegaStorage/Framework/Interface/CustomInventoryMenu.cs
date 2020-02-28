@@ -1,12 +1,13 @@
-﻿using MegaStorage.Framework.Models;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Netcode;
 using StardewValley;
 using StardewValley.Menus;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using furyx639.Common;
+using StardewValley.Objects;
 
 namespace MegaStorage.Framework.Interface
 {
@@ -24,10 +25,16 @@ namespace MegaStorage.Framework.Interface
                 RefreshItems();
             }
         }
-        public List<Item> AllItems;
-        public List<Item> VisibleItems;
+
         public int MaxRows;
-        private readonly NetObjectList<Item> _sourceItems;
+        public IList<Item> VisibleItems;
+
+        // Padding for Items Grid
+        private const int XPadding = 24;
+        private const int YPadding = 12;
+
+        private protected ClickableTextureComponent UpArrow;
+        private protected ClickableTextureComponent DownArrow;
         private ChestCategory _selectedCategory;
         private int _currentRow;
         private int ItemsPerRow => capacity / rows;
@@ -40,25 +47,54 @@ namespace MegaStorage.Framework.Interface
             int yPosition,
             int capacity = -1,
             int rows = 3,
-            CustomChest customChest = null)
-            : base(xPosition, yPosition, false, customChest?.items ?? Game1.player.Items, null, capacity, rows)
+            Chest chest = null)
+            : base(xPosition, yPosition, false, chest?.items ?? Game1.player.Items, InventoryMenu.highlightAllItems, capacity, rows)
         {
-            _sourceItems = !(customChest is null) ? customChest.items : Game1.player.items;
-            _sourceItems.OnElementChanged += OnElementChanged;
-            AllItems = _sourceItems.ToList();
+            width = (Game1.tileSize + horizontalGap) * ItemsPerRow + XPadding * 2;
+            height = (Game1.tileSize + verticalGap) * rows + YPadding * 2;
+
+            // Up Arrow
+            UpArrow = new ClickableTextureComponent(
+                "upArrow",
+                new Rectangle(
+                    xPositionOnScreen + width - Game1.tileSize / 2 + 8,
+                    yPositionOnScreen,
+                    Game1.tileSize, Game1.tileSize),
+                "",
+                "",
+                Game1.mouseCursors,
+                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 12),
+                1f)
+            {
+                myID = 88,
+                downNeighborID = 89,
+                visible = _currentRow > 0
+            };
+
+            // Down Arrow
+            DownArrow = new ClickableTextureComponent(
+                "downArrow",
+                new Rectangle(xPositionOnScreen + width - Game1.tileSize / 2 + 8,
+                    yPositionOnScreen + height - Game1.tileSize,
+                    Game1.tileSize, Game1.tileSize),
+                "",
+                "",
+                Game1.mouseCursors,
+                Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 11),
+                1f)
+            {
+                myID = 89,
+                upNeighborID = 88,
+                visible = _currentRow <= MaxRows - rows
+            };
+
             RefreshItems();
         }
 
         public override void draw(SpriteBatch b)
         {
-            // Background
-            Game1.drawDialogueBox(
-                xPositionOnScreen - IClickableMenu.borderWidth - IClickableMenu.spaceToClearSideBorder,
-                yPositionOnScreen - 112,
-                width + (IClickableMenu.borderWidth + IClickableMenu.spaceToClearSideBorder) * 2,
-                height + 152,
-                false,
-                true);
+            // Draw Dialogue Box
+            CommonHelper.DrawDialogueBox(b, xPositionOnScreen, yPositionOnScreen, width, height);
 
             // Draw Grid
             for (var slot = 0; slot < capacity; ++slot)
@@ -66,8 +102,8 @@ namespace MegaStorage.Framework.Interface
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
                 var pos = new Vector2(
-                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap),
-                    yPositionOnScreen + row * (Game1.tileSize + verticalGap));
+                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
+                    yPositionOnScreen + row * (Game1.tileSize + verticalGap) + YPadding);
 
                 b.Draw(
                     Game1.menuTexture,
@@ -101,11 +137,13 @@ namespace MegaStorage.Framework.Interface
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
                 var pos = new Vector2(
-                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap),
-                    yPositionOnScreen + row * (Game1.tileSize + verticalGap));
+                    xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
+                    yPositionOnScreen + row * (Game1.tileSize + verticalGap) + YPadding);
 
                 var currentItem = VisibleItems.ElementAt(slot);
-                currentItem?.drawInMenu(
+                if (currentItem is null || currentItem.Stack == 0)
+                    continue;
+                currentItem.drawInMenu(
                     b,
                     pos,
                     1f,
@@ -115,36 +153,101 @@ namespace MegaStorage.Framework.Interface
                     Color.White,
                     false);
             }
+
+            UpArrow.draw(b);
+            DownArrow.draw(b);
+        }
+
+        public override void receiveLeftClick(int x, int y, bool playSound = true)
+        {
+            if (UpArrow.containsPoint(x, y))
+                ScrollUp();
+            if (DownArrow.containsPoint(x, y))
+                ScrollDown();
         }
 
         public override void receiveScrollWheelAction(int direction)
         {
             MegaStorageMod.ModMonitor.VerboseLog("receiveScrollWheelAction");
-            if (direction < 0 && _currentRow < MaxRows)
+            if (direction < 0)
             {
-                _currentRow++;
-                RefreshItems();
+                ScrollDown();
             }
-            else if (direction > 0 && _currentRow > 0)
+            else if (direction > 0)
             {
-                _currentRow--;
-                RefreshItems();
+                ScrollUp();
             }
+        }
+
+        public override void gameWindowSizeChanged(Rectangle oldBounds, Rectangle newBounds)
+        {
+            UpArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize / 2 + 8;
+            UpArrow.bounds.Y = yPositionOnScreen;
+            DownArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize / 2 + 8;
+            DownArrow.bounds.Y = yPositionOnScreen + height - 80;
+        }
+
+        public void ScrollDown()
+        {
+            if (_currentRow > MaxRows - rows)
+                return;
+            _currentRow++;
+            RefreshItems();
+        }
+
+        public void ScrollUp()
+        {
+            if (_currentRow <= 0)
+                return;
+            _currentRow--;
+            RefreshItems();
         }
 
         /*********
         ** Private methods
         *********/
-        private void OnElementChanged(NetList<Item, NetRef<Item>> list, int index, Item oldValue, Item newValue)
+        public void RefreshItems()
         {
-            AllItems = _sourceItems.ToList();
-            RefreshItems();
-        }
-
-        private void RefreshItems()
-        {
-            VisibleItems = (_selectedCategory?.Filter(AllItems) ?? AllItems).Skip(ItemsPerRow * _currentRow).ToList();
-            MaxRows = (VisibleItems.Count - 1) / ItemsPerRow + 1 - rows;
+            VisibleItems = (_selectedCategory?.Filter(actualInventory) ?? actualInventory)
+                .Skip(ItemsPerRow * _currentRow)
+                .ToList();
+            MaxRows = VisibleItems.Count / ItemsPerRow + 1;
+            UpArrow.visible = _currentRow > 0;
+            DownArrow.visible = _currentRow < MaxRows - rows;
+            inventory.Clear();
+            for (var slot = 0; slot < capacity; ++slot)
+            {
+                var col = slot % ItemsPerRow;
+                var row = slot / ItemsPerRow;
+                var index = actualInventory.Count;
+                if (slot < VisibleItems.Count)
+                {
+                    for (index = 0; index < actualInventory.Count; ++index)
+                    {
+                        if (actualInventory[index] == VisibleItems[slot])
+                            break;
+                    }
+                }
+                inventory.Add(new ClickableComponent(
+                    new Rectangle(
+                        xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
+                        yPositionOnScreen + row * (Game1.tileSize + verticalGap) + YPadding,
+                        Game1.tileSize,
+                        Game1.tileSize),
+                    index.ToString(CultureInfo.InvariantCulture))
+                {
+                    myID = slot,
+                    leftNeighborID = col != 0 ? slot - 1 : 107,
+                    rightNeighborID = (slot + 1) % ItemsPerRow != 0 ? slot + 1 : 106,
+                    downNeighborID = slot >= this.actualInventory.Count - this.capacity / rows ? 102 : slot + ItemsPerRow,
+                    upNeighborID = slot < capacity / rows ? 12340 + slot : slot - capacity / rows,
+                    region = 9000,
+                    upNeighborImmutable = true,
+                    downNeighborImmutable = true,
+                    leftNeighborImmutable = true,
+                    rightNeighborImmutable = true
+                });
+            }
         }
     }
 }
