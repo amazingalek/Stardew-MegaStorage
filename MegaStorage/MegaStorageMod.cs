@@ -1,4 +1,5 @@
-﻿using MegaStorage.Framework.Interface;
+﻿using MegaStorage.Framework;
+using MegaStorage.Framework.Interface;
 using MegaStorage.Framework.Models;
 using MegaStorage.Framework.Persistence;
 using Microsoft.Xna.Framework;
@@ -14,6 +15,7 @@ namespace MegaStorage
     public class MegaStorageMod : Mod
     {
         internal static MegaStorageMod Instance { get; private set; }
+        internal static IMegaStorageApi API;
         internal static IModHelper ModHelper;
         internal static IMonitor ModMonitor;
         internal static IJsonAssetsApi JsonAssets;
@@ -21,7 +23,6 @@ namespace MegaStorage
         internal static int LargeChestId { get; private set; }
         internal static int MagicChestId { get; private set; }
         internal static int SuperMagicChestId { get; private set; }
-
         /*********
         ** Public methods
         *********/
@@ -31,6 +32,7 @@ namespace MegaStorage
             Instance = this;
             ModHelper = modHelper ?? throw new ArgumentNullException(nameof(modHelper));
             ModMonitor = Monitor;
+            API = new MegaStorageApi();
 
             ModMonitor.VerboseLog("Entry of MegaStorageMod");
 
@@ -41,6 +43,8 @@ namespace MegaStorage
             ModHelper.Events.Display.MenuChanged += OnMenuChanged;
             ModHelper.Events.Display.WindowResized += OnWindowResized;
         }
+
+        public override object GetApi() => API ??= new MegaStorageApi();
 
         /*********
         ** Private methods
@@ -83,28 +87,18 @@ namespace MegaStorage
         {
             MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
             if (e.NewMenu is CustomItemGrabMenu)
-            {
                 return;
-            }
-
             if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest))
-            {
                 return;
-            }
-
             Game1.activeClickableMenu = customChest.GetItemGrabMenu();
         }
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)
         {
             if (!(Game1.activeClickableMenu is CustomItemGrabMenu customItemGrabMenu))
-            {
                 return;
-            }
-
             var oldBounds = new Rectangle(0, 0, e.OldSize.X, e.OldSize.Y);
             var newBounds = new Rectangle(0, 0, e.NewSize.X, e.NewSize.Y);
-
             customItemGrabMenu.gameWindowSizeChanged(oldBounds, newBounds);
         }
     }
