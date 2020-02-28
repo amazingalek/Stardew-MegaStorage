@@ -308,7 +308,7 @@ namespace MegaStorage.Framework.Interface
 
             chestColorPicker.receiveLeftClick(x, y);
             _customChest.playerChoiceColor.Value = chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-            
+
             if (heldItem is null)
             {
                 heldItem = _itemsToGrabMenu.leftClick(x, y, heldItem, false);
@@ -641,16 +641,16 @@ namespace MegaStorage.Framework.Interface
             _inventory.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height + 80;
             okButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
             okButton.bounds.Y = _inventory.yPositionOnScreen + 140;
-            trashCan.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width  + RightXOffset;
+            trashCan.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
             trashCan.bounds.Y = _inventory.yPositionOnScreen + 4;
             chestColorPicker.xPositionOnScreen = _itemsToGrabMenu.xPositionOnScreen + TopXOffset;
             chestColorPicker.yPositionOnScreen = _itemsToGrabMenu.yPositionOnScreen + TopYOffset;
             colorPickerToggleButton.bounds.X = _itemsToGrabMenu.xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            colorPickerToggleButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height / 4  + RightYOffset;
+            colorPickerToggleButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height / 4 + RightYOffset;
             fillStacksButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            fillStacksButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4  + RightYOffset;
+            fillStacksButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 2 / 4 + RightYOffset;
             organizeButton.bounds.X = xPositionOnScreen + _itemsToGrabMenu.width + RightXOffset;
-            organizeButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4  + RightYOffset;
+            organizeButton.bounds.Y = _itemsToGrabMenu.yPositionOnScreen + _itemsToGrabMenu.height * 3 / 4 + RightYOffset;
             var index = 0;
             foreach (var chestCategory in Categories.Select(category => allClickableComponents
                 .OfType<ChestCategory>()
@@ -687,7 +687,7 @@ namespace MegaStorage.Framework.Interface
                 chestColorPicker.getSelectionFromColor(_customChest.playerChoiceColor.Value);
             ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-            
+
             // Color Picker Toggle
             colorPickerToggleButton = new ClickableTextureComponent(
                 "colorPickerToggleButton",

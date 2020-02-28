@@ -9,7 +9,6 @@ using StardewValley.Tools;
 using System;
 using System.IO;
 using System.Linq;
-using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Models
 {
@@ -119,7 +118,9 @@ namespace MegaStorage.Framework.Models
             {
                 if (frameCounter.Value != -1 || currentLidFrameValue <= ParentSheetIndex + 1 ||
                     Game1.activeClickableMenu != null || !mutex.IsLockHeld())
+                {
                     return;
+                }
 
                 mutex.ReleaseLock();
                 currentLidFrameValue = ParentSheetIndex + 5;

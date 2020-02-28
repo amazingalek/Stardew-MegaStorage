@@ -1,10 +1,10 @@
-﻿using StardewValley;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using StardewValley;
 using StardewValley.Locations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace furyx639.Common
 {
@@ -52,7 +52,7 @@ namespace furyx639.Common
                 new Rectangle(x, y, width, height),
                 MenuBackground,
                 Color.White);
-            
+
             // Top Border
             b.Draw(
                 Game1.menuTexture,
@@ -63,7 +63,7 @@ namespace furyx639.Common
                     Game1.tileSize),
                 MenuBorderTop,
                 Color.White);
-            
+
             // Bottom Border
             b.Draw(
                 Game1.menuTexture,
@@ -74,7 +74,7 @@ namespace furyx639.Common
                     Game1.tileSize),
                 MenuBorderBottom,
                 Color.White);
-            
+
             // Left Border
             b.Draw(
                 Game1.menuTexture,
@@ -85,7 +85,7 @@ namespace furyx639.Common
                     height),
                 MenuBorderLeft,
                 Color.White);
-            
+
             // Right Border
             b.Draw(
                 Game1.menuTexture,

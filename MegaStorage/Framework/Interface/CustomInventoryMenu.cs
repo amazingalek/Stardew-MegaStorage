@@ -1,13 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using furyx639.Common;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
+using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using furyx639.Common;
-using StardewValley.Objects;
 
 namespace MegaStorage.Framework.Interface
 {
@@ -239,7 +239,7 @@ namespace MegaStorage.Framework.Interface
                     myID = slot,
                     leftNeighborID = col != 0 ? slot - 1 : 107,
                     rightNeighborID = (slot + 1) % ItemsPerRow != 0 ? slot + 1 : 106,
-                    downNeighborID = slot >= this.actualInventory.Count - this.capacity / rows ? 102 : slot + ItemsPerRow,
+                    downNeighborID = slot >= actualInventory.Count - capacity / rows ? 102 : slot + ItemsPerRow,
                     upNeighborID = slot < capacity / rows ? 12340 + slot : slot - capacity / rows,
                     region = 9000,
                     upNeighborImmutable = true,
