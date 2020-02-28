@@ -13,6 +13,7 @@ namespace MegaStorage.Framework.Interface.Widgets
         public Action<CustomClickableTextureComponent> LeftClickAction;
         public Action<CustomClickableTextureComponent> RightClickAction;
         public Action<int, CustomClickableTextureComponent> ScrollAction;
+        public Action<int, int, CustomClickableTextureComponent> HoverAction;
 
         public CustomClickableTextureComponent(
             string name,

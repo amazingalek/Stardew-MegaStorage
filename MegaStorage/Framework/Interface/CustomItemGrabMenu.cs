@@ -418,49 +418,21 @@ namespace MegaStorage.Framework.Interface
             hoverText = _inventory.hoverText ?? _itemsToGrabMenu.hoverText;
             hoverAmount = 0;
             chestColorPicker.performHoverAction(x, y);
-            foreach (var clickableComponent in allClickableComponents.OfType<ClickableTextureComponent>())
+
+            // Hover Text
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<CustomClickableTextureComponent>()
+                .Where(c => !(c.hoverText is null) && c.containsPoint(x, y)))
             {
-                if (!(clickableComponent.hoverText is null) && clickableComponent.containsPoint(x, y))
-                {
-                    hoverText = clickableComponent.hoverText;
-                }
+                hoverText = clickableComponent.hoverText;
+            }
 
-                switch (clickableComponent.name)
-                {
-                    case "fillStacksButton":
-                    case "organizeButton":
-                        clickableComponent.scale = clickableComponent.containsPoint(x, y)
-                            ? Math.Min(Game1.pixelZoom * 1.1f, clickableComponent.scale + 0.05f)
-                            : Math.Max(Game1.pixelZoom, clickableComponent.scale - 0.05f);
-                        break;
-                    case "okButton":
-                        clickableComponent.scale = clickableComponent.containsPoint(x, y)
-                            ? Math.Min(1.1f, clickableComponent.scale + 0.05f)
-                            : Math.Max(1f, clickableComponent.scale - 0.05f);
-                        break;
-                    case "trashCan":
-                        if (clickableComponent.containsPoint(x, y))
-                        {
-                            if (trashCanLidRotation <= 0f)
-                            {
-                                Game1.playSound("trashcanlid");
-                            }
-
-                            trashCanLidRotation = Math.Min(trashCanLidRotation + (float)Math.PI / 48f, 1.570796f);
-
-                            if (!(heldItem is null) && Utility.getTrashReclamationPrice(heldItem, Game1.player) > 0)
-                            {
-                                hoverText = Game1.content.LoadString("Strings\\UI:TrashCanSale");
-                                hoverAmount = Utility.getTrashReclamationPrice(heldItem, Game1.player);
-                            }
-                        }
-                        else
-                        {
-                            trashCanLidRotation = Math.Max(trashCanLidRotation - (float)Math.PI / 48f, 0.0f);
-                        }
-
-                        break;
-                }
+            // Hover Action
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<CustomClickableTextureComponent>()
+                .Where(c => !(c.HoverAction is null)))
+            {
+                clickableComponent.HoverAction(x, y, clickableComponent);
             }
         }
 
@@ -593,6 +565,38 @@ namespace MegaStorage.Framework.Interface
             MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
         }
 
+        internal void HoverZoom(int x, int y, CustomClickableTextureComponent clickableComponent)
+        {
+            clickableComponent.scale = clickableComponent.containsPoint(x, y)
+                ? Math.Min(1.1f, clickableComponent.scale + 0.05f)
+                : Math.Max(1f, clickableComponent.scale - 0.05f);
+        }
+
+        internal void HoverPixelZoom(int x, int y, CustomClickableTextureComponent clickableComponent)
+        {
+            clickableComponent.scale = clickableComponent.containsPoint(x, y)
+                ? Math.Min(Game1.pixelZoom * 1.1f, clickableComponent.scale + 0.05f)
+                : Math.Max(Game1.pixelZoom * 1f, clickableComponent.scale - 0.05f);
+        }
+
+        internal void HoverTrashCan(int x, int y, CustomClickableTextureComponent clickableComponent)
+        {
+            if (!clickableComponent.containsPoint(x, y))
+            {
+                trashCanLidRotation = Math.Max(trashCanLidRotation - (float)Math.PI / 48f, 0.0f);
+                return;
+            }
+
+            if (trashCanLidRotation <= 0f)
+                Game1.playSound("trashcanlid");
+            trashCanLidRotation = Math.Min(trashCanLidRotation + (float)Math.PI / 48f, 1.570796f);
+
+            if (heldItem is null || Utility.getTrashReclamationPrice(heldItem, Game1.player) <= 0)
+                return;
+            hoverText = Game1.content.LoadString("Strings\\UI:TrashCanSale");
+            hoverAmount = Utility.getTrashReclamationPrice(heldItem, Game1.player);
+        }
+
         /*********
         ** Private methods
         *********/
@@ -642,7 +646,8 @@ namespace MegaStorage.Framework.Interface
                 downNeighborID = 106,
                 leftNeighborID = 53921,
                 region = 15923,
-                LeftClickAction = ClickFillStacksButton
+                LeftClickAction = ClickFillStacksButton,
+                HoverAction = HoverPixelZoom
             };
 
             // Organize
@@ -659,7 +664,8 @@ namespace MegaStorage.Framework.Interface
                 downNeighborID = 5948,
                 leftNeighborID = 53921,
                 region = 15923,
-                LeftClickAction = ClickOrganizeButton
+                LeftClickAction = ClickOrganizeButton,
+                HoverAction = HoverPixelZoom
             };
 
             allClickableComponents.Add(colorPickerToggleButton);
@@ -737,7 +743,8 @@ namespace MegaStorage.Framework.Interface
                 myID = 4857,
                 upNeighborID = 5948,
                 leftNeighborID = 11,
-                LeftClickAction = ClickOkButton
+                LeftClickAction = ClickOkButton,
+                HoverAction = HoverZoom
             };
 
             // Trash Can
@@ -754,7 +761,8 @@ namespace MegaStorage.Framework.Interface
                 downNeighborID = 4857,
                 leftNeighborID = 11,
                 upNeighborID = 106,
-                LeftClickAction = ClickTrashCan
+                LeftClickAction = ClickTrashCan,
+                HoverAction = HoverTrashCan
             };
 
             // Add Invisible Drop Item Button?
