@@ -43,7 +43,6 @@ namespace furyx639.Common
                 Game1.tileSize * y,
                 Game1.tileSize,
                 Game1.tileSize);
-
         public static void DrawDialogueBox(SpriteBatch b, int x, int y, int width, int height)
         {
             // Background
@@ -126,6 +125,36 @@ namespace furyx639.Common
                 Color.White);
         }
 
+        public static void DrawInventoryIcon(SpriteBatch b, int x, int y)
+        {
+            b.Draw(Game1.mouseCursors,
+                new Vector2(x, y + 60),
+                new Rectangle(16, 368, 12, 16),
+                Color.White,
+                4.712389f,
+                Vector2.Zero,
+                Game1.pixelZoom,
+                SpriteEffects.None,
+                1f);
+            b.Draw(Game1.mouseCursors,
+                new Vector2(x, y + 28),
+                new Rectangle(21, 368, 11, 16),
+                Color.White,
+                4.712389f,
+                Vector2.Zero,
+                Game1.pixelZoom,
+                SpriteEffects.None,
+                1f);
+            b.Draw(Game1.mouseCursors,
+                new Vector2(x + 24, y),
+                new Rectangle(4, 372, 8, 11),
+                Color.White,
+                0.0f,
+                Vector2.Zero,
+                Game1.pixelZoom,
+                SpriteEffects.None,
+                1f);
+        }
         public static T NonNull<T>(T obj)
         {
             if (obj == null)
