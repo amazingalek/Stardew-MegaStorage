@@ -9,6 +9,7 @@ using StardewValley.Tools;
 using System;
 using System.IO;
 using System.Linq;
+using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Models
 {
@@ -43,10 +44,7 @@ namespace MegaStorage.Framework.Models
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 
             if (config is null)
-            {
-                MegaStorageMod.Instance.Monitor.Log("Cannot load _customChest, missing config", LogLevel.Error);
                 return;
-            }
 
             Config = config;
             ParentSheetIndex = parentSheetIndex;
@@ -61,27 +59,21 @@ namespace MegaStorage.Framework.Models
         public override Item addItem(Item itemToAdd)
         {
             if (itemToAdd is null)
-            {
                 return null;
-            }
 
             itemToAdd.resetState();
             clearNulls();
 
             // Find Stackable slot
-            foreach (var item in items.Where(item => item != null && item.canStackWith(itemToAdd)))
+            foreach (var item in items.Where(item => !(item is null) && item.canStackWith(itemToAdd)))
             {
                 itemToAdd.Stack = item.addToStack(itemToAdd);
                 if (itemToAdd.Stack <= 0)
-                {
                     return null;
-                }
             }
 
             if (items.Count >= Capacity)
-            {
                 return itemToAdd;
-            }
 
             items.Add(itemToAdd);
 
@@ -91,9 +83,7 @@ namespace MegaStorage.Framework.Models
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
             if (time is null)
-            {
                 return;
-            }
 
             var currentLidFrameValue = CurrentLidFrame;
             fixLidFrame();
@@ -110,9 +100,7 @@ namespace MegaStorage.Framework.Models
             {
                 --frameCounter.Value;
                 if (frameCounter.Value > 0 || !mutex.IsLockHeld())
-                {
                     return;
-                }
 
                 if (currentLidFrameValue == ParentSheetIndex + 5)
                 {
@@ -129,10 +117,9 @@ namespace MegaStorage.Framework.Models
             }
             else
             {
-                if (frameCounter.Value != -1 || currentLidFrameValue <= ParentSheetIndex + 1 || Game1.activeClickableMenu != null || !mutex.IsLockHeld())
-                {
+                if (frameCounter.Value != -1 || currentLidFrameValue <= ParentSheetIndex + 1 ||
+                    Game1.activeClickableMenu != null || !mutex.IsLockHeld())
                     return;
-                }
 
                 mutex.ReleaseLock();
                 currentLidFrameValue = ParentSheetIndex + 5;
@@ -145,9 +132,7 @@ namespace MegaStorage.Framework.Models
         public override void grabItemFromChest(Item item, Farmer who)
         {
             if (who is null || !who.couldInventoryAcceptThisItem(item))
-            {
                 return;
-            }
 
             items.Remove(item);
             clearNulls();
@@ -162,38 +147,27 @@ namespace MegaStorage.Framework.Models
         public override void grabItemFromInventory(Item item, Farmer who)
         {
             if (item is null || who is null)
-            {
                 return;
-            }
 
             if (item.Stack == 0)
-            {
                 item.Stack = 1;
-            }
 
             var addedItem = addItem(item);
-            if (addedItem == null)
-            {
+            if (addedItem is null)
                 who.removeItemFromInventory(item);
-            }
             else
-            {
                 addedItem = who.addItemToInventory(addedItem);
-            }
 
             clearNulls();
-            var id = Game1.activeClickableMenu.currentlySnappedComponent != null ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
+            var id = !(Game1.activeClickableMenu.currentlySnappedComponent is null)
+                ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
             if (_itemGrabMenu == null)
-            {
                 _itemGrabMenu = CreateItemGrabMenu();
-            }
 
             _itemGrabMenu.heldItem = addedItem;
             Game1.activeClickableMenu = _itemGrabMenu;
             if (id == -1)
-            {
                 return;
-            }
 
             Game1.activeClickableMenu.currentlySnappedComponent = Game1.activeClickableMenu.getComponentWithID(id);
             Game1.activeClickableMenu.snapCursorToCurrentSnappedComponent();
@@ -202,9 +176,7 @@ namespace MegaStorage.Framework.Models
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
             if (location is null)
-            {
                 return false;
-            }
 
             var objectKey = new Vector2(x / 64f, y / 64f);
             health = 10;
@@ -224,20 +196,14 @@ namespace MegaStorage.Framework.Models
         public override bool performToolAction(Tool t, GameLocation location)
         {
             if (t?.getLastFarmerToUse() != null && t.getLastFarmerToUse() != Game1.player)
-            {
                 return false;
-            }
 
             if (t == null || t is MeleeWeapon || !t.isHeavyHitter())
-            {
                 return false;
-            }
 
             var player = t.getLastFarmerToUse();
             if (player == null)
-            {
                 return false;
-            }
 
             var c = player.GetToolLocation() / 64f;
             c.X = (int)c.X;
@@ -265,21 +231,21 @@ namespace MegaStorage.Framework.Models
             return false;
         }
 
-        private Debris CreateDebris(Farmer player)
-        {
-            var position = new Vector2(player.GetBoundingBox().Center.X, player.GetBoundingBox().Center.Y);
-            return new Debris(-ParentSheetIndex, player.GetToolLocation(), position)
+        private Debris CreateDebris(Farmer player) =>
+            new Debris(-ParentSheetIndex,
+                player.GetToolLocation(),
+                new Vector2(player.GetBoundingBox()
+                        .Center.X,
+                    player.GetBoundingBox()
+                        .Center.Y))
             {
                 item = this
             };
-        }
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
             if (spriteBatch is null)
-            {
                 return;
-            }
 
             var lidFrameIndex = CurrentLidFrame - ParentSheetIndex - 1;
             if (playerChoiceColor.Value.Equals(Color.Black))
@@ -323,9 +289,7 @@ namespace MegaStorage.Framework.Models
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
             if (spriteBatch is null)
-            {
                 return;
-            }
 
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
@@ -342,10 +306,6 @@ namespace MegaStorage.Framework.Models
             }
         }
 
-        public CustomItemGrabMenu GetItemGrabMenu()
-        {
-            MegaStorageMod.ModMonitor.Log("GetItemGrabMenu");
-            return _itemGrabMenu ??= CreateItemGrabMenu();
-        }
+        public CustomItemGrabMenu GetItemGrabMenu() => _itemGrabMenu ??= CreateItemGrabMenu();
     }
 }
