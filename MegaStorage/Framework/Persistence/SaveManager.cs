@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace MegaStorage.Framework.Persistence
 {
-    internal class SaveManager
+    internal static class SaveManager
     {
         private const string SaveDataKey = "LocationNiceChests";
 

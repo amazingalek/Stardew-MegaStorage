@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace MegaStorage
 {
-    internal class ItemPatcher
+    internal static class ItemPatcher
     {
         public static void Start()
         {
