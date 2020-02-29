@@ -1,26 +1,28 @@
 ﻿using furyx639.Common;
 using MegaStorage.Framework.Models;
 using Microsoft.Xna.Framework;
-using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Context = StardewModdingAPI.Context;
 
 namespace MegaStorage.Framework.Persistence
 {
     internal static class SaveManager
     {
-        private const string SaveDataKey = "LocationNiceChests";
-
-        private static readonly Dictionary<GameLocation, Dictionary<Vector2, CustomChest>> LocationCustomChests = new Dictionary<GameLocation, Dictionary<Vector2, CustomChest>>();
-        public static void Start(FarmhandMonitor farmhandMonitor)
+        private static readonly List<Tuple<GameLocation, Vector2, CustomChest>> CustomChests =
+            new List<Tuple<GameLocation, Vector2, CustomChest>>();
+        private static int _prevLength = 0;
+        public static void Start()
         {
             MegaStorageMod.ModHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
             MegaStorageMod.ModHelper.Events.GameLoop.Saved += (sender, args) => ReAddCustomChests();
             MegaStorageMod.ModHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveCustomChests();
-            MegaStorageMod.ModHelper.Events.Multiplayer.PeerContextReceived += (sender, args) => HideAndSaveCustomChests();
+            MegaStorageMod.ModHelper.Events.Multiplayer.PeerContextReceived += OnPeerContextReceived;
+            MegaStorageMod.ModHelper.Events.Multiplayer.PeerDisconnected += OnPeerDisconnected;
 
             var saveAnywhereApi = MegaStorageMod.ModHelper.ModRegistry.GetApi<ISaveAnywhereApi>("Omegasis.SaveAnywhere");
             if (!(saveAnywhereApi is null))
@@ -30,50 +32,28 @@ namespace MegaStorage.Framework.Persistence
                 saveAnywhereApi.AfterLoad += (sender, args) => LoadCustomChests();
             }
 
-            if (!(farmhandMonitor is null))
-            {
-                farmhandMonitor.Start();
-                farmhandMonitor.OnPlayerAdded += ReAddCustomChests;
-                farmhandMonitor.OnPlayerRemoved += ReAddCustomChests;
-                farmhandMonitor.OnPlayerAdded += FixLegacyOptions;
-                farmhandMonitor.OnPlayerRemoved += FixLegacyOptions;
-            }
-
-            LoadCustomChests();
             FixLegacyOptions();
+            LoadCustomChests();
         }
 
         private static void LoadCustomChests()
         {
             MegaStorageMod.ModMonitor.VerboseLog("SaveManager: LoadCustomChests");
             if (!Context.IsMainPlayer)
-            {
-                MegaStorageMod.ModMonitor.VerboseLog("Not main player!");
                 return;
-            }
-            var saveData = MegaStorageMod.ModHelper.Data.ReadSaveData<SaveData>(SaveDataKey);
-            if (saveData == null)
-            {
-                MegaStorageMod.ModMonitor.VerboseLog("Nothing to load");
-                return;
-            }
+
             foreach (var location in CommonHelper.GetLocations())
             {
-                var locationName = location.uniqueName?.Value ?? location.Name;
-                var customChestsInLocation = saveData.DeserializedChests.Where(x => x.LocationName == locationName);
-                foreach (var deserializedChest in customChestsInLocation)
+                var customChests = location.Objects.Pairs
+                    .Where(c => c.Value is Chest chest && CustomChestFactory.ShouldBeCustomChest(chest))
+                    .ToDictionary(
+                        c => c.Key,
+                        c => c.Value.ToCustomChest());
+
+                foreach (var customChest in customChests)
                 {
-                    var position = new Vector2(deserializedChest.PositionX, deserializedChest.PositionY);
-                    if (!location.objects.ContainsKey(position))
-                    {
-                        MegaStorageMod.ModMonitor.VerboseLog("WARNING! Expected chest at position: " + position);
-                        continue;
-                    }
-                    var chest = (Chest)location.objects[position];
-                    var customChest = chest.ToCustomChest(deserializedChest.ChestType, position);
-                    MegaStorageMod.ModMonitor.VerboseLog($"Loading: {deserializedChest}");
-                    MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
-                    location.objects[position] = customChest;
+                    MegaStorageMod.ModMonitor.VerboseLog($"Loading Chest at: {location.Name} {customChest.Key}");
+                    location.objects[customChest.Key] = customChest.Value;
                 }
             }
         }
@@ -81,71 +61,55 @@ namespace MegaStorage.Framework.Persistence
         private static void HideAndSaveCustomChests()
         {
             MegaStorageMod.ModMonitor.VerboseLog("SaveManager: HideAndSaveCustomChests");
-            LocationCustomChests.Clear();
-            var deserializedChests = new List<DeserializedChest>();
+            CustomChests.Clear();
+
             foreach (var location in CommonHelper.GetLocations())
             {
-                var customChestPositions = location.objects.Pairs
-                    .Where(x => x.Value is CustomChest)
-                    .ToDictionary(pair => pair.Key,
-                        pair => (CustomChest)pair.Value);
+                var customChests = location.Objects.Pairs
+                    .Where(c => c.Value is CustomChest)
+                    .Select(c => new Tuple<GameLocation, Vector2, CustomChest>(location, c.Key, (CustomChest)c.Value))
+                    .ToList();
 
-                if (!customChestPositions.Any())
+                CustomChests.AddRange(customChests);
+
+                foreach (var customChest in customChests)
                 {
-                    continue;
-                }
-
-                var locationName = location.uniqueName?.Value ?? location.Name;
-                LocationCustomChests.Add(location, customChestPositions);
-
-                foreach (var customChestPosition in customChestPositions)
-                {
-                    var position = customChestPosition.Key;
-                    var customChest = customChestPosition.Value;
-                    var chest = customChest.ToChest();
-                    MegaStorageMod.ConvenientChests?.CopyChestData(customChest, chest);
-                    location.objects[position] = chest;
-                    var deserializedChest = customChest.ToDeserializedChest(locationName, position);
-                    MegaStorageMod.ModMonitor.VerboseLog($"Hiding and saving in {locationName}: {deserializedChest}");
-                    deserializedChests.Add(deserializedChest);
+                    MegaStorageMod.ModMonitor.VerboseLog($"Hiding and Saving in {customChest.Item1.Name}: {customChest.Item3.Name} ({customChest.Item2})");
+                    location.objects[customChest.Item2] = customChest.Item3.ToChest();
                 }
             }
-            if (!Context.IsMainPlayer)
-            {
-                MegaStorageMod.ModMonitor.VerboseLog("Not main player!");
-                return;
-            }
-
-            var saveData = new SaveData
-            {
-                DeserializedChests = deserializedChests
-            };
-            MegaStorageMod.ModHelper.Data.WriteSaveData(SaveDataKey, saveData);
         }
 
         private static void ReAddCustomChests()
         {
             MegaStorageMod.ModMonitor.VerboseLog("SaveManager: ReAddCustomChests");
-            if (LocationCustomChests == null)
-            {
-                MegaStorageMod.ModMonitor.VerboseLog("Nothing to re-add");
-                return;
-            }
 
-            foreach (var customChestLocations in LocationCustomChests)
+            foreach (var customChest in CustomChests)
             {
-                var location = customChestLocations.Key;
-                var customChestPositions = customChestLocations.Value;
-
-                foreach (var customChestPosition in customChestPositions)
-                {
-                    var position = customChestPosition.Key;
-                    var customChest = customChestPosition.Value;
-                    var locationName = location.uniqueName.Value ?? location.Name;
-                    MegaStorageMod.ModMonitor.VerboseLog($"Re-adding in {locationName}: {customChest.Name} ({position})");
-                    location.objects[position] = customChest;
-                }
+                MegaStorageMod.ModMonitor.VerboseLog($"Re-adding in {customChest.Item1.Name}: {customChest.Item3.Name} ({customChest.Item2})");
+                customChest.Item1.objects[customChest.Item2] = customChest.Item3.ToCustomChest(customChest.Item2);
             }
+        }
+
+        private static void OnPeerContextReceived(object sender, PeerContextReceivedEventArgs e)
+        {
+            MegaStorageMod.ModHelper.Events.GameLoop.UpdateTicked += OnUpdateTicked;
+        }
+
+        private static void OnPeerDisconnected(object sender, PeerDisconnectedEventArgs e)
+        {
+            _prevLength = Game1.otherFarmers.Count;
+        }
+
+        private static void OnUpdateTicked(object sender, UpdateTickedEventArgs e)
+        {
+            var currentLength = Game1.otherFarmers.Count;
+            if (currentLength > _prevLength)
+            {
+                FixLegacyOptions();
+                _prevLength = currentLength;
+            }
+            MegaStorageMod.ModHelper.Events.GameLoop.UpdateTicked -= OnUpdateTicked;
         }
 
         private static void FixLegacyOptions()
@@ -160,6 +124,7 @@ namespace MegaStorage.Framework.Persistence
             var legacySavers = new Dictionary<string, Action<DeserializedChest>>()
             {
                 {"InventoryNiceChests", FixInventory},
+                {"LocationNiceChests", FixLocation},
                 {"FarmhandInventoryNiceChests", FixFarmhandInventory},
                 {"LocationInventoryNiceChests", FixLocationInventory}
             };
@@ -168,11 +133,7 @@ namespace MegaStorage.Framework.Persistence
             {
                 var saveData = MegaStorageMod.ModHelper.Data.ReadSaveData<SaveData>(legacySaver.Key);
                 if (saveData is null)
-                {
-                    MegaStorageMod.ModMonitor.VerboseLog($"Nothing to load for {legacySaver.Key}");
                     continue;
-                }
-
                 foreach (var deserializedChest in saveData.DeserializedChests)
                 {
                     legacySaver.Value.Invoke(deserializedChest);
@@ -180,42 +141,84 @@ namespace MegaStorage.Framework.Persistence
             }
         }
 
+        /// <summary>
+        /// Reverts all Custom Chests in player inventory back to a regular Object
+        /// </summary>
+        /// <param name="deserializedChest">Save data for custom chest</param>
         private static void FixInventory(DeserializedChest deserializedChest)
         {
             var index = deserializedChest.InventoryIndex;
-            var sObject = Game1.player.Items[index].ToObject(deserializedChest.ChestType);
-            Game1.player.Items[index] = sObject;
+            var chestType = deserializedChest.ChestType;
+
+            // Only revert chests in expected position
+            if (!(Game1.player.Items[index] is Chest chest))
+                return;
+            Game1.player.Items[index] = chest.ToObject(chestType);
         }
 
+        /// <summary>
+        /// Reverts all Custom Chests in farmhand inventory back to a regular Object
+        /// </summary>
+        /// <param name="deserializedChest">Save data for custom chest</param>
         private static void FixFarmhandInventory(DeserializedChest deserializedChest)
         {
             var playerId = deserializedChest.PlayerId;
-            if (!Game1.otherFarmers.ContainsKey(playerId))
-            {
-                MegaStorageMod.ModMonitor.VerboseLog($"Other player isn't loaded: {playerId}");
-                return;
-            }
-            var player = Game1.otherFarmers.Single(x => x.Key == playerId).Value;
             var index = deserializedChest.InventoryIndex;
-            var sObject = player.Items[index].ToObject(deserializedChest.ChestType);
-            player.Items[index] = sObject;
+            var chestType = deserializedChest.ChestType;
+
+            // Only revert chests in expected position
+            if (!Game1.otherFarmers.ContainsKey(playerId))
+                return;
+            var player = Game1.otherFarmers.Single(x => x.Key == playerId).Value;
+            if (!(player.Items[index] is Chest chest))
+                return;
+            player.Items[index] = player.Items[index].ToObject(chestType);
         }
 
+        /// <summary>
+        /// Updates all placed Custom Chests with correct ParentSheetIndex
+        /// </summary>
+        /// <param name="deserializedChest">Save data for custom chest</param>
+        private static void FixLocation(DeserializedChest deserializedChest)
+        {
+            var locationName = deserializedChest.LocationName;
+            var pos = new Vector2(deserializedChest.PositionX, deserializedChest.PositionY);
+            var chestType = deserializedChest.ChestType;
+
+            var location = CommonHelper.GetLocations()
+                .Single(l => (l.uniqueName?.Value ?? l.Name) == locationName);
+            if (location is null
+                || !location.objects.ContainsKey(pos)
+                || !(location.objects[pos] is Chest chest))
+            {
+                return;
+            }
+
+            chest.ParentSheetIndex = CustomChestFactory.CustomChests[chestType];
+        }
+
+        /// <summary>
+        /// Reverts all Custom Chests in placed chests back to a regular Object
+        /// </summary>
+        /// <param name="deserializedChest">Save data for custom chest</param>
         private static void FixLocationInventory(DeserializedChest deserializedChest)
         {
-            foreach (var location in CommonHelper.GetLocations())
+            var locationName = deserializedChest.LocationName;
+            var pos = new Vector2(deserializedChest.PositionX, deserializedChest.PositionY);
+            var index = deserializedChest.InventoryIndex;
+            var chestType = deserializedChest.ChestType;
+
+            var location = CommonHelper.GetLocations()
+                .Single(l => (l.uniqueName?.Value ?? l.Name) == locationName);
+            if (location is null
+                || !location.objects.ContainsKey(pos)
+                || !(location.objects[pos] is Chest chest)
+                || !(chest.items[index] is Chest customChest))
             {
-                var pos = new Vector2(deserializedChest.PositionX, deserializedChest.PositionY);
-                if (!location.objects.ContainsKey(pos))
-                {
-                    MegaStorageMod.ModMonitor.VerboseLog("WARNING! Expected chest at position: " + pos);
-                    return;
-                }
-                var chest = (Chest)location.objects[pos];
-                var index = deserializedChest.InventoryIndex;
-                var sObject = chest.items[index].ToObject(deserializedChest.ChestType);
-                chest.items[index] = sObject;
+                return;
             }
+
+            chest.items[index] = customChest.items[index].ToObject(chestType);
         }
     }
 }
