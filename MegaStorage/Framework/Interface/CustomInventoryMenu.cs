@@ -230,15 +230,12 @@ namespace MegaStorage.Framework.Interface
             {
                 var col = slot % ItemsPerRow;
                 var row = slot / ItemsPerRow;
-                var index = actualInventory.Count;
-                if (slot < VisibleItems.Count)
-                {
-                    for (index = 0; index < actualInventory.Count; ++index)
-                    {
-                        if (actualInventory[index] == VisibleItems[slot])
-                            break;
-                    }
-                }
+
+                // Find actualInventory index
+                var index = slot >= VisibleItems.Count
+                    ? actualInventory.Count
+                    : actualInventory.IndexOf(VisibleItems[slot]);
+
                 inventory.Add(new ClickableComponent(
                     new Rectangle(
                         xPositionOnScreen + col * (Game1.tileSize + horizontalGap) + XPadding,
