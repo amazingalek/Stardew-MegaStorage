@@ -1,7 +1,7 @@
 ﻿using MegaStorage.Framework;
-using MegaStorage.Framework.Interface;
 using MegaStorage.Framework.Models;
 using MegaStorage.Framework.Persistence;
+using MegaStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
@@ -70,7 +70,7 @@ namespace MegaStorage
         private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
         {
             ItemPatcher.Start();
-            SaveManager.Start(new FarmhandMonitor());
+            SaveManager.Start();
         }
 
         private static void OnIdsAssigned(object sender, EventArgs e)
