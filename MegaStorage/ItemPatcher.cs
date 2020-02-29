@@ -1,7 +1,10 @@
 ﻿using MegaStorage.Framework;
 using MegaStorage.Framework.Models;
+using MegaStorage.Framework.Persistence;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;
 using StardewValley;
+using System;
 using System.Linq;
 
 namespace MegaStorage
@@ -12,6 +15,7 @@ namespace MegaStorage
         {
             MegaStorageMod.ModHelper.Events.Player.InventoryChanged += OnInventoryChanged;
             MegaStorageMod.ModHelper.Events.World.ChestInventoryChanged += OnChestInventoryChanged;
+            MegaStorageMod.ModHelper.Events.World.DebrisListChanged += OnDebrisListChanged;
             MegaStorageMod.ModHelper.Events.World.ObjectListChanged += OnObjectListChanged;
         }
 
@@ -45,23 +49,42 @@ namespace MegaStorage
             e.Chest.items[index] = customChest.ToObject();
         }
 
-        private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
+        private static void OnDebrisListChanged(object sender, DebrisListChangedEventArgs e)
         {
-            MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnDebrisListChanged");
             if (e.Added.Count() != 1)
                 return;
 
-            var addedItemPosition = e.Added.Single();
-            var addedItem = addedItemPosition.Value;
-            if (addedItem is CustomChest || !CustomChestFactory.ShouldBeCustomChest(addedItem))
+            var debris = e.Added.Single();
+            if (!(debris.item is CustomChest customChest))
                 return;
 
-            MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
-            var position = addedItemPosition.Key;
-            var item = e.Location.objects[position];
-            var customChest = item.ToCustomChest(position);
-            e.Location.objects[position] = customChest;
+            MegaStorageMod.ModMonitor.VerboseLog("OnDebrisListChanged: converting");
+            debris.item = customChest.ToObject();
         }
 
+        private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
+        {
+            MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
+
+            var itemPosition = e.Added.Count() == 1
+                ? e.Added.Single()
+                : e.Removed.Single();
+            var pos = itemPosition.Key;
+            var item = itemPosition.Value;
+
+            if (e.Added.Count() == 1 && !(item is CustomChest) && CustomChestFactory.ShouldBeCustomChest(item))
+            {
+                MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
+                var customChest = item.ToCustomChest(pos);
+                e.Location.objects[pos] = customChest;
+                SaveManager.PlacedChests.Add(new Tuple<GameLocation, Vector2>(e.Location, pos), customChest);
+            }
+            else if (e.Removed.Count() == 1 && item is CustomChest)
+            {
+                MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: untrack");
+                SaveManager.PlacedChests.Remove(new Tuple<GameLocation, Vector2>(e.Location, pos));
+            }
+        }
     }
 }
