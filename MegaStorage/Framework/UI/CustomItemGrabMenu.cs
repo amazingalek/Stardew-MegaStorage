@@ -638,7 +638,9 @@ namespace MegaStorage.Framework.UI
                     };
                 }
                 else
+                {
                     cc.leftNeighborID += 53910;
+                }
 
                 // Right column adjustment
                 if (col == 0)
@@ -655,7 +657,9 @@ namespace MegaStorage.Framework.UI
                     };
                 }
                 else
+                {
                     cc.rightNeighborID += 53910;
+                }
             }
 
             // Color Picker
