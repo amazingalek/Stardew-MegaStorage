@@ -8,12 +8,15 @@ namespace MegaStorage.Framework.UI.Widgets
 {
     internal class CustomClickableTextureComponent : ClickableTextureComponent
     {
-        protected CustomInventoryMenu ParentMenu;
-        protected Vector2 Offset;
+        // Custom actions for widgets
+        public Action<SpriteBatch, CustomClickableTextureComponent> DrawAction;
         public Action<CustomClickableTextureComponent> LeftClickAction;
         public Action<CustomClickableTextureComponent> RightClickAction;
         public Action<int, CustomClickableTextureComponent> ScrollAction;
         public Action<int, int, CustomClickableTextureComponent> HoverAction;
+
+        protected CustomInventoryMenu ParentMenu;
+        protected Vector2 Offset;
 
         public CustomClickableTextureComponent(
             string name,

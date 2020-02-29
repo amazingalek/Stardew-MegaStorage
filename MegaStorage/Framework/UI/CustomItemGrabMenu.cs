@@ -112,35 +112,21 @@ namespace MegaStorage.Framework.UI
             // Inventory Icon
             CommonHelper.DrawInventoryIcon(b, _inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 64);
 
-            foreach (var clickableComponent in allClickableComponents.OfType<ClickableTextureComponent>())
+            // Custom Draw
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<CustomClickableTextureComponent>()
+                .Where(c => !(c.DrawAction is null)))
             {
-                switch (clickableComponent.name)
-                {
-                    case "trashCan":
-                        clickableComponent.draw(b);
-                        b.Draw(
-                            Game1.mouseCursors,
-                            new Vector2(clickableComponent.bounds.X + 60, clickableComponent.bounds.Y + 40),
-                            new Rectangle(564 + Game1.player.trashCanLevel * 18, 129, 18, 10),
-                            Color.White,
-                            trashCanLidRotation,
-                            new Vector2(16f, 10f),
-                            Game1.pixelZoom,
-                            SpriteEffects.None,
-                            0.86f);
-                        break;
-                    default:
-                        if (clickableComponent is ChestCategory chestCategory)
-                        {
-                            chestCategory.Draw(b, chestCategory.Equals(_itemsToGrabMenu.SelectedCategory));
-                        }
-                        else
-                        {
-                            clickableComponent.draw(b);
-                        }
+                clickableComponent.DrawAction(b, clickableComponent);
+            }
 
-                        break;
-                }
+            // Default Draw
+            foreach (var clickableComponent in allClickableComponents
+                .OfType<ClickableTextureComponent>()
+                .Where(c => !(c is CustomClickableTextureComponent customClickableTextureComponent)
+                            || customClickableTextureComponent.DrawAction is null))
+            {
+                clickableComponent.draw(b);
             }
 
             if (!(hoveredItem is null))
@@ -471,6 +457,29 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeVisibleItemsRefreshed(this, CustomChestEventArgs);
         }
 
+        // Draw Actions
+        internal void DrawCategory(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
+        {
+            if (clickableComponent is ChestCategory chestCategory)
+                chestCategory.Draw(b, chestCategory.Equals(_itemsToGrabMenu.SelectedCategory));
+        }
+
+        internal void DrawTrashCan(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
+        {
+            clickableComponent.draw(b);
+            b.Draw(
+                Game1.mouseCursors,
+                new Vector2(clickableComponent.bounds.X + 60, clickableComponent.bounds.Y + 40),
+                new Rectangle(564 + Game1.player.trashCanLevel * 18, 129, 18, 10),
+                Color.White,
+                trashCanLidRotation,
+                new Vector2(16f, 10f),
+                Game1.pixelZoom,
+                SpriteEffects.None,
+                0.86f);
+        }
+
+        // Left Click Actions
         internal void ClickColorPickerToggleButton(CustomClickableTextureComponent clickableComponent = null)
         {
             Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
@@ -531,6 +540,7 @@ namespace MegaStorage.Framework.UI
                 _itemsToGrabMenu.SelectedCategory = chestCategory;
             MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
         }
+        // Scroll Actions
         internal void ScrollCategory(int direction, CustomClickableTextureComponent clickableComponent = null)
         {
             ChestCategory savedCategory = null;
@@ -560,7 +570,7 @@ namespace MegaStorage.Framework.UI
             }
             MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
         }
-
+        // Hover Actions
         internal void HoverZoom(int x, int y, CustomClickableTextureComponent clickableComponent)
         {
             clickableComponent.scale = clickableComponent.containsPoint(x, y)
@@ -788,6 +798,7 @@ namespace MegaStorage.Framework.UI
                     6 => 53970, // ItemsToGrabMenu.inventory Row 6 Col 1
                     _ => 53970
                 };
+                categoryCC.DrawAction = DrawCategory;
                 categoryCC.LeftClickAction = ClickCategoryButton;
                 categoryCC.ScrollAction = ScrollCategory;
 
@@ -850,6 +861,7 @@ namespace MegaStorage.Framework.UI
                 downNeighborID = 4857,
                 leftNeighborID = 23,
                 upNeighborID = 106,
+                DrawAction = DrawTrashCan,
                 LeftClickAction = ClickTrashCan,
                 HoverAction = HoverTrashCan
             };
@@ -863,6 +875,7 @@ namespace MegaStorage.Framework.UI
             };
             allClickableComponents.Add(dropItemInvisibleButton);
         }
+
         private static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(
             "TileSheets/animations",
             new Rectangle(0, 320, Game1.tileSize, Game1.tileSize),
