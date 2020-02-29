@@ -67,23 +67,34 @@ namespace MegaStorage
         {
             MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
 
+            if (e.Added.Count() != 1 && e.Removed.Count() != 1)
+                return;
+
             var itemPosition = e.Added.Count() == 1
                 ? e.Added.Single()
                 : e.Removed.Single();
+
             var pos = itemPosition.Key;
             var item = itemPosition.Value;
+            var key = new Tuple<GameLocation, Vector2>(e.Location, pos);
 
-            if (e.Added.Count() == 1 && !(item is CustomChest) && CustomChestFactory.ShouldBeCustomChest(item))
+            if (e.Added.Count() == 1
+                && !(item is CustomChest)
+                && CustomChestFactory.ShouldBeCustomChest(item))
             {
                 MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
                 var customChest = item.ToCustomChest(pos);
                 e.Location.objects[pos] = customChest;
-                SaveManager.PlacedChests.Add(new Tuple<GameLocation, Vector2>(e.Location, pos), customChest);
+                if (!SaveManager.PlacedChests.ContainsKey(key))
+                    SaveManager.PlacedChests.Add(key, customChest);
+                else
+                    SaveManager.PlacedChests[key] = customChest;
             }
             else if (e.Removed.Count() == 1 && item is CustomChest)
             {
                 MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: untrack");
-                SaveManager.PlacedChests.Remove(new Tuple<GameLocation, Vector2>(e.Location, pos));
+                if (SaveManager.PlacedChests.ContainsKey(key))
+                    SaveManager.PlacedChests.Remove(new Tuple<GameLocation, Vector2>(e.Location, pos));
             }
         }
     }
