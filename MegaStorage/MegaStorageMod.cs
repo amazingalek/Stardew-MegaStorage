@@ -78,9 +78,9 @@ namespace MegaStorage
             LargeChestId = JsonAssets.GetBigCraftableId("Large Chest");
             MagicChestId = JsonAssets.GetBigCraftableId("Magic Chest");
             SuperMagicChestId = JsonAssets.GetBigCraftableId("Super Magic Chest");
-            ModMonitor.VerboseLog($"Large Chest ID is {LargeChestId}.");
-            ModMonitor.VerboseLog($"Magic Chest ID is {MagicChestId}.");
-            ModMonitor.VerboseLog($"Super Magic Chest ID is {SuperMagicChestId}.");
+            ModMonitor.Log($"Large Chest Loaded with ID {LargeChestId}.");
+            ModMonitor.Log($"Magic Chest Loaded with ID {MagicChestId}.");
+            ModMonitor.Log($"Super Magic Chest Loaded with ID {SuperMagicChestId}.");
         }
 
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
