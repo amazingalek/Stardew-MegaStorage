@@ -26,6 +26,7 @@ namespace MegaStorage.Framework.Interface
                 RefreshItems();
             }
         }
+        public const int ItemsPerRow = 12;
         public int MaxRows;
         public IList<Item> VisibleItems;
         internal Rectangle Bounds => new Rectangle(xPositionOnScreen, yPositionOnScreen, height, width);
@@ -43,18 +44,18 @@ namespace MegaStorage.Framework.Interface
         private protected ClickableTextureComponent DownArrow;
         private ChestCategory _selectedCategory;
         private int _currentRow;
-        private int ItemsPerRow => capacity / rows;
 
         /*********
         ** Public methods
         *********/
-        public CustomInventoryMenu(
-            CustomItemGrabMenu parentMenu,
-            Vector2 offset,
-            int capacity = -1,
-            int rows = 3,
-            Chest chest = null)
-            : base(parentMenu.xPositionOnScreen + (int)offset.X, parentMenu.yPositionOnScreen + (int)offset.Y, false, chest?.items ?? Game1.player.Items, InventoryMenu.highlightAllItems, capacity, rows)
+        public CustomInventoryMenu(CustomItemGrabMenu parentMenu, Vector2 offset, Chest chest = null)
+            : base(
+                parentMenu.xPositionOnScreen + (int)offset.X,
+                parentMenu.yPositionOnScreen + (int)offset.Y,
+                false, chest?.items ?? Game1.player.Items,
+                InventoryMenu.highlightAllItems,
+                !(chest is null) ? 6 * ItemsPerRow : Math.Max(36, Game1.player.MaxItems),
+                !(chest is null) ? 6 : Math.Max(36, Game1.player.MaxItems) / ItemsPerRow)
         {
             ParentMenu = parentMenu;
             Offset = offset;
@@ -199,7 +200,7 @@ namespace MegaStorage.Framework.Interface
 
         public void ScrollDown()
         {
-            if (_currentRow > MaxRows - rows)
+            if (_currentRow >= MaxRows - rows)
                 return;
             _currentRow++;
             RefreshItems();
@@ -221,7 +222,7 @@ namespace MegaStorage.Framework.Interface
             VisibleItems = (_selectedCategory?.Filter(actualInventory) ?? actualInventory)
                 .Skip(ItemsPerRow * _currentRow)
                 .ToList();
-            MaxRows = VisibleItems.Count / ItemsPerRow + 1;
+            MaxRows = (int) Math.Ceiling((double)VisibleItems.Count / ItemsPerRow);
             UpArrow.visible = _currentRow > 0;
             DownArrow.visible = _currentRow < MaxRows - rows;
             inventory.Clear();

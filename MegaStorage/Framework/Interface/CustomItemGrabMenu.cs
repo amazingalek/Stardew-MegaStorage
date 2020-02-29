@@ -19,9 +19,6 @@ namespace MegaStorage.Framework.Interface
         /*********
         ** Fields
         *********/
-        public const int Rows = 6;
-        public const int ItemsPerRow = 12;
-        public const int Capacity = ItemsPerRow * Rows;
         public const int MenuWidth = 768;
         public const int MenuHeight = 680;
 
@@ -602,7 +599,7 @@ namespace MegaStorage.Framework.Interface
         *********/
         private void SetupItemsMenu()
         {
-            _itemsToGrabMenu = new CustomInventoryMenu(this, Offset, Capacity, Rows, _customChest);
+            _itemsToGrabMenu = new CustomInventoryMenu(this, Offset, _customChest);
             ItemsToGrabMenu = _itemsToGrabMenu;
 
             // Color Picker
