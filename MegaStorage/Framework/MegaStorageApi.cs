@@ -1,4 +1,4 @@
-﻿using MegaStorage.Framework.Interface;
+﻿using MegaStorage.Framework.UI;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Menus;
