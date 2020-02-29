@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using furyx639.Common;
+﻿using furyx639.Common;
 using MegaStorage.Framework.Models;
 using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
@@ -10,6 +7,9 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI
@@ -616,7 +616,7 @@ namespace MegaStorage.Framework.UI
                     cc.upNeighborID = 4343;
                 else
                     cc.upNeighborID += 53910;
-                
+
                 // Bottom row adjustment
                 if (row == _itemsToGrabMenu.rows)
                     cc.downNeighborID = col;
@@ -625,6 +625,7 @@ namespace MegaStorage.Framework.UI
 
                 // Left column adjustment
                 if (col == CustomInventoryMenu.ItemsPerRow - 1)
+                {
                     cc.rightNeighborID = row switch
                     {
                         0 => 27346, // Color Toggle Button
@@ -635,11 +636,13 @@ namespace MegaStorage.Framework.UI
                         5 => 106,
                         _ => 106
                     };
+                }
                 else
                     cc.leftNeighborID += 53910;
 
                 // Right column adjustment
                 if (col == 0)
+                {
                     cc.leftNeighborID = row switch
                     {
                         0 => 239865, // Chest Category 1
@@ -650,6 +653,7 @@ namespace MegaStorage.Framework.UI
                         5 => 239870, // Chest Category 6
                         _ => 239810
                     };
+                }
                 else
                     cc.rightNeighborID += 53910;
             }
@@ -741,7 +745,9 @@ namespace MegaStorage.Framework.UI
                 var category = Categories.ElementAt(index);
                 if (!ModConfig.Instance.Categories.TryGetValue(category.Key, out var categoryIds) &&
                     !category.Key.Equals("All", StringComparison.InvariantCultureIgnoreCase))
+                {
                     continue;
+                }
 
                 var categoryCC = category.Key switch
                 {

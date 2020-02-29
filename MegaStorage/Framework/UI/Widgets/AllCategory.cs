@@ -1,7 +1,7 @@
-﻿using System.IO;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using System.IO;
 
 namespace MegaStorage.Framework.UI.Widgets
 {

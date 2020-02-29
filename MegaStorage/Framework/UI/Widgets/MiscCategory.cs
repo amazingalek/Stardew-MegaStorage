@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Objects;
+using System;
+using System.Collections.Generic;
 using Object = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI.Widgets

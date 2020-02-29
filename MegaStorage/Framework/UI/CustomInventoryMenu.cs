@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using furyx639.Common;
+﻿using furyx639.Common;
 using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 namespace MegaStorage.Framework.UI
 {
@@ -222,7 +222,7 @@ namespace MegaStorage.Framework.UI
             VisibleItems = (_selectedCategory?.Filter(actualInventory) ?? actualInventory)
                 .Skip(ItemsPerRow * _currentRow)
                 .ToList();
-            MaxRows = (int) Math.Ceiling((double)VisibleItems.Count / ItemsPerRow);
+            MaxRows = (int)Math.Ceiling((double)VisibleItems.Count / ItemsPerRow);
             UpArrow.visible = _currentRow > 0;
             DownArrow.visible = _currentRow < MaxRows - rows;
             inventory.Clear();
