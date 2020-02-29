@@ -1,10 +1,10 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
-using System;
 
-namespace MegaStorage.Framework.Interface.Widgets
+namespace MegaStorage.Framework.UI.Widgets
 {
     internal class CustomClickableTextureComponent : ClickableTextureComponent
     {

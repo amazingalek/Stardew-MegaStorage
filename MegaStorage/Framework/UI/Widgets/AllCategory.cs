@@ -1,9 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.IO;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
-using System.IO;
 
-namespace MegaStorage.Framework.Interface.Widgets
+namespace MegaStorage.Framework.UI.Widgets
 {
     internal class AllCategory : ChestCategory
     {

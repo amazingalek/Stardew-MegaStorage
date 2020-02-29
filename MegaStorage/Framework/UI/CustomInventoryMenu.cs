@@ -1,16 +1,16 @@
-﻿using furyx639.Common;
-using MegaStorage.Framework.Interface.Widgets;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using furyx639.Common;
+using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 
-namespace MegaStorage.Framework.Interface
+namespace MegaStorage.Framework.UI
 {
     internal class CustomInventoryMenu : InventoryMenu
     {

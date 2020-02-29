@@ -1,18 +1,18 @@
-﻿using furyx639.Common;
-using MegaStorage.Framework.Interface.Widgets;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using furyx639.Common;
 using MegaStorage.Framework.Models;
+using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Menus;
 using StardewValley.Objects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using SObject = StardewValley.Object;
 
-namespace MegaStorage.Framework.Interface
+namespace MegaStorage.Framework.UI
 {
     public class CustomItemGrabMenu : ItemGrabMenu
     {
