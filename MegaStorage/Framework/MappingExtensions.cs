@@ -12,12 +12,12 @@ namespace MegaStorage.Framework
     {
         public static Item ToObject(this Item item) =>
             item is CustomChest customChest
-                ? new SObject(customChest.TileLocation, customChest.ParentSheetIndex, customChest.Stack)
+                ? new SObject(customChest.TileLocation, customChest.ParentSheetIndex) { Stack = customChest.Stack }
                 : item;
 
         public static Item ToObject(this Item item, ChestType chestType) =>
             item is CustomChest customChest
-                ? new SObject(customChest.TileLocation, CustomChestFactory.CustomChests[chestType], customChest.Stack)
+                ? new SObject(customChest.TileLocation, CustomChestFactory.CustomChests[chestType]) { Stack = customChest.Stack }
                 : item;
 
         public static Chest ToChest(this Item item)
@@ -44,15 +44,19 @@ namespace MegaStorage.Framework
             item.ToCustomChest(CustomChestFactory.CustomChests.FirstOrDefault(x => x.Value == item.ParentSheetIndex).Key, tileLocation ?? Vector2.Zero);
         public static CustomChest ToCustomChest(this Item item, ChestType chestType, Vector2? tileLocation = null)
         {
-            if (!(item is Chest chest))
+            if (!(item is SObject obj))
                 throw new InvalidOperationException($"Cannot convert {item?.Name} to CustomChest");
 
-            var customChest = CustomChestFactory.Create(chestType, tileLocation ?? chest.TileLocation);
-            customChest.name = chest.name;
-            customChest.Stack = chest.Stack;
+            var customChest = CustomChestFactory.Create(chestType, tileLocation);
+            customChest.name = obj.name;
+            customChest.Stack = obj.Stack;
+
+            if (!(obj is Chest chest))
+                return customChest;
+
+            customChest.TileLocation = chest.TileLocation;
             customChest.items.AddRange(chest.items);
             customChest.playerChoiceColor.Value = chest.playerChoiceColor.Value;
-
             MegaStorageMod.ConvenientChests?.CopyChestData(chest, customChest);
 
             return customChest;
