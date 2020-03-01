@@ -20,6 +20,8 @@ namespace MegaStorage.Framework
         public event EventHandler<ICustomChestEventArgs> AfterFillStacksButtonClicked;
         public event EventHandler<ICustomChestEventArgs> BeforeOrganizeButtonClicked;
         public event EventHandler<ICustomChestEventArgs> AfterOrganizeButtonClicked;
+        public event EventHandler<ICustomChestEventArgs> BeforeStarButtonClicked;
+        public event EventHandler<ICustomChestEventArgs> AfterStarButtonClicked;
         public event EventHandler<ICustomChestEventArgs> BeforeOkButtonClicked;
         public event EventHandler<ICustomChestEventArgs> AfterOkButtonClicked;
         public event EventHandler<ICustomChestEventArgs> BeforeTrashCanClicked;
@@ -44,6 +46,7 @@ namespace MegaStorage.Framework
         public void ClickColorPickerToggleButton() => I?.ClickColorPickerToggleButton();
         public void ClickFillStacksButton() => I?.ClickFillStacksButton();
         public void ClickOrganizeButton() => I?.ClickOrganizeButton();
+        public void ClickStarButton() => I?.ClickStarButton();
         public void ClickOkButton() => I?.ClickOkButton();
         public void ClickTrashCan() => I?.ClickTrashCan();
         public void ClickCategoryButton(string categoryName) => I?.ClickCategoryButton(categoryName);
@@ -78,6 +81,14 @@ namespace MegaStorage.Framework
         internal static void InvokeAfterOrganizeButtonClicked(ItemGrabMenu itemGrabMenu,
             CustomChestEventArgs customChestEventArgs) =>
             Instance.AfterOrganizeButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+
+        internal static void InvokeBeforeStarButtonClicked(ItemGrabMenu itemGrabMenu,
+            CustomChestEventArgs customChestEventArgs) =>
+            Instance.BeforeStarButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
+
+        internal static void InvokeAfterStarButtonClicked(ItemGrabMenu itemGrabMenu,
+            CustomChestEventArgs customChestEventArgs) =>
+            Instance.AfterStarButtonClicked?.Invoke(itemGrabMenu, customChestEventArgs);
 
         internal static void InvokeBeforeOkButtonClicked(ItemGrabMenu itemGrabMenu,
             CustomChestEventArgs customChestEventArgs) =>

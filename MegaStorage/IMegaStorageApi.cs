@@ -13,6 +13,8 @@ namespace MegaStorage
         event EventHandler<ICustomChestEventArgs> AfterFillStacksButtonClicked;
         event EventHandler<ICustomChestEventArgs> BeforeOrganizeButtonClicked;
         event EventHandler<ICustomChestEventArgs> AfterOrganizeButtonClicked;
+        event EventHandler<ICustomChestEventArgs> BeforeStarButtonClicked;
+        event EventHandler<ICustomChestEventArgs> AfterStarButtonClicked;
         event EventHandler<ICustomChestEventArgs> BeforeOkButtonClicked;
         event EventHandler<ICustomChestEventArgs> AfterOkButtonClicked;
         event EventHandler<ICustomChestEventArgs> BeforeTrashCanClicked;
@@ -47,6 +49,9 @@ namespace MegaStorage
 
         /// <summary>Click the Organize button.</summary>
         void ClickOrganizeButton();
+
+        /// <summary>Click the Star button.</summary>
+        void ClickStarButton();
 
         /// <summary>Click the OK Button.</summary>
         void ClickOkButton();
