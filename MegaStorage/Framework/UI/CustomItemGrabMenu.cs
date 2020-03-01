@@ -19,8 +19,8 @@ namespace MegaStorage.Framework.UI
         /*********
         ** Fields
         *********/
-        public const int MenuWidth = 768;
-        public const int MenuHeight = 680;
+        public const int MenuWidth = 840;
+        public const int MenuHeight = 736;
 
         public static readonly Dictionary<string, Rectangle> Categories = new Dictionary<string, Rectangle>()
         {
@@ -38,17 +38,18 @@ namespace MegaStorage.Framework.UI
         internal Vector2 GetInventoryDimensions => _inventory.Dimensions;
         internal Vector2 GetItemsToGrabMenuPosition => _itemsToGrabMenu.Position;
         internal Vector2 GetInventoryPosition => _inventory.Position;
+
         // Offsets to ItemsToGrabMenu and Inventory
-        private static readonly Vector2 Offset = new Vector2(-48, -36);
+        private static readonly Vector2 Offset = new Vector2(-44, -68);
 
         // Offsets to Color Picker
-        private static readonly Vector2 TopOffset = new Vector2(0, -104);
+        private static readonly Vector2 TopOffset = new Vector2(32, -72);
 
         // Offsets to Categories
-        private static readonly Vector2 LeftOffset = new Vector2(-80, -8);
+        private static readonly Vector2 LeftOffset = new Vector2(-48, 24);
 
         // Offsets to Color Toggle, Organize, Stack, OK, and Trash
-        private static readonly Vector2 RightOffset = new Vector2(56, -32);
+        private static readonly Vector2 RightOffset = new Vector2(24, -32);
 
         private readonly CustomChest _customChest;
         private CustomInventoryMenu _itemsToGrabMenu;
@@ -110,7 +111,7 @@ namespace MegaStorage.Framework.UI
             chestColorPicker.draw(b);
 
             // Inventory Icon
-            CommonHelper.DrawInventoryIcon(b, _inventory.xPositionOnScreen - 80, _inventory.yPositionOnScreen + 64);
+            CommonHelper.DrawInventoryIcon(b, _inventory.xPositionOnScreen - 48, _inventory.yPositionOnScreen + 96);
 
             // Custom Draw
             foreach (var clickableComponent in allClickableComponents
@@ -446,7 +447,7 @@ namespace MegaStorage.Framework.UI
         {
             VisibleItems = _itemsToGrabMenu.VisibleItems,
             AllItems = _itemsToGrabMenu.actualInventory,
-            CurrentCategory = _itemsToGrabMenu.SelectedCategory.name,
+            CurrentCategory = _itemsToGrabMenu.SelectedCategory?.name ?? "All",
             HeldItem = heldItem
         };
 
@@ -754,6 +755,9 @@ namespace MegaStorage.Framework.UI
             allClickableComponents.Add(organizeButton);
 
             // Categories
+            if (!ModConfig.Instance.EnableCategories)
+                return;
+
             for (var index = 0; index < Categories.Count; ++index)
             {
                 var category = Categories.ElementAt(index);
@@ -808,7 +812,7 @@ namespace MegaStorage.Framework.UI
         }
         private void SetupInventoryMenu()
         {
-            _inventory = new CustomInventoryMenu(this, new Vector2(0, _itemsToGrabMenu.height + 80) + Offset)
+            _inventory = new CustomInventoryMenu(this, new Vector2(0, _itemsToGrabMenu.height) + Offset)
             {
                 showGrayedOutSlots = true
             };
@@ -834,7 +838,7 @@ namespace MegaStorage.Framework.UI
             okButton = new CustomClickableTextureComponent(
                 "okButton",
                 _inventory,
-                new Vector2(_inventory.width + RightOffset.X, 140),
+                new Vector2(_inventory.width, 204) + RightOffset,
                 Game1.mouseCursors,
                 Game1.getSourceRectForStandardTileSheet(Game1.mouseCursors, 46),
                 scale: 1f)
@@ -851,7 +855,7 @@ namespace MegaStorage.Framework.UI
             trashCan = new CustomClickableTextureComponent(
                 "trashCan",
                 _inventory,
-                new Vector2(_inventory.width + RightOffset.X, 4),
+                new Vector2(_inventory.width, 68) + RightOffset,
                 Game1.mouseCursors,
                 new Rectangle(564 + Game1.player.trashCanLevel * 18, 102, 18, 26),
                 width: Game1.tileSize,

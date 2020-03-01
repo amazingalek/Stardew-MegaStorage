@@ -37,8 +37,8 @@ namespace MegaStorage.Framework.UI
         protected Vector2 Offset;
 
         // Padding for Items Grid
-        private const int XPadding = 24;
-        private const int YPadding = 12;
+        private const int XPadding = 56;
+        private const int YPadding = 44;
 
         private protected ClickableTextureComponent UpArrow;
         private protected ClickableTextureComponent DownArrow;
@@ -66,8 +66,8 @@ namespace MegaStorage.Framework.UI
             UpArrow = new ClickableTextureComponent(
                 "upArrow",
                 new Rectangle(
-                    xPositionOnScreen + width - Game1.tileSize / 2 + 8,
-                    yPositionOnScreen,
+                    xPositionOnScreen + width - Game1.tileSize + 8,
+                    yPositionOnScreen + 36,
                     Game1.tileSize, Game1.tileSize),
                 "",
                 "",
@@ -83,8 +83,9 @@ namespace MegaStorage.Framework.UI
             // Down Arrow
             DownArrow = new ClickableTextureComponent(
                 "downArrow",
-                new Rectangle(xPositionOnScreen + width - Game1.tileSize / 2 + 8,
-                    yPositionOnScreen + height - Game1.tileSize,
+                new Rectangle(
+                    xPositionOnScreen + width - Game1.tileSize + 8,
+                    yPositionOnScreen + height - Game1.tileSize - 36,
                     Game1.tileSize, Game1.tileSize),
                 "",
                 "",
@@ -97,6 +98,16 @@ namespace MegaStorage.Framework.UI
                 visible = _currentRow <= MaxRows - rows
             };
 
+            if (!(chest is null))
+                chest.items.OnElementChanged += Items_OnElementChanged;
+            else
+                Game1.player.items.OnElementChanged += Items_OnElementChanged;
+
+            RefreshItems();
+        }
+
+        private void Items_OnElementChanged(Netcode.NetList<Item, Netcode.NetRef<Item>> list, int index, Item oldValue, Item newValue)
+        {
             RefreshItems();
         }
 
@@ -192,10 +203,10 @@ namespace MegaStorage.Framework.UI
         {
             xPositionOnScreen = ParentMenu.xPositionOnScreen + (int)Offset.X;
             yPositionOnScreen = ParentMenu.yPositionOnScreen + (int)Offset.Y;
-            UpArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize / 2 + 8;
-            UpArrow.bounds.Y = yPositionOnScreen;
-            DownArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize / 2 + 8;
-            DownArrow.bounds.Y = yPositionOnScreen + height - 80;
+            UpArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize + 8;
+            UpArrow.bounds.Y = yPositionOnScreen + 36;
+            DownArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize + 8;
+            DownArrow.bounds.Y = yPositionOnScreen + height - Game1.tileSize - 36;
         }
 
         public void ScrollDown()
