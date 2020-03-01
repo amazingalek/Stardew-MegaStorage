@@ -23,7 +23,7 @@ namespace MegaStorage.Framework.Models
         private readonly ChestType _chestType;
 
         // Custom Chest Features
-        public int Capacity { get; protected set; }
+        public abstract int Capacity { get; }
         public bool EnableCategories { get; private set; }
         public bool EnableRemoteStorage { get; protected set; }
 
@@ -41,7 +41,6 @@ namespace MegaStorage.Framework.Models
         }
 
         protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
-        private CustomItemGrabMenu _itemGrabMenu;
 
         protected CustomChest(ChestType chestType, Vector2 tileLocation) : base(true, tileLocation)
         {
@@ -116,8 +115,7 @@ namespace MegaStorage.Framework.Models
 
                 if (currentLidFrameValue == ParentSheetIndex + 5)
                 {
-                    _itemGrabMenu = CreateItemGrabMenu();
-                    Game1.activeClickableMenu = _itemGrabMenu;
+                    Game1.activeClickableMenu = CreateItemGrabMenu();
                     frameCounter.Value = -1;
                 }
                 else
@@ -150,12 +148,12 @@ namespace MegaStorage.Framework.Models
 
             items.Remove(item);
             clearNulls();
-            if (_itemGrabMenu == null)
-            {
-                _itemGrabMenu = CreateItemGrabMenu();
-            }
+            //if (_itemGrabMenu == null)
+            //{
+            //    _itemGrabMenu = CreateItemGrabMenu();
+            //}
 
-            Game1.activeClickableMenu = _itemGrabMenu;
+            //Game1.activeClickableMenu = _itemGrabMenu;
         }
 
         public override void grabItemFromInventory(Item item, Farmer who)
@@ -173,13 +171,13 @@ namespace MegaStorage.Framework.Models
                 addedItem = who.addItemToInventory(addedItem);
 
             clearNulls();
+
+            if (MegaStorageMod.ActiveItemGrabMenu is null)
+                Game1.activeClickableMenu = CreateItemGrabMenu();
+            MegaStorageMod.ActiveItemGrabMenu.heldItem = addedItem;
+
             var id = !(Game1.activeClickableMenu.currentlySnappedComponent is null)
                 ? Game1.activeClickableMenu.currentlySnappedComponent.myID : -1;
-            if (_itemGrabMenu == null)
-                _itemGrabMenu = CreateItemGrabMenu();
-
-            _itemGrabMenu.heldItem = addedItem;
-            Game1.activeClickableMenu = _itemGrabMenu;
             if (id == -1)
                 return;
 
@@ -319,7 +317,5 @@ namespace MegaStorage.Framework.Models
                 Utility.drawTinyDigits(Stack, spriteBatch, location + new Vector2(64 - Utility.getWidthOfTinyDigitString(Stack, 3f * scaleSize) + 3f * scaleSize, (float)(64.0 - 18.0 * scaleSize + 2.0)), 3f * scaleSize, 1f, color);
             }
         }
-
-        public CustomItemGrabMenu GetItemGrabMenu() => _itemGrabMenu ??= CreateItemGrabMenu();
     }
 }

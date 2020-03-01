@@ -5,17 +5,14 @@ namespace MegaStorage.Framework.Models
 {
     public class SuperMagicChest : CustomChest
     {
+        public override int Capacity => SaveManager.MainChest == this ? int.MaxValue : 0;
         public SuperMagicChest(Vector2 tileLocation)
             : base(
                 ChestType.SuperMagicChest,
                 tileLocation)
         {
             name = "Super Magic Chest";
-            Capacity = int.MaxValue;
             EnableRemoteStorage = true;
-
-            if (SaveManager.MainChest is null)
-                SaveManager.MainChest = this;
         }
     }
 }

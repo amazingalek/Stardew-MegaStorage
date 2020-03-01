@@ -72,6 +72,8 @@ namespace MegaStorage.Framework.Persistence
                     var pos = placedChest.Key;
                     var customChest = placedChest.Value;
                     MegaStorageMod.ModMonitor.VerboseLog($"Loading Chest at: {location.Name}: {customChest.Name} ({pos})");
+                    if (mainChest?.LocationName == location.NameOrUniqueName && mainChestPos == pos)
+                        MainChest = customChest;
                     location.objects[placedChest.Key] = customChest;
                     PlacedChests.Add(new Tuple<GameLocation, Vector2>(location, pos), customChest);
                 }
@@ -233,13 +235,12 @@ namespace MegaStorage.Framework.Persistence
                 .Single(l => (l.uniqueName?.Value ?? l.Name) == locationName);
             if (location is null
                 || !location.objects.ContainsKey(pos)
-                || !(location.objects[pos] is Chest chest)
-                || !(chest.items[index] is Chest customChest))
+                || !(location.objects[pos] is Chest chest))
             {
                 return;
             }
 
-            chest.items[index] = customChest.items[index].ToObject(chestType);
+            chest.items[index] = chest.items[index].ToObject(chestType);
         }
     }
 }

@@ -10,10 +10,16 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MegaStorage.Framework.Persistence;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI
 {
+    internal enum InventoryType
+    {
+        Player = 0,
+        Chest = 1
+    }
     public class CustomItemGrabMenu : ItemGrabMenu
     {
         /*********
@@ -32,6 +38,11 @@ namespace MegaStorage.Framework.UI
             {"Fishing", new Rectangle(640, 64, 16, 16)},
             {"Misc", new Rectangle(672, 80, 16, 16)}
         };
+
+        internal CustomChest ActiveChest { get; private set; }
+
+        internal CustomClickableTextureComponent StarButton;
+
         internal Rectangle GetItemsToGrabMenuBounds => _itemsToGrabMenu.Bounds;
         internal Rectangle GetInventoryBounds => _inventory.Bounds;
         internal Vector2 GetItemsToGrabMenuDimensions => _itemsToGrabMenu.Dimensions;
@@ -81,15 +92,20 @@ namespace MegaStorage.Framework.UI
                 xPositionOnScreen = 0;
 
             _customChest = customChest;
+            ActiveChest = !_customChest.EnableRemoteStorage || SaveManager.MainChest == _customChest
+                ? _customChest
+                : SaveManager.MainChest;
             _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
-            _behaviorFunction =
-                MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
-            _behaviorFunction.SetValue(customChest.grabItemFromInventory);
-            behaviorOnItemGrab = customChest.grabItemFromChest;
+            _behaviorFunction = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
+            _behaviorFunction.SetValue(ActiveChest.grabItemFromInventory);
+            behaviorOnItemGrab = ActiveChest.grabItemFromChest;
             playRightClickSound = true;
             allowRightClick = true;
 
             allClickableComponents = new List<ClickableComponent>();
+
+            Game1.player.items.OnElementChanged += Inventory_Changed;
+            ActiveChest.items.OnElementChanged += Items_Changed;
 
             SetupItemsMenu();
             SetupInventoryMenu();
@@ -173,7 +189,11 @@ namespace MegaStorage.Framework.UI
             _customChest.playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
 
-            if (heldItem is null)
+            if (_customChest.EnableRemoteStorage && SaveManager.MainChest is null)
+            {
+                // Cannot use chest
+            }
+            else if (heldItem is null)
             {
                 heldItem = _itemsToGrabMenu.leftClick(x, y, heldItem, false);
                 if (!(heldItem is null))
@@ -271,7 +291,11 @@ namespace MegaStorage.Framework.UI
             }
 
             heldItem = _inventory.rightClick(x, y, heldItem, playSound && playRightClickSound);
-            if (heldItem is null)
+            if (_customChest.EnableRemoteStorage && SaveManager.MainChest is null)
+            {
+                // Cannot use chest
+            }
+            else if (heldItem is null)
             {
                 heldItem = _itemsToGrabMenu.rightClick(x, y, heldItem, false);
                 if (!(heldItem is null))
@@ -458,13 +482,35 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeVisibleItemsRefreshed(this, CustomChestEventArgs);
         }
 
-        // Draw Actions
+        /*********
+        ** Draw
+        *********/
+        /// <summary>
+        /// Draws the Category tab and indents active category
+        /// </summary>
+        /// <param name="b">The SpriteBatch to draw to</param>
+        /// <param name="clickableComponent">The category being drawn</param>
         internal void DrawCategory(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
         {
             if (clickableComponent is ChestCategory chestCategory)
                 chestCategory.Draw(b, chestCategory.Equals(_itemsToGrabMenu.SelectedCategory));
         }
 
+        /// <summary>
+        /// Draws the Star Button and gray out if inactive
+        /// </summary>
+        /// <param name="b">The SpriteBatch to draw to</param>
+        /// <param name="clickableComponent">The category being drawn</param>
+        internal void DrawStarButton(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
+        {
+            clickableComponent.draw(b, SaveManager.MainChest == _customChest ? Color.White : Color.Gray * 0.8f, (float) (0.860000014305115 + clickableComponent.bounds.Y / 20000.0));
+        }
+
+        /// <summary>
+        /// Draws the Trash Can and the lid
+        /// </summary>
+        /// <param name="b">The SpriteBatch to draw to</param>
+        /// <param name="clickableComponent">The trash can being drawn</param>
         internal void DrawTrashCan(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
         {
             clickableComponent.draw(b);
@@ -480,7 +526,13 @@ namespace MegaStorage.Framework.UI
                 0.86f);
         }
 
-        // Left Click Actions
+        /*********
+        ** Left Click
+        *********/
+        /// <summary>
+        /// Toggles the Chest Color Picker on/off
+        /// </summary>
+        /// <param name="clickableComponent">The toggle button that was clicked</param>
         internal void ClickColorPickerToggleButton(CustomClickableTextureComponent clickableComponent = null)
         {
             Game1.player.showChestColorPicker = !Game1.player.showChestColorPicker;
@@ -489,6 +541,10 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeColorPickerToggleButtonClicked(this, CustomChestEventArgs);
         }
 
+        /// <summary>
+        /// Fills chest inventory from player inventory for items that stack
+        /// </summary>
+        /// <param name="clickableComponent">The fill button that was clicked</param>
         internal void ClickFillStacksButton(CustomClickableTextureComponent clickableComponent = null)
         {
             MegaStorageApi.InvokeBeforeFillStacksButtonClicked(this, CustomChestEventArgs);
@@ -498,6 +554,10 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeAfterFillStacksButtonClicked(this, CustomChestEventArgs);
         }
 
+        /// <summary>
+        /// Sorts chest inventory
+        /// </summary>
+        /// <param name="clickableComponent">The organize button that was clicked</param>
         internal void ClickOrganizeButton(CustomClickableTextureComponent clickableComponent = null)
         {
             MegaStorageApi.InvokeBeforeOrganizeButtonClicked(this, CustomChestEventArgs);
@@ -506,6 +566,56 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeAfterOrganizeButtonClicked(this, CustomChestEventArgs);
         }
 
+        /// <summary>
+        /// Makes this the main chest for remote storage
+        /// </summary>
+        /// <param name="clickableComponent">The star button that was clicked</param>
+        internal void ClickStarButton(CustomClickableTextureComponent clickableComponent = null)
+        {
+            MegaStorageApi.InvokeBeforeStarButtonClicked(this, CustomChestEventArgs);
+            if (SaveManager.MainChest == _customChest)
+            {
+                if (_itemsToGrabMenu.actualInventory.Count > 0)
+                {
+                    // Wiggle
+                }
+                else
+                {
+                    // UnAssign Main Chest
+                    SaveManager.MainChest = null;
+                    clickableComponent.sourceRect = CommonHelper.StarButtonInactive;
+                    behaviorOnItemGrab = null;
+                    _behaviorFunction.SetValue(null);
+                }
+            }
+            else
+            {
+                // Move items from main chest to this chest
+                ActiveChest.items.OnElementChanged -= Items_Changed;
+                _customChest.items.CopyFrom(SaveManager.MainChest.items);
+                SaveManager.MainChest.items.Clear();
+
+                // Assign Main Chest to Current Chest
+                SaveManager.MainChest = _customChest;
+                ActiveChest = _customChest;
+                ActiveChest.items.OnElementChanged += Items_Changed;
+                clickableComponent.sourceRect = CommonHelper.StarButtonActive;
+                
+                // Update behavior functions
+                behaviorOnItemGrab = ActiveChest.grabItemFromChest;
+                _behaviorFunction.SetValue(ActiveChest.grabItemFromInventory);
+
+                // Reassign top inventory
+                _itemsToGrabMenu.actualInventory = ActiveChest.items;
+                _itemsToGrabMenu.RefreshItems();
+            }
+            MegaStorageApi.InvokeAfterStarButtonClicked(this, CustomChestEventArgs);
+        }
+
+        /// <summary>
+        /// Exits the chest menu
+        /// </summary>
+        /// <param name="clickableComponent">The ok button that was clicked</param>
         internal void ClickOkButton(CustomClickableTextureComponent clickableComponent = null)
         {
             MegaStorageApi.InvokeBeforeOkButtonClicked(this, CustomChestEventArgs);
@@ -516,6 +626,10 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeAfterOkButtonClicked(this, CustomChestEventArgs);
         }
 
+        /// <summary>
+        /// Trashes the currently held item
+        /// </summary>
+        /// <param name="clickableComponent">The trash can that was clicked</param>
         internal void ClickTrashCan(CustomClickableTextureComponent clickableComponent = null)
         {
             MegaStorageApi.InvokeBeforeTrashCanClicked(this, CustomChestEventArgs);
@@ -526,6 +640,10 @@ namespace MegaStorage.Framework.UI
             MegaStorageApi.InvokeAfterTrashCanClicked(this, CustomChestEventArgs);
         }
 
+        /// <summary>
+        /// Switches the chest menu's currently selected category
+        /// </summary>
+        /// <param name="categoryName">The name of the category to switch to</param>
         internal void ClickCategoryButton(string categoryName)
         {
             var clickableComponent = allClickableComponents
@@ -534,6 +652,10 @@ namespace MegaStorage.Framework.UI
             ClickCategoryButton(clickableComponent);
         }
 
+        /// <summary>
+        /// Switches the chest menu's currently selected category
+        /// </summary>
+        /// <param name="clickableComponent">The category button that was clicked</param>
         internal void ClickCategoryButton(CustomClickableTextureComponent clickableComponent)
         {
             MegaStorageApi.InvokeBeforeCategoryChanged(this, CustomChestEventArgs);
@@ -541,7 +663,15 @@ namespace MegaStorage.Framework.UI
                 _itemsToGrabMenu.SelectedCategory = chestCategory;
             MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
         }
-        // Scroll Actions
+
+        /*********
+        ** Scroll
+        *********/
+        /// <summary>
+        /// Scrolls the chest menu's currently selected category
+        /// </summary>
+        /// <param name="direction">The direction to scroll in</param>
+        /// <param name="clickableComponent">The category that is being hovered over</param>
         internal void ScrollCategory(int direction, CustomClickableTextureComponent clickableComponent = null)
         {
             ChestCategory savedCategory = null;
@@ -571,7 +701,16 @@ namespace MegaStorage.Framework.UI
             }
             MegaStorageApi.InvokeAfterCategoryChanged(this, CustomChestEventArgs);
         }
-        // Hover Actions
+
+        /*********
+        ** Hover
+        *********/
+        /// <summary>
+        /// Zooms in on the hovered component
+        /// </summary>
+        /// <param name="x">The X-coordinate of the mouse</param>
+        /// <param name="y">The Y-coordinate of the mouse</param>
+        /// <param name="clickableComponent">The item being hovered over</param>
         internal void HoverZoom(int x, int y, CustomClickableTextureComponent clickableComponent)
         {
             clickableComponent.scale = clickableComponent.containsPoint(x, y)
@@ -579,6 +718,12 @@ namespace MegaStorage.Framework.UI
                 : Math.Max(1f, clickableComponent.scale - 0.05f);
         }
 
+        /// <summary>
+        /// Zooms in on the hovered component (scaled up by Game1.pixelZoom)
+        /// </summary>
+        /// <param name="x">The X-coordinate of the mouse</param>
+        /// <param name="y">The Y-coordinate of the mouse</param>
+        /// <param name="clickableComponent">The item being hovered over</param>
         internal void HoverPixelZoom(int x, int y, CustomClickableTextureComponent clickableComponent)
         {
             clickableComponent.scale = clickableComponent.containsPoint(x, y)
@@ -586,6 +731,12 @@ namespace MegaStorage.Framework.UI
                 : Math.Max(Game1.pixelZoom * 1f, clickableComponent.scale - 0.05f);
         }
 
+        /// <summary>
+        /// Rotates the trash can lid while hovering over the trash can
+        /// </summary>
+        /// <param name="x">The X-coordinate of the mouse</param>
+        /// <param name="y">The Y-coordinate of the mouse</param>
+        /// <param name="clickableComponent">The trash can being hovered over</param>
         internal void HoverTrashCan(int x, int y, CustomClickableTextureComponent clickableComponent)
         {
             if (!clickableComponent.containsPoint(x, y))
@@ -607,9 +758,15 @@ namespace MegaStorage.Framework.UI
         /*********
         ** Private methods
         *********/
+        /// <summary>
+        /// Configures all UI elements related to the top menu
+        /// </summary>
         private void SetupItemsMenu()
         {
-            _itemsToGrabMenu = new CustomInventoryMenu(this, Offset, _customChest);
+            _itemsToGrabMenu = new CustomInventoryMenu(
+                this,
+                Offset,
+                InventoryType.Chest);
             ItemsToGrabMenu = _itemsToGrabMenu;
 
             // Inventory (Clickable Component)
@@ -754,6 +911,28 @@ namespace MegaStorage.Framework.UI
             };
             allClickableComponents.Add(organizeButton);
 
+            // Star
+            if (_customChest.EnableRemoteStorage)
+            {
+                StarButton = new CustomClickableTextureComponent(
+                    "starButton",
+                    _itemsToGrabMenu,
+                    new Vector2(-Game1.tileSize, -Game1.tileSize),
+                    Game1.mouseCursors,
+                    SaveManager.MainChest == _customChest
+                        ? CommonHelper.StarButtonActive
+                        : CommonHelper.StarButtonInactive)
+                {
+                    myID = 239864,
+                    downNeighborID = 239865,
+                    rightNeighborID = 4343,
+                    DrawAction = DrawStarButton,
+                    LeftClickAction = ClickStarButton,
+                    HoverAction = HoverPixelZoom
+                };
+                allClickableComponents.Add(StarButton);
+            }
+
             // Categories
             if (!_customChest.EnableCategories)
                 return;
@@ -789,7 +968,7 @@ namespace MegaStorage.Framework.UI
                 };
 
                 categoryCC.myID = index + 239865;
-                categoryCC.upNeighborID = index > 0 ? index + 239864 : 4343;
+                categoryCC.upNeighborID = index > 0 || _customChest.EnableRemoteStorage ? index + 239864 : 4343;
                 categoryCC.downNeighborID = index < Categories.Count - 1 ? index + 239866 : 1;
                 categoryCC.rightNeighborID = index switch
                 {
@@ -810,12 +989,15 @@ namespace MegaStorage.Framework.UI
             }
             _itemsToGrabMenu.SelectedCategory = allClickableComponents.OfType<ChestCategory>().First();
         }
+        /// <summary>
+        /// Configures all the UI elements related to the bottom menu
+        /// </summary>
         private void SetupInventoryMenu()
         {
-            _inventory = new CustomInventoryMenu(this, new Vector2(0, _itemsToGrabMenu.height) + Offset)
-            {
-                showGrayedOutSlots = true
-            };
+            _inventory = new CustomInventoryMenu(
+                this,
+                new Vector2(0, _itemsToGrabMenu.height) + Offset,
+                InventoryType.Player);
             inventory = _inventory;
 
             // Inventory (Clickable Component)
@@ -878,6 +1060,18 @@ namespace MegaStorage.Framework.UI
                 myID = 107
             };
             allClickableComponents.Add(dropItemInvisibleButton);
+        }
+
+        private void Items_Changed(Netcode.NetList<Item, Netcode.NetRef<Item>> list, int index, Item oldValue, Item newValue)
+        {
+            _itemsToGrabMenu.RefreshItems();
+            MegaStorageApi.InvokeVisibleItemsRefreshed(this, CustomChestEventArgs);
+        }
+
+        private void Inventory_Changed(Netcode.NetList<Item, Netcode.NetRef<Item>> list, int index, Item oldValue, Item newValue)
+        {
+            _inventory.RefreshItems();
+            MegaStorageApi.InvokeVisibleItemsRefreshed(this, CustomChestEventArgs);
         }
 
         private static TemporaryAnimatedSprite CreatePoof(int x, int y) => new TemporaryAnimatedSprite(

@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
-using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -26,6 +25,11 @@ namespace MegaStorage.Framework.UI
                 RefreshItems();
             }
         }
+
+        public int MaxItems =>
+            _inventoryType == InventoryType.Player
+                ? Game1.player.MaxItems
+                : _parentMenu.ActiveChest.Capacity;
         public const int ItemsPerRow = 12;
         public int MaxRows;
         public IList<Item> VisibleItems;
@@ -33,8 +37,9 @@ namespace MegaStorage.Framework.UI
         internal Vector2 Position => new Vector2(xPositionOnScreen, yPositionOnScreen);
         internal Vector2 Dimensions => new Vector2(width, height);
 
-        protected CustomItemGrabMenu ParentMenu;
-        protected Vector2 Offset;
+        private readonly CustomItemGrabMenu _parentMenu;
+        private readonly Vector2 _offset;
+        private readonly InventoryType _inventoryType;
 
         // Padding for Items Grid
         private const int XPadding = 56;
@@ -48,19 +53,23 @@ namespace MegaStorage.Framework.UI
         /*********
         ** Public methods
         *********/
-        public CustomInventoryMenu(CustomItemGrabMenu parentMenu, Vector2 offset, Chest chest = null)
+        public CustomInventoryMenu(CustomItemGrabMenu parentMenu, Vector2 offset, InventoryType inventoryType)
             : base(
-                parentMenu.xPositionOnScreen + (int)offset.X,
-                parentMenu.yPositionOnScreen + (int)offset.Y,
-                false, chest?.items ?? Game1.player.Items,
+                parentMenu.xPositionOnScreen + (int) offset.X,
+                parentMenu.yPositionOnScreen + (int) offset.Y,
+                false,
+                inventoryType == InventoryType.Player ? Game1.player.Items : parentMenu.ActiveChest.items,
                 InventoryMenu.highlightAllItems,
-                !(chest is null) ? 6 * ItemsPerRow : Math.Max(36, Game1.player.MaxItems),
-                !(chest is null) ? 6 : Math.Max(36, Game1.player.MaxItems) / ItemsPerRow)
+                inventoryType == InventoryType.Player ? Math.Max(36, Game1.player.MaxItems) : 6 * ItemsPerRow,
+                inventoryType == InventoryType.Player ? Math.Max(36, Game1.player.MaxItems) / ItemsPerRow : 6)
         {
-            ParentMenu = parentMenu;
-            Offset = offset;
+            _parentMenu = parentMenu;
+            _offset = offset;
+            _inventoryType = inventoryType;
+
             width = (Game1.tileSize + horizontalGap) * ItemsPerRow + XPadding * 2;
             height = (Game1.tileSize + verticalGap) * rows + YPadding * 2;
+            showGrayedOutSlots = true;
 
             // Up Arrow
             UpArrow = new ClickableTextureComponent(
@@ -98,16 +107,6 @@ namespace MegaStorage.Framework.UI
                 visible = _currentRow <= MaxRows - rows
             };
 
-            if (!(chest is null))
-                chest.items.OnElementChanged += Items_OnElementChanged;
-            else
-                Game1.player.items.OnElementChanged += Items_OnElementChanged;
-
-            RefreshItems();
-        }
-
-        private void Items_OnElementChanged(Netcode.NetList<Item, Netcode.NetRef<Item>> list, int index, Item oldValue, Item newValue)
-        {
             RefreshItems();
         }
 
@@ -136,7 +135,7 @@ namespace MegaStorage.Framework.UI
                     SpriteEffects.None,
                     0.5f);
 
-                if (showGrayedOutSlots && slot >= Game1.player.MaxItems)
+                if (slot >= MaxItems)
                 {
                     b.Draw(
                         Game1.menuTexture,
@@ -201,8 +200,8 @@ namespace MegaStorage.Framework.UI
 
         public void GameWindowSizeChanged()
         {
-            xPositionOnScreen = ParentMenu.xPositionOnScreen + (int)Offset.X;
-            yPositionOnScreen = ParentMenu.yPositionOnScreen + (int)Offset.Y;
+            xPositionOnScreen = _parentMenu.xPositionOnScreen + (int)_offset.X;
+            yPositionOnScreen = _parentMenu.yPositionOnScreen + (int)_offset.Y;
             UpArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize + 8;
             UpArrow.bounds.Y = yPositionOnScreen + 36;
             DownArrow.bounds.X = xPositionOnScreen + width - Game1.tileSize + 8;

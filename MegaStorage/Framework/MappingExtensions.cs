@@ -11,13 +11,13 @@ namespace MegaStorage.Framework
     public static class MappingExtensions
     {
         public static Item ToObject(this Item item) =>
-            item is CustomChest customChest
-                ? new SObject(customChest.TileLocation, customChest.ParentSheetIndex) { Stack = customChest.Stack }
+            item is CustomChest chest
+                ? new SObject(chest.TileLocation, chest.ParentSheetIndex) { Stack = chest.Stack }
                 : item;
 
         public static Item ToObject(this Item item, ChestType chestType) =>
-            item is CustomChest customChest
-                ? new SObject(customChest.TileLocation, CustomChestFactory.CustomChests[chestType]) { Stack = customChest.Stack }
+            item is Chest chest
+                ? new SObject(chest.TileLocation, CustomChestFactory.CustomChests[chestType]) { Stack = chest.Stack }
                 : item;
 
         public static Chest ToChest(this Item item)

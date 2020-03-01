@@ -23,6 +23,7 @@ namespace MegaStorage
         internal static int LargeChestId { get; private set; } = -1;
         internal static int MagicChestId { get; private set; } = -1;
         internal static int SuperMagicChestId { get; private set; } = -1;
+        internal static CustomItemGrabMenu ActiveItemGrabMenu { get; private set; }
         /*********
         ** Public methods
         *********/
@@ -101,11 +102,17 @@ namespace MegaStorage
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
             MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
-            if (e.NewMenu is CustomItemGrabMenu)
+            if (e.NewMenu is CustomItemGrabMenu customItemGrabMenu)
+            {
+                ActiveItemGrabMenu = customItemGrabMenu;
                 return;
+            }
+            
             if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest))
                 return;
-            Game1.activeClickableMenu = customChest.GetItemGrabMenu();
+
+            ActiveItemGrabMenu = customChest.CreateItemGrabMenu();
+            Game1.activeClickableMenu = ActiveItemGrabMenu;
         }
 
         private static void OnWindowResized(object sender, WindowResizedEventArgs e)
