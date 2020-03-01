@@ -40,9 +40,9 @@ namespace MegaStorage.Framework
             return chest;
         }
 
-        public static CustomChest ToCustomChest(this Item item, Vector2? tileLocation = null) =>
-            item.ToCustomChest(CustomChestFactory.CustomChests.FirstOrDefault(x => x.Value == item.ParentSheetIndex).Key, tileLocation ?? Vector2.Zero);
-        public static CustomChest ToCustomChest(this Item item, ChestType chestType, Vector2? tileLocation = null)
+        public static CustomChest ToCustomChest(this Item item, Vector2 tileLocation) =>
+            item.ToCustomChest(CustomChestFactory.CustomChests.FirstOrDefault(x => x.Value == item.ParentSheetIndex).Key, tileLocation);
+        public static CustomChest ToCustomChest(this Item item, ChestType chestType, Vector2 tileLocation)
         {
             if (!(item is SObject obj))
                 throw new InvalidOperationException($"Cannot convert {item?.Name} to CustomChest");
@@ -61,5 +61,13 @@ namespace MegaStorage.Framework
 
             return customChest;
         }
+
+        public static DeserializedChest ToDeserializedChest(this CustomChest customChest, string locationName) =>
+            new DeserializedChest()
+            {
+                LocationName = locationName,
+                PositionX = customChest.TileLocation.X,
+                PositionY = customChest.TileLocation.Y
+            };
     }
 }

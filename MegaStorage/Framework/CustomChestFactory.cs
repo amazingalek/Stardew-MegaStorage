@@ -25,15 +25,12 @@ namespace MegaStorage.Framework
             && obj.bigCraftable.Value
             && CustomChests.Any(x => x.Value == obj.ParentSheetIndex);
 
-        public static CustomChest Create(int id, Vector2? tileLocation = null) =>
-            Create(CustomChests.FirstOrDefault(x => x.Value == id).Key, tileLocation ?? Vector2.Zero);
-
-        public static CustomChest Create(ChestType chestType, Vector2? tileLocation = null) =>
+        public static CustomChest Create(ChestType chestType, Vector2 tileLocation) =>
             chestType switch
             {
-                ChestType.LargeChest => new LargeChest(tileLocation ?? Vector2.Zero),
-                ChestType.MagicChest => new MagicChest(tileLocation ?? Vector2.Zero),
-                ChestType.SuperMagicChest => new SuperMagicChest(tileLocation ?? Vector2.Zero),
+                ChestType.LargeChest => new LargeChest(tileLocation),
+                ChestType.MagicChest => new MagicChest(tileLocation),
+                ChestType.SuperMagicChest => new SuperMagicChest(tileLocation),
                 _ => throw new InvalidOperationException("Invalid ChestType")
             };
 
