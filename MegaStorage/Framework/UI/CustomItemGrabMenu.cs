@@ -91,7 +91,7 @@ namespace MegaStorage.Framework.UI
                 xPositionOnScreen = 0;
 
             ActualChest = actualChest;
-            ActiveChest = !ActualChest.EnableRemoteStorage || StateManager.MainChest == ActualChest
+            ActiveChest = !ActualChest.EnableRemoteStorage || StateManager.MainChest.Equals(ActualChest)
                 ? ActualChest
                 : StateManager.MainChest;
             allClickableComponents = new List<ClickableComponent>();
@@ -481,6 +481,20 @@ namespace MegaStorage.Framework.UI
 
         internal void RefreshItems()
         {
+            if (ActualChest.EnableRemoteStorage && !(ActiveChest is null) && !ActiveChest.Equals(StateManager.MainChest))
+            {
+                // ReSync to Main Chest
+                ActiveChest.items.OnElementChanged -= Items_Changed;
+                ActiveChest = StateManager.MainChest;
+                ActiveChest.items.OnElementChanged += Items_Changed;
+
+                // Update behavior functions
+                behaviorOnItemGrab = ActiveChest.grabItemFromChest;
+                _behaviorFunction.SetValue(ActiveChest.grabItemFromInventory);
+
+                // Reassign top inventory
+                _itemsToGrabMenu.actualInventory = ActiveChest.items;
+            }
             _itemsToGrabMenu.RefreshItems();
             _inventory.RefreshItems();
             MegaStorageApi.InvokeVisibleItemsRefreshed(this, CustomChestEventArgs);
@@ -507,7 +521,10 @@ namespace MegaStorage.Framework.UI
         /// <param name="clickableComponent">The category being drawn</param>
         internal void DrawStarButton(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
         {
-            clickableComponent.draw(b, StateManager.MainChest == ActualChest ? Color.White : Color.Gray * 0.8f, (float)(0.860000014305115 + clickableComponent.bounds.Y / 20000.0));
+            clickableComponent.sourceRect = ActualChest.Equals(ActiveChest)
+                ? CommonHelper.StarButtonActive
+                : CommonHelper.StarButtonInactive;
+            clickableComponent.draw(b, ActualChest.Equals(ActiveChest) ? Color.White : Color.Gray * 0.8f, (float)(0.860000014305115 + clickableComponent.bounds.Y / 20000.0));
         }
 
         /// <summary>
@@ -580,38 +597,22 @@ namespace MegaStorage.Framework.UI
                 return;
 
             MegaStorageApi.InvokeBeforeStarButtonClicked(this, CustomChestEventArgs);
-            if (StateManager.MainChest == ActualChest)
+            if (ActiveChest is null || !ActualChest.Equals(ActiveChest))
             {
-                if (_itemsToGrabMenu.actualInventory.Count > 0)
-                {
-                    // Wiggle
-                }
-                else
-                {
-                    // UnAssign Main Chest
-                    ActiveChest.items.OnElementChanged -= Items_Changed;
-                    StateManager.MainChest = null;
-                    ActiveChest = null;
-                    clickableComponent.sourceRect = CommonHelper.StarButtonInactive;
-                    behaviorOnItemGrab = null;
-                    _behaviorFunction.SetValue(null);
-                }
-            }
-            else
-            {
-                if (!(StateManager.MainChest is null))
+                clickableComponent.sourceRect = CommonHelper.StarButtonActive;
+
+                if (!(ActiveChest is null))
                 {
                     // Move items from main chest to this chest
                     ActiveChest.items.OnElementChanged -= Items_Changed;
                     ActualChest.items.CopyFrom(StateManager.MainChest.items);
-                    StateManager.MainChest.items.Clear();
+                    ActiveChest.items.Clear();
                 }
 
                 // Assign Main Chest to Current Chest
                 StateManager.MainChest = ActualChest;
                 ActiveChest = ActualChest;
                 ActiveChest.items.OnElementChanged += Items_Changed;
-                clickableComponent.sourceRect = CommonHelper.StarButtonActive;
 
                 // Update behavior functions
                 behaviorOnItemGrab = ActiveChest.grabItemFromChest;

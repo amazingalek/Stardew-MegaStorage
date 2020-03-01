@@ -12,12 +12,18 @@ namespace MegaStorage.Framework
     {
         public static Item ToObject(this Item item) =>
             item is CustomChest chest
-                ? new SObject(chest.TileLocation, chest.ParentSheetIndex) { Stack = chest.Stack }
+                ? new SObject(chest.TileLocation, chest.ParentSheetIndex)
+                {
+                    Stack = chest.Stack
+                }
                 : item;
 
         public static Item ToObject(this Item item, ChestType chestType) =>
             item is Chest chest
-                ? new SObject(chest.TileLocation, CustomChestFactory.CustomChests[chestType]) { Stack = chest.Stack }
+                ? new SObject(chest.TileLocation, CustomChestFactory.CustomChests[chestType])
+                {
+                    Stack = chest.Stack
+                }
                 : item;
 
         public static Chest ToChest(this Item item)
@@ -50,6 +56,7 @@ namespace MegaStorage.Framework
             var customChest = CustomChestFactory.Create(chestType, tileLocation);
             customChest.name = obj.name;
             customChest.Stack = obj.Stack;
+            customChest.TileLocation = tileLocation;
 
             if (!(obj is Chest chest))
                 return customChest;

@@ -104,8 +104,6 @@ namespace MegaStorage.Framework.Persistence
                 MegaStorageMod.ModMonitor.VerboseLog($"ReAddCustomChests in {location.Name}: {customChest.Name} ({pos})");
                 location.objects[pos] = customChest;
             }
-
-            StateManager.SendMainChestMessage();
         }
     }
 }
