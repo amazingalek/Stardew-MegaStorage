@@ -24,6 +24,7 @@ namespace MegaStorage
         internal static int MagicChestId { get; private set; } = -1;
         internal static int SuperMagicChestId { get; private set; } = -1;
         internal static CustomItemGrabMenu ActiveItemGrabMenu { get; private set; }
+
         /*********
         ** Public methods
         *********/
@@ -74,6 +75,9 @@ namespace MegaStorage
                 JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "SuperMagicChest"));
 
             JsonAssets.IdsAssigned += OnIdsAssigned;
+            ItemPatcher.Start();
+            SaveManager.Start();
+            StateManager.Start();
         }
 
         private static void OnIdsAssigned(object sender, EventArgs e)
@@ -95,19 +99,17 @@ namespace MegaStorage
             ModMonitor.Log($"Large Chest Loaded with ID {LargeChestId}.");
             ModMonitor.Log($"Magic Chest Loaded with ID {MagicChestId}.");
             ModMonitor.Log($"Super Magic Chest Loaded with ID {SuperMagicChestId}.");
-            ItemPatcher.Start();
-            SaveManager.Start();
         }
 
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
         {
-            MegaStorageMod.ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
+            ModMonitor.VerboseLog("New menu: " + e.NewMenu?.GetType());
             if (e.NewMenu is CustomItemGrabMenu customItemGrabMenu)
             {
                 ActiveItemGrabMenu = customItemGrabMenu;
                 return;
             }
-            
+
             if (!(e.NewMenu is ItemGrabMenu itemGrabMenu) || !(itemGrabMenu.context is CustomChest customChest))
                 return;
 

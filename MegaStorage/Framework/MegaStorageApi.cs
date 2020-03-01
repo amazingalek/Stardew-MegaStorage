@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Menus;
+using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 
@@ -121,5 +122,6 @@ namespace MegaStorage.Framework
         public IList<Item> AllItems { get; set; }
         public string CurrentCategory { get; set; }
         public Item HeldItem { get; set; }
+        public Chest RemoteChest { get; set; }
     }
 }

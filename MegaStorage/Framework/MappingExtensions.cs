@@ -63,11 +63,13 @@ namespace MegaStorage.Framework
         }
 
         public static DeserializedChest ToDeserializedChest(this CustomChest customChest, string locationName) =>
-            new DeserializedChest()
-            {
-                LocationName = locationName,
-                PositionX = customChest.TileLocation.X,
-                PositionY = customChest.TileLocation.Y
-            };
+            !(customChest is null)
+                ? new DeserializedChest()
+                {
+                    LocationName = locationName,
+                    PositionX = customChest.TileLocation.X,
+                    PositionY = customChest.TileLocation.Y
+                }
+                : throw new NullReferenceException("customChest is null");
     }
 }

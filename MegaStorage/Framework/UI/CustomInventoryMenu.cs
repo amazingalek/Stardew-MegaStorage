@@ -29,7 +29,8 @@ namespace MegaStorage.Framework.UI
         public int MaxItems =>
             _inventoryType == InventoryType.Player
                 ? Game1.player.MaxItems
-                : _parentMenu.ActiveChest.Capacity;
+                : _parentMenu.ActiveChest?.Capacity
+                ?? 0;
         public const int ItemsPerRow = 12;
         public int MaxRows;
         public IList<Item> VisibleItems;
@@ -55,10 +56,10 @@ namespace MegaStorage.Framework.UI
         *********/
         public CustomInventoryMenu(CustomItemGrabMenu parentMenu, Vector2 offset, InventoryType inventoryType)
             : base(
-                parentMenu.xPositionOnScreen + (int) offset.X,
-                parentMenu.yPositionOnScreen + (int) offset.Y,
+                parentMenu.xPositionOnScreen + (int)offset.X,
+                parentMenu.yPositionOnScreen + (int)offset.Y,
                 false,
-                inventoryType == InventoryType.Player ? Game1.player.Items : parentMenu.ActiveChest.items,
+                inventoryType == InventoryType.Player ? Game1.player.Items : parentMenu.ActiveChest?.items,
                 InventoryMenu.highlightAllItems,
                 inventoryType == InventoryType.Player ? Math.Max(36, Game1.player.MaxItems) : 6 * ItemsPerRow,
                 inventoryType == InventoryType.Player ? Math.Max(36, Game1.player.MaxItems) / ItemsPerRow : 6)

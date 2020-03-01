@@ -17,15 +17,15 @@ namespace furyx639.Common
         public static Rectangle StarButtonActive => new Rectangle(310, 392, 16, 16);
         public static Rectangle StarButtonInactive => new Rectangle(294, 392, 16, 16);
         // Dialogue Box Tiles
-        public static Rectangle MenuBackground => CommonHelper.GetTile(1, 2);
-        public static Rectangle MenuBorderTop => CommonHelper.GetTile(2, 0);
-        public static Rectangle MenuBorderRight => CommonHelper.GetTile(3, 2);
-        public static Rectangle MenuBorderBottom => CommonHelper.GetTile(2, 3);
-        public static Rectangle MenuBorderLeft => CommonHelper.GetTile(0, 2);
-        public static Rectangle MenuBorderTopRight => CommonHelper.GetTile(3, 0);
-        public static Rectangle MenuBorderBottomRight => CommonHelper.GetTile(3, 3);
-        public static Rectangle MenuBorderBottomLeft => CommonHelper.GetTile(0, 3);
-        public static Rectangle MenuBorderTopLeft => CommonHelper.GetTile(0, 0);
+        public static Rectangle MenuBackground => GetTile(1, 2);
+        public static Rectangle MenuBorderTop => GetTile(2, 0);
+        public static Rectangle MenuBorderRight => GetTile(3, 2);
+        public static Rectangle MenuBorderBottom => GetTile(2, 3);
+        public static Rectangle MenuBorderLeft => GetTile(0, 2);
+        public static Rectangle MenuBorderTopRight => GetTile(3, 0);
+        public static Rectangle MenuBorderBottomRight => GetTile(3, 3);
+        public static Rectangle MenuBorderBottomLeft => GetTile(0, 3);
+        public static Rectangle MenuBorderTopLeft => GetTile(0, 0);
 
         /*********
         ** Public methods

@@ -1,5 +1,6 @@
 ﻿using furyx639.Common;
 using MegaStorage.Framework.Models;
+using MegaStorage.Framework.Persistence;
 using MegaStorage.Framework.UI.Widgets;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +11,6 @@ using StardewValley.Objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using MegaStorage.Framework.Persistence;
 using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.UI
@@ -40,7 +40,7 @@ namespace MegaStorage.Framework.UI
         };
 
         internal CustomChest ActiveChest { get; private set; }
-
+        internal readonly CustomChest ActualChest;
         internal CustomClickableTextureComponent StarButton;
 
         internal Rectangle GetItemsToGrabMenuBounds => _itemsToGrabMenu.Bounds;
@@ -62,7 +62,6 @@ namespace MegaStorage.Framework.UI
         // Offsets to Color Toggle, Organize, Stack, OK, and Trash
         private static readonly Vector2 RightOffset = new Vector2(24, -32);
 
-        private readonly CustomChest _customChest;
         private CustomInventoryMenu _itemsToGrabMenu;
         private CustomInventoryMenu _inventory;
 
@@ -78,8 +77,8 @@ namespace MegaStorage.Framework.UI
         /*********
         ** Public methods
         *********/
-        public CustomItemGrabMenu(CustomChest customChest)
-            : base(CommonHelper.NonNull(customChest).items, customChest)
+        public CustomItemGrabMenu(CustomChest actualChest)
+            : base(CommonHelper.NonNull(actualChest).items, actualChest)
         {
             initialize(
                 (Game1.viewport.Width - MenuWidth) / 2,
@@ -91,21 +90,26 @@ namespace MegaStorage.Framework.UI
             if (xPositionOnScreen < 0)
                 xPositionOnScreen = 0;
 
-            _customChest = customChest;
-            ActiveChest = !_customChest.EnableRemoteStorage || SaveManager.MainChest == _customChest
-                ? _customChest
-                : SaveManager.MainChest;
-            _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
-            _behaviorFunction = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
-            _behaviorFunction.SetValue(ActiveChest.grabItemFromInventory);
-            behaviorOnItemGrab = ActiveChest.grabItemFromChest;
+            ActualChest = actualChest;
+            ActiveChest = !ActualChest.EnableRemoteStorage || StateManager.MainChest == ActualChest
+                ? ActualChest
+                : StateManager.MainChest;
+            allClickableComponents = new List<ClickableComponent>();
             playRightClickSound = true;
             allowRightClick = true;
 
-            allClickableComponents = new List<ClickableComponent>();
+            _poofReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<TemporaryAnimatedSprite>(this, "poof");
+            _behaviorFunction = MegaStorageMod.Instance.Helper.Reflection.GetField<behaviorOnItemSelect>(this, "behaviorFunction");
 
+#pragma warning disable AvoidNetField // Avoid Netcode types when possible
             Game1.player.items.OnElementChanged += Inventory_Changed;
-            ActiveChest.items.OnElementChanged += Items_Changed;
+#pragma warning restore AvoidNetField // Avoid Netcode types when possible
+            if (!(ActiveChest is null))
+            {
+                _behaviorFunction.SetValue(ActiveChest.grabItemFromInventory);
+                behaviorOnItemGrab = ActiveChest.grabItemFromChest;
+                ActiveChest.items.OnElementChanged += Items_Changed;
+            }
 
             SetupItemsMenu();
             SetupInventoryMenu();
@@ -186,10 +190,10 @@ namespace MegaStorage.Framework.UI
             heldItem = _inventory.leftClick(x, y, heldItem, playSound);
 
             chestColorPicker.receiveLeftClick(x, y);
-            _customChest.playerChoiceColor.Value =
+            ActualChest.playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
 
-            if (_customChest.EnableRemoteStorage && SaveManager.MainChest is null)
+            if (ActualChest.EnableRemoteStorage && StateManager.MainChest is null)
             {
                 // Cannot use chest
             }
@@ -291,7 +295,7 @@ namespace MegaStorage.Framework.UI
             }
 
             heldItem = _inventory.rightClick(x, y, heldItem, playSound && playRightClickSound);
-            if (_customChest.EnableRemoteStorage && SaveManager.MainChest is null)
+            if (ActualChest.EnableRemoteStorage && StateManager.MainChest is null)
             {
                 // Cannot use chest
             }
@@ -401,7 +405,7 @@ namespace MegaStorage.Framework.UI
 
                 ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
                     chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
-                _customChest.playerChoiceColor.Value =
+                ActualChest.playerChoiceColor.Value =
                     chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
             }
             else if (_itemsToGrabMenu.isWithinBounds(mouseX, mouseY))
@@ -503,7 +507,7 @@ namespace MegaStorage.Framework.UI
         /// <param name="clickableComponent">The category being drawn</param>
         internal void DrawStarButton(SpriteBatch b, CustomClickableTextureComponent clickableComponent)
         {
-            clickableComponent.draw(b, SaveManager.MainChest == _customChest ? Color.White : Color.Gray * 0.8f, (float) (0.860000014305115 + clickableComponent.bounds.Y / 20000.0));
+            clickableComponent.draw(b, StateManager.MainChest == ActualChest ? Color.White : Color.Gray * 0.8f, (float)(0.860000014305115 + clickableComponent.bounds.Y / 20000.0));
         }
 
         /// <summary>
@@ -572,8 +576,11 @@ namespace MegaStorage.Framework.UI
         /// <param name="clickableComponent">The star button that was clicked</param>
         internal void ClickStarButton(CustomClickableTextureComponent clickableComponent = null)
         {
+            if (!Context.IsMainPlayer)
+                return;
+
             MegaStorageApi.InvokeBeforeStarButtonClicked(this, CustomChestEventArgs);
-            if (SaveManager.MainChest == _customChest)
+            if (StateManager.MainChest == ActualChest)
             {
                 if (_itemsToGrabMenu.actualInventory.Count > 0)
                 {
@@ -582,7 +589,9 @@ namespace MegaStorage.Framework.UI
                 else
                 {
                     // UnAssign Main Chest
-                    SaveManager.MainChest = null;
+                    ActiveChest.items.OnElementChanged -= Items_Changed;
+                    StateManager.MainChest = null;
+                    ActiveChest = null;
                     clickableComponent.sourceRect = CommonHelper.StarButtonInactive;
                     behaviorOnItemGrab = null;
                     _behaviorFunction.SetValue(null);
@@ -590,17 +599,20 @@ namespace MegaStorage.Framework.UI
             }
             else
             {
-                // Move items from main chest to this chest
-                ActiveChest.items.OnElementChanged -= Items_Changed;
-                _customChest.items.CopyFrom(SaveManager.MainChest.items);
-                SaveManager.MainChest.items.Clear();
+                if (!(StateManager.MainChest is null))
+                {
+                    // Move items from main chest to this chest
+                    ActiveChest.items.OnElementChanged -= Items_Changed;
+                    ActualChest.items.CopyFrom(StateManager.MainChest.items);
+                    StateManager.MainChest.items.Clear();
+                }
 
                 // Assign Main Chest to Current Chest
-                SaveManager.MainChest = _customChest;
-                ActiveChest = _customChest;
+                StateManager.MainChest = ActualChest;
+                ActiveChest = ActualChest;
                 ActiveChest.items.OnElementChanged += Items_Changed;
                 clickableComponent.sourceRect = CommonHelper.StarButtonActive;
-                
+
                 // Update behavior functions
                 behaviorOnItemGrab = ActiveChest.grabItemFromChest;
                 _behaviorFunction.SetValue(ActiveChest.grabItemFromInventory);
@@ -837,7 +849,7 @@ namespace MegaStorage.Framework.UI
                 0,
                 new Chest(true));
             chestColorPicker.colorSelection =
-                chestColorPicker.getSelectionFromColor(_customChest.playerChoiceColor.Value);
+                chestColorPicker.getSelectionFromColor(ActualChest.playerChoiceColor.Value);
             ((Chest)chestColorPicker.itemToDrawColored).playerChoiceColor.Value =
                 chestColorPicker.getColorFromSelection(chestColorPicker.colorSelection);
 
@@ -912,14 +924,14 @@ namespace MegaStorage.Framework.UI
             allClickableComponents.Add(organizeButton);
 
             // Star
-            if (_customChest.EnableRemoteStorage)
+            if (ActualChest.EnableRemoteStorage)
             {
                 StarButton = new CustomClickableTextureComponent(
                     "starButton",
                     _itemsToGrabMenu,
                     new Vector2(-Game1.tileSize, -Game1.tileSize),
                     Game1.mouseCursors,
-                    SaveManager.MainChest == _customChest
+                    StateManager.MainChest == ActualChest
                         ? CommonHelper.StarButtonActive
                         : CommonHelper.StarButtonInactive)
                 {
@@ -934,7 +946,7 @@ namespace MegaStorage.Framework.UI
             }
 
             // Categories
-            if (!_customChest.EnableCategories)
+            if (!ActualChest.EnableCategories)
                 return;
 
             for (var index = 0; index < Categories.Count; ++index)
@@ -968,7 +980,7 @@ namespace MegaStorage.Framework.UI
                 };
 
                 categoryCC.myID = index + 239865;
-                categoryCC.upNeighborID = index > 0 || _customChest.EnableRemoteStorage ? index + 239864 : 4343;
+                categoryCC.upNeighborID = index > 0 || ActualChest.EnableRemoteStorage ? index + 239864 : 4343;
                 categoryCC.downNeighborID = index < Categories.Count - 1 ? index + 239866 : 1;
                 categoryCC.rightNeighborID = index switch
                 {

@@ -27,7 +27,7 @@ namespace MegaStorage.Framework.UI.Widgets
         {
             bounds.X = ParentMenu.xPositionOnScreen + (int)Offset.X + (selected ? SelectedOffset : 0);
             bounds.Y = ParentMenu.yPositionOnScreen + (int)Offset.Y;
-            base.draw(b);
+            draw(b);
         }
         public List<Item> Filter(IList<Item> items) => items.Where(BelongsToCategory).ToList();
         protected virtual bool BelongsToCategory(Item i) => !(i is null) && _categoryIds.Contains(i.Category);

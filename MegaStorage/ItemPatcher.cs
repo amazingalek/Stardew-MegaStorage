@@ -85,16 +85,16 @@ namespace MegaStorage
                 MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
                 var customChest = item.ToCustomChest(pos);
                 e.Location.objects[pos] = customChest;
-                if (!SaveManager.PlacedChests.ContainsKey(key))
-                    SaveManager.PlacedChests.Add(key, customChest);
+                if (!StateManager.PlacedChests.ContainsKey(key))
+                    StateManager.PlacedChests.Add(key, customChest);
                 else
-                    SaveManager.PlacedChests[key] = customChest;
+                    StateManager.PlacedChests[key] = customChest;
             }
             else if (e.Removed.Count() == 1 && item is CustomChest)
             {
                 MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: untrack");
-                if (SaveManager.PlacedChests.ContainsKey(key))
-                    SaveManager.PlacedChests.Remove(new Tuple<GameLocation, Vector2>(e.Location, pos));
+                if (StateManager.PlacedChests.ContainsKey(key))
+                    StateManager.PlacedChests.Remove(new Tuple<GameLocation, Vector2>(e.Location, pos));
             }
         }
     }
