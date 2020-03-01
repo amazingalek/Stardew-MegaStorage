@@ -13,9 +13,16 @@ namespace MegaStorage.Framework.Persistence
 {
     internal static class SaveManager
     {
+        public const string SaveDataKey = "NiceChest";
+        public static CustomChest MainChest { get; set; }
         public static readonly IDictionary<Tuple<GameLocation, Vector2>, CustomChest> PlacedChests =
             new Dictionary<Tuple<GameLocation, Vector2>, CustomChest>();
+
         private static int _prevLength;
+
+        /*********
+        ** Public methods
+        *********/
         public static void Start()
         {
             MegaStorageMod.ModHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
@@ -38,25 +45,35 @@ namespace MegaStorage.Framework.Persistence
             LoadCustomChests();
         }
 
+        /*********
+        ** Private methods
+        *********/
         private static void LoadCustomChests()
         {
             if (!Context.IsMainPlayer || !Context.IsWorldReady)
                 return;
 
             MegaStorageMod.ModMonitor.VerboseLog("SaveManager: LoadCustomChests");
+            var mainChest = MegaStorageMod.ModHelper.Data.ReadSaveData<DeserializedChest>(SaveDataKey);
+            var mainChestPos = !(mainChest is null)
+                ? new Vector2(mainChest.PositionX, mainChest.PositionY)
+                : Vector2.Zero;
+
             foreach (var location in CommonHelper.GetLocations())
             {
-                var customChests = location.Objects.Pairs
+                var placedChests = location.Objects.Pairs
                     .Where(c => c.Value is Chest chest && CustomChestFactory.ShouldBeCustomChest(chest))
                     .ToDictionary(
                         c => c.Key,
-                        c => c.Value.ToCustomChest());
+                        c => c.Value.ToCustomChest(c.Key));
 
-                foreach (var customChest in customChests)
+                foreach (var placedChest in placedChests)
                 {
-                    MegaStorageMod.ModMonitor.VerboseLog($"Loading Chest at: {location.Name} {customChest.Key}");
-                    location.objects[customChest.Key] = customChest.Value;
-                    PlacedChests.Add(new Tuple<GameLocation, Vector2>(location, customChest.Key), customChest.Value);
+                    var pos = placedChest.Key;
+                    var customChest = placedChest.Value;
+                    MegaStorageMod.ModMonitor.VerboseLog($"Loading Chest at: {location.Name}: {customChest.Name} ({pos})");
+                    location.objects[placedChest.Key] = customChest;
+                    PlacedChests.Add(new Tuple<GameLocation, Vector2>(location, pos), customChest);
                 }
             }
         }
@@ -73,6 +90,11 @@ namespace MegaStorage.Framework.Persistence
                 var pos = placedChest.Key.Item2;
                 var customChest = placedChest.Value;
                 MegaStorageMod.ModMonitor.VerboseLog($"Hiding and Saving in {location.Name}: {customChest.Name} ({pos})");
+                if (customChest == MainChest)
+                {
+                    var deserializedChest = customChest.ToDeserializedChest(location.NameOrUniqueName);
+                    MegaStorageMod.ModHelper.Data.WriteSaveData<DeserializedChest>(SaveDataKey, deserializedChest);
+                }
                 location.objects[pos] = customChest.ToChest();
             }
         }
