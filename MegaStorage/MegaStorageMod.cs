@@ -20,9 +20,9 @@ namespace MegaStorage
         internal static IMonitor ModMonitor;
         internal static IJsonAssetsApi JsonAssets;
         internal static IConvenientChestsApi ConvenientChests;
-        internal static int LargeChestId { get; private set; }
-        internal static int MagicChestId { get; private set; }
-        internal static int SuperMagicChestId { get; private set; }
+        internal static int LargeChestId { get; private set; } = -1;
+        internal static int MagicChestId { get; private set; } = -1;
+        internal static int SuperMagicChestId { get; private set; } = -1;
         /*********
         ** Public methods
         *********/
@@ -39,7 +39,6 @@ namespace MegaStorage
             ModHelper.ReadConfig<ModConfig>();
 
             ModHelper.Events.GameLoop.GameLaunched += OnGameLaunched;
-            ModHelper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
             ModHelper.Events.Display.MenuChanged += OnMenuChanged;
             ModHelper.Events.Display.WindowResized += OnWindowResized;
         }
@@ -76,20 +75,27 @@ namespace MegaStorage
             JsonAssets.IdsAssigned += OnIdsAssigned;
         }
 
-        private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
-        {
-            ItemPatcher.Start();
-            SaveManager.Start();
-        }
-
         private static void OnIdsAssigned(object sender, EventArgs e)
         {
-            LargeChestId = JsonAssets.GetBigCraftableId("Large Chest");
-            MagicChestId = JsonAssets.GetBigCraftableId("Magic Chest");
-            SuperMagicChestId = JsonAssets.GetBigCraftableId("Super Magic Chest");
+            if (LargeChestId == -1 && ModConfig.Instance.LargeChest.EnableChest)
+                LargeChestId = JsonAssets.GetBigCraftableId("Large Chest");
+            if (MagicChestId == -1 && ModConfig.Instance.MagicChest.EnableChest)
+                MagicChestId = JsonAssets.GetBigCraftableId("Magic Chest");
+            if (SuperMagicChestId == -1 && ModConfig.Instance.SuperMagicChest.EnableChest)
+                SuperMagicChestId = JsonAssets.GetBigCraftableId("Super Magic Chest");
+
+            if ((LargeChestId <= -1 && ModConfig.Instance.LargeChest.EnableChest) ||
+                (MagicChestId <= -1 && ModConfig.Instance.MagicChest.EnableChest) ||
+                (SuperMagicChestId <= -1 && ModConfig.Instance.SuperMagicChest.EnableChest))
+            {
+                return;
+            }
+
             ModMonitor.Log($"Large Chest Loaded with ID {LargeChestId}.");
             ModMonitor.Log($"Magic Chest Loaded with ID {MagicChestId}.");
             ModMonitor.Log($"Super Magic Chest Loaded with ID {SuperMagicChestId}.");
+            ItemPatcher.Start();
+            SaveManager.Start();
         }
 
         private static void OnMenuChanged(object sender, MenuChangedEventArgs e)
