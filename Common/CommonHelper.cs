@@ -48,7 +48,11 @@ namespace furyx639.Common
             // Background
             b.Draw(
                 Game1.menuTexture,
-                new Rectangle(x, y, width, height),
+                new Rectangle(
+                    x + Game1.tileSize / 2,
+                    y + Game1.tileSize / 2,
+                    width - Game1.tileSize,
+                    height - Game1.tileSize),
                 MenuBackground,
                 Color.White);
 
@@ -56,9 +60,9 @@ namespace furyx639.Common
             b.Draw(
                 Game1.menuTexture,
                 new Rectangle(
-                    x,
-                    y - Game1.tileSize / 2,
-                    width,
+                    x + Game1.tileSize,
+                    y,
+                    width - Game1.tileSize * 2,
                     Game1.tileSize),
                 MenuBorderTop,
                 Color.White);
@@ -67,9 +71,9 @@ namespace furyx639.Common
             b.Draw(
                 Game1.menuTexture,
                 new Rectangle(
-                    x,
-                    y + height - Game1.tileSize / 2,
-                    width,
+                    x + Game1.tileSize,
+                    y + height - Game1.tileSize,
+                    width - Game1.tileSize * 2,
                     Game1.tileSize),
                 MenuBorderBottom,
                 Color.White);
@@ -78,10 +82,10 @@ namespace furyx639.Common
             b.Draw(
                 Game1.menuTexture,
                 new Rectangle(
-                    x - Game1.tileSize / 2,
-                    y,
+                    x,
+                    y + Game1.tileSize,
                     Game1.tileSize,
-                    height),
+                    height - Game1.tileSize * 2),
                 MenuBorderLeft,
                 Color.White);
 
@@ -89,38 +93,38 @@ namespace furyx639.Common
             b.Draw(
                 Game1.menuTexture,
                 new Rectangle(
-                    x + width - Game1.tileSize / 2,
-                    y,
+                    x + width - Game1.tileSize,
+                    y + Game1.tileSize,
                     Game1.tileSize,
-                    height),
+                    height - Game1.tileSize * 2),
                 MenuBorderRight,
                 Color.White);
 
             // Top-Right Corner
             b.Draw(
                 Game1.menuTexture,
-                new Vector2(x + width - Game1.tileSize / 2, y - Game1.tileSize / 2),
+                new Vector2(x + width - Game1.tileSize, y),
                 MenuBorderTopRight,
                 Color.White);
 
             // Top-Left Corner
             b.Draw(
                 Game1.menuTexture,
-                new Vector2(x - Game1.tileSize / 2, y - Game1.tileSize / 2),
+                new Vector2(x, y),
                 MenuBorderTopLeft,
                 Color.White);
 
             // Bottom-Right Corner
             b.Draw(
                 Game1.menuTexture,
-                new Vector2(x + width - Game1.tileSize / 2, y + height - Game1.tileSize / 2),
+                new Vector2(x + width - Game1.tileSize, y + height - Game1.tileSize),
                 MenuBorderBottomRight,
                 Color.White);
 
             // Bottom-Left Corner
             b.Draw(
                 Game1.menuTexture,
-                new Vector2(x - Game1.tileSize / 2, y + height - Game1.tileSize / 2),
+                new Vector2(x, y + height - Game1.tileSize),
                 MenuBorderBottomLeft,
                 Color.White);
         }
