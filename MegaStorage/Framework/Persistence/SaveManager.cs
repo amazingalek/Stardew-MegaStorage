@@ -21,6 +21,8 @@ namespace MegaStorage.Framework.Persistence
             MegaStorageMod.ModHelper.Events.GameLoop.Saving += (sender, args) => HideAndSaveCustomChests();
             MegaStorageMod.ModHelper.Events.GameLoop.Saved += (sender, args) => ReAddCustomChests();
             MegaStorageMod.ModHelper.Events.GameLoop.ReturnedToTitle += (sender, args) => HideAndSaveCustomChests();
+            MegaStorageMod.ModHelper.Events.GameLoop.SaveLoaded += (sender, args) => FixLegacyOptions();
+            MegaStorageMod.ModHelper.Events.GameLoop.SaveLoaded += (sender, args) => LoadCustomChests();
             MegaStorageMod.ModHelper.Events.Multiplayer.PeerContextReceived += OnPeerContextReceived;
             MegaStorageMod.ModHelper.Events.Multiplayer.PeerDisconnected += OnPeerDisconnected;
 
