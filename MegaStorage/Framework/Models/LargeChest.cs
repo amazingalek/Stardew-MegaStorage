@@ -1,15 +1,17 @@
 ﻿using Microsoft.Xna.Framework;
-using StardewValley;
 
 namespace MegaStorage.Framework.Models
 {
     public class LargeChest : CustomChest
     {
         public override int Capacity => 72;
-        public override ChestType ChestType => ChestType.LargeChest;
-        public override Item getOne() => new LargeChest(Vector2.Zero);
+        public override bool EnableCategories => ModConfig.Instance.LargeChest.EnableCategories;
+        public override bool EnableRemoteStorage => false;
 
-        public LargeChest(Vector2 tileLocation) : base(MegaStorageMod.LargeChestId, ModConfig.Instance.LargeChest, tileLocation)
+        public LargeChest(Vector2 tileLocation)
+            : base(
+                ChestType.LargeChest,
+                tileLocation)
         {
             name = "Large Chest";
         }

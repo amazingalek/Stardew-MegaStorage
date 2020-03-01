@@ -57,14 +57,23 @@ namespace MegaStorage
                 Monitor.Log("JsonAssets is needed to load Mega Storage chests", LogLevel.Error);
                 return;
             }
-            JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "JsonAssets"));
-            JsonAssets.IdsAssigned += OnIdsAssigned;
 
             ConvenientChests = ModHelper.ModRegistry.GetApi<IConvenientChestsApi>("aEnigma.ConvenientChests");
             if (!(ConvenientChests is null))
             {
-                ModConfig.Instance.EnableCategories = false;
+                ModConfig.Instance.LargeChest.EnableCategories = false;
+                ModConfig.Instance.MagicChest.EnableCategories = false;
+                ModConfig.Instance.SuperMagicChest.EnableChest = false;
             }
+
+            if (ModConfig.Instance.LargeChest.EnableChest)
+                JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "LargeChest"));
+            if (ModConfig.Instance.MagicChest.EnableChest)
+                JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "MagicChest"));
+            if (ModConfig.Instance.SuperMagicChest.EnableChest)
+                JsonAssets.LoadAssets(Path.Combine(ModHelper.DirectoryPath, "assets", "SuperMagicChest"));
+
+            JsonAssets.IdsAssigned += OnIdsAssigned;
         }
 
         private static void OnSaveLoaded(object sender, SaveLoadedEventArgs e)

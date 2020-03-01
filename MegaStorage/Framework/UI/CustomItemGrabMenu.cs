@@ -755,7 +755,7 @@ namespace MegaStorage.Framework.UI
             allClickableComponents.Add(organizeButton);
 
             // Categories
-            if (!ModConfig.Instance.EnableCategories)
+            if (!_customChest.EnableCategories)
                 return;
 
             for (var index = 0; index < Categories.Count; ++index)

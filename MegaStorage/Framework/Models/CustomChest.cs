@@ -20,16 +20,21 @@ namespace MegaStorage.Framework.Models
     }
     public abstract class CustomChest : Chest
     {
-        public abstract int Capacity { get; }
-        public abstract ChestType ChestType { get; }
-        public CustomChestConfig Config { get; }
-        protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
+        private readonly ChestType _chestType;
 
+        // Custom Chest Features
+        public abstract int Capacity { get; }
+
+        public abstract bool EnableCategories { get; }
+        public abstract bool EnableRemoteStorage { get; }
+
+        protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
+        private CustomItemGrabMenu _itemGrabMenu;
+
+        // Textures
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
         private readonly Texture2D _spriteBraces;
-
-        private CustomItemGrabMenu _itemGrabMenu;
 
         private readonly IReflectedField<int> _currentLidFrameReflected;
         private int CurrentLidFrame
@@ -38,21 +43,27 @@ namespace MegaStorage.Framework.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
-        protected CustomChest(int parentSheetIndex, CustomChestConfig config, Vector2 tileLocation) : base(true, tileLocation)
+        protected CustomChest(ChestType chestType, Vector2 tileLocation) : base(true, tileLocation)
         {
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 
-            if (config is null)
-                return;
+            _chestType = chestType;
+            var config = chestType switch
+            {
+                ChestType.LargeChest => ModConfig.Instance.LargeChest,
+                ChestType.MagicChest => ModConfig.Instance.MagicChest,
+                ChestType.SuperMagicChest => ModConfig.Instance.SuperMagicChest,
+                _ => throw new InvalidOperationException("Invalid Chest Type")
+            };
 
-            Config = config;
-            ParentSheetIndex = parentSheetIndex;
-            startingLidFrame.Value = parentSheetIndex + 1;
+            ParentSheetIndex = CustomChestFactory.CustomChests[_chestType];
+            startingLidFrame.Value = ParentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
 
-            _sprite = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpritePath));
-            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBWPath));
-            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine("assets", Config.SpriteBracesPath));
+            var baseDir = Path.Combine("assets", _chestType.ToString());
+            _sprite = contentHelper.Load<Texture2D>(Path.Combine(baseDir, config.SpritePath));
+            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine(baseDir, config.SpriteBWPath));
+            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine(baseDir, config.SpriteBracesPath));
         }
 
         public override Item addItem(Item itemToAdd)
@@ -188,7 +199,7 @@ namespace MegaStorage.Framework.Models
                 return false;
             }
             shakeTimer = 50;
-            var newCustomChest = CustomChestFactory.Create(ChestType);
+            var newCustomChest = CustomChestFactory.Create(_chestType);
             location.objects.Add(objectKey, newCustomChest);
             location.playSound("axe");
             return true;

@@ -7,23 +7,28 @@ namespace MegaStorage.Framework.Models
     {
         public CustomChestConfig LargeChest { get; set; } = new CustomChestConfig
         {
+            EnableChest = true,
+            EnableCategories = false,
             SpritePath = "LargeChest.png",
             SpriteBWPath = "LargeChestBW.png",
             SpriteBracesPath = "LargeChestBraces.png"
         };
         public CustomChestConfig MagicChest { get; set; } = new CustomChestConfig
         {
+            EnableChest = true,
+            EnableCategories = true,
             SpritePath = "MagicChest.png",
             SpriteBWPath = "MagicChestBW.png",
             SpriteBracesPath = "MagicChestBraces.png"
         };
         public CustomChestConfig SuperMagicChest { get; set; } = new CustomChestConfig
         {
+            EnableChest = true,
+            EnableCategories = true,
             SpritePath = "SuperMagicChest.png",
             SpriteBWPath = "SuperMagicChestBW.png",
             SpriteBracesPath = "SuperMagicChestBraces.png"
         };
-        public bool EnableCategories { get; set; } = true;
         public IDictionary<string, IList<int>> Categories { get; set; } = new Dictionary<string, IList<int>>()
         {
             {
