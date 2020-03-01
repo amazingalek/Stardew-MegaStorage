@@ -23,19 +23,16 @@ namespace MegaStorage.Framework.Models
         private readonly ChestType _chestType;
 
         // Custom Chest Features
-        public abstract int Capacity { get; }
-
-        public abstract bool EnableCategories { get; }
-        public abstract bool EnableRemoteStorage { get; }
-
-        protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
-        private CustomItemGrabMenu _itemGrabMenu;
+        public int Capacity { get; protected set; }
+        public bool EnableCategories { get; private set; }
+        public bool EnableRemoteStorage { get; protected set; }
 
         // Textures
         private readonly Texture2D _sprite;
         private readonly Texture2D _spriteBW;
         private readonly Texture2D _spriteBraces;
 
+        // State
         private readonly IReflectedField<int> _currentLidFrameReflected;
         private int CurrentLidFrame
         {
@@ -43,11 +40,15 @@ namespace MegaStorage.Framework.Models
             set => _currentLidFrameReflected.SetValue(value);
         }
 
+        protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
+        private CustomItemGrabMenu _itemGrabMenu;
+
         protected CustomChest(ChestType chestType, Vector2 tileLocation) : base(true, tileLocation)
         {
             var contentHelper = MegaStorageMod.Instance.Helper.Content;
 
             _chestType = chestType;
+
             var config = chestType switch
             {
                 ChestType.LargeChest => ModConfig.Instance.LargeChest,
@@ -56,6 +57,7 @@ namespace MegaStorage.Framework.Models
                 _ => throw new InvalidOperationException("Invalid Chest Type")
             };
 
+            EnableCategories = config.EnableCategories;
             ParentSheetIndex = CustomChestFactory.CustomChests[_chestType];
             startingLidFrame.Value = ParentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
@@ -199,7 +201,7 @@ namespace MegaStorage.Framework.Models
                 return false;
             }
             shakeTimer = 50;
-            var newCustomChest = CustomChestFactory.Create(_chestType);
+            var newCustomChest = CustomChestFactory.Create(_chestType, objectKey);
             location.objects.Add(objectKey, newCustomChest);
             location.playSound("axe");
             return true;
