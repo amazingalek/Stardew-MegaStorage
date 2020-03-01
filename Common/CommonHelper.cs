@@ -13,6 +13,9 @@ namespace furyx639.Common
         /*********
         ** Fields
         *********/
+        // Star Button
+        public static Rectangle StarButtonActive => new Rectangle(310, 392, 16, 16);
+        public static Rectangle StarButtonInactive => new Rectangle(294, 392, 16, 16);
         // Dialogue Box Tiles
         public static Rectangle MenuBackground => CommonHelper.GetTile(1, 2);
         public static Rectangle MenuBorderTop => CommonHelper.GetTile(2, 0);
