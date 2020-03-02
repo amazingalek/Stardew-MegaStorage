@@ -20,7 +20,7 @@ namespace MegaStorage.Framework
 
         public static Item ToObject(this Item item, ChestType chestType) =>
             item is Chest chest
-                ? new SObject(chest.TileLocation, CustomChestFactory.CustomChests[chestType])
+                ? new SObject(chest.TileLocation, CustomChestFactory.CustomChestIds[chestType])
                 {
                     Stack = chest.Stack
                 }
@@ -46,11 +46,25 @@ namespace MegaStorage.Framework
             return chest;
         }
 
-        public static CustomChest ToCustomChest(this Item item, Vector2 tileLocation) =>
-            item.ToCustomChest(CustomChestFactory.CustomChests.FirstOrDefault(x => x.Value == item.ParentSheetIndex).Key, tileLocation);
-        public static CustomChest ToCustomChest(this Item item, ChestType chestType, Vector2 tileLocation)
+        public static CustomChest ToCustomChest(this Item item, Vector2 tileLocation, ChestType chestType = ChestType.InvalidChest)
         {
             if (!(item is SObject obj))
+                throw new InvalidOperationException($"Cannot convert {item?.Name} to CustomChest");
+
+            // Try to match chest by id
+            if (chestType == ChestType.InvalidChest)
+                chestType = CustomChestFactory.CustomChestIds
+                    .FirstOrDefault(c => c.Value == item.ParentSheetIndex)
+                    .Key;
+
+            // Try to match chest by name
+            if (chestType == ChestType.InvalidChest)
+                chestType = CustomChestFactory.CustomChestNames
+                    .FirstOrDefault(c => c.Value.Equals(item.Name, StringComparison.InvariantCultureIgnoreCase))
+                    .Key;
+
+            // No valid chest found
+            if (chestType == ChestType.InvalidChest)
                 throw new InvalidOperationException($"Cannot convert {item?.Name} to CustomChest");
 
             var customChest = CustomChestFactory.Create(chestType, tileLocation);

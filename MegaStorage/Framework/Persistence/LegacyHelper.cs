@@ -97,7 +97,7 @@ namespace MegaStorage.Framework.Persistence
                 return;
             }
 
-            chest.ParentSheetIndex = CustomChestFactory.CustomChests[chestType];
+            chest.ParentSheetIndex = CustomChestFactory.CustomChestIds[chestType];
         }
 
         /// <summary>
