@@ -12,25 +12,14 @@ using System.Linq;
 
 namespace MegaStorage.Framework.Models
 {
-    public enum ChestType
-    {
-        LargeChest = 0,
-        MagicChest = 1,
-        SuperMagicChest = 2
-    }
     public abstract class CustomChest : Chest
     {
         private readonly ChestType _chestType;
 
         // Custom Chest Features
         public abstract int Capacity { get; }
-        public bool EnableCategories { get; private set; }
+        public bool EnableCategories { get; }
         public bool EnableRemoteStorage { get; protected set; }
-
-        // Textures
-        private readonly Texture2D _sprite;
-        private readonly Texture2D _spriteBW;
-        private readonly Texture2D _spriteBraces;
 
         // State
         private readonly IReflectedField<int> _currentLidFrameReflected;
@@ -41,11 +30,8 @@ namespace MegaStorage.Framework.Models
         }
 
         protected internal CustomItemGrabMenu CreateItemGrabMenu() => new CustomItemGrabMenu(this);
-
         protected CustomChest(ChestType chestType, Vector2 tileLocation) : base(true, tileLocation)
         {
-            var contentHelper = MegaStorageMod.Instance.Helper.Content;
-
             _chestType = chestType;
 
             var config = chestType switch
@@ -57,14 +43,9 @@ namespace MegaStorage.Framework.Models
             };
 
             EnableCategories = config.EnableCategories;
-            ParentSheetIndex = CustomChestFactory.CustomChests[_chestType];
+            ParentSheetIndex = CustomChestFactory.CustomChestIds[_chestType];
             startingLidFrame.Value = ParentSheetIndex + 1;
             _currentLidFrameReflected = MegaStorageMod.Instance.Helper.Reflection.GetField<int>(this, "currentLidFrame");
-
-            var baseDir = Path.Combine("assets", _chestType.ToString());
-            _sprite = contentHelper.Load<Texture2D>(Path.Combine(baseDir, config.SpritePath));
-            _spriteBW = contentHelper.Load<Texture2D>(Path.Combine(baseDir, config.SpriteBWPath));
-            _spriteBraces = contentHelper.Load<Texture2D>(Path.Combine(baseDir, config.SpriteBracesPath));
         }
 
         public override Item addItem(Item itemToAdd)
@@ -93,13 +74,10 @@ namespace MegaStorage.Framework.Models
 
         public override void updateWhenCurrentLocation(GameTime time, GameLocation environment)
         {
-            if (time is null)
-                return;
-
             var currentLidFrameValue = CurrentLidFrame;
             fixLidFrame();
             mutex.Update(environment);
-            if (shakeTimer > 0)
+            if (shakeTimer > 0 && time != null)
             {
                 shakeTimer -= time.ElapsedGameTime.Milliseconds;
                 if (shakeTimer <= 0)
@@ -107,13 +85,12 @@ namespace MegaStorage.Framework.Models
                     health = 10;
                 }
             }
-            if (frameCounter.Value > -1 && currentLidFrameValue < ParentSheetIndex + 6)
+            if (frameCounter.Value > -1 && currentLidFrameValue < getLastLidFrame() + 1)
             {
                 --frameCounter.Value;
                 if (frameCounter.Value > 0 || !mutex.IsLockHeld())
                     return;
-
-                if (currentLidFrameValue == ParentSheetIndex + 5)
+                if (currentLidFrameValue == getLastLidFrame())
                 {
                     Game1.activeClickableMenu = CreateItemGrabMenu();
                     frameCounter.Value = -1;
@@ -122,23 +99,18 @@ namespace MegaStorage.Framework.Models
                 {
                     frameCounter.Value = 5;
                     ++currentLidFrameValue;
-                    CurrentLidFrame = currentLidFrameValue;
                 }
             }
             else
             {
-                if (frameCounter.Value != -1 || currentLidFrameValue <= ParentSheetIndex + 1 ||
-                    Game1.activeClickableMenu != null || !mutex.IsLockHeld())
-                {
+                if (frameCounter.Value != -1 || currentLidFrameValue <= startingLidFrame.Value || Game1.activeClickableMenu != null || !mutex.IsLockHeld())
                     return;
-                }
-
                 mutex.ReleaseLock();
-                currentLidFrameValue = ParentSheetIndex + 5;
-                CurrentLidFrame = currentLidFrameValue;
+                currentLidFrameValue = getLastLidFrame();
                 frameCounter.Value = 2;
                 environment?.localSound("doorCreakReverse");
             }
+            CurrentLidFrame = currentLidFrameValue;
         }
 
         public override void grabItemFromChest(Item item, Farmer who)
@@ -148,12 +120,7 @@ namespace MegaStorage.Framework.Models
 
             items.Remove(item);
             clearNulls();
-            //if (_itemGrabMenu == null)
-            //{
-            //    _itemGrabMenu = CreateItemGrabMenu();
-            //}
-
-            //Game1.activeClickableMenu = _itemGrabMenu;
+            //Game1.activeClickableMenu = _itemGrabMenu ??= CreateItemGrabMenu();
         }
 
         public override void grabItemFromInventory(Item item, Farmer who)
@@ -256,66 +223,145 @@ namespace MegaStorage.Framework.Models
 
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
-            if (spriteBatch is null)
-                return;
-
-            var lidFrameIndex = CurrentLidFrame - ParentSheetIndex - 1;
+            var layerDepth = Math.Max(0.0f, ((y + 1f) * Game1.tileSize - 24f) / 10000f) + x * 1E-05f;
+            var globalPosition = new Vector2(x * Game1.tileSize, (y - 1) * Game1.tileSize);
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
-                spriteBatch.Draw(_sprite,
-                    Game1.GlobalToLocal(Game1.viewport,
-                        new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)),
-                    Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), tint.Value * alpha, 0.0f, Vector2.Zero,
-                    4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
-                spriteBatch.Draw(_sprite,
-                    Game1.GlobalToLocal(Game1.viewport,
-                        new Vector2(x * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (y - 1) * 64)),
-                    Game1.getSourceRectForStandardTileSheet(_sprite, lidFrameIndex, 16, 32), tint.Value * alpha * alpha,
-                    0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 5) / 10000f);
+                // Draw Chest
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + ShakeOffset(-1, 2)),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex, 16, 32),
+                    tint.Value * alpha,
+                    0.0f,
+                    Vector2.Zero,
+                    Game1.pixelZoom,
+                    SpriteEffects.None,
+                    layerDepth);
+                
+                // Draw Lid
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + ShakeOffset(-1, 2)),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, CurrentLidFrame, 16, 32),
+                    tint.Value * alpha * alpha,
+                    0.0f,
+                    Vector2.Zero,
+                    Game1.pixelZoom,
+                    SpriteEffects.None,
+                    layerDepth + 1E-05f);
             }
             else
             {
-                spriteBatch.Draw(_spriteBW,
-                    Game1.GlobalToLocal(Game1.viewport,
-                        new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))),
-                    Game1.getSourceRectForStandardTileSheet(_spriteBW, 0, 16, 32), playerChoiceColor.Value * alpha,
-                    0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 4) / 10000f);
-                spriteBatch.Draw(_spriteBW,
-                    Game1.GlobalToLocal(Game1.viewport,
-                        new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))),
-                    Game1.getSourceRectForStandardTileSheet(_spriteBW, lidFrameIndex, 16, 32),
-                    playerChoiceColor.Value * alpha * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None,
-                    (y * 64 + 5) / 10000f);
-                spriteBatch.Draw(Game1.bigCraftableSpriteSheet,
-                    Game1.GlobalToLocal(Game1.viewport, new Vector2(x * 64, y * 64 + 20)),
-                    new Rectangle(0, 725, 16, 11), Color.White * alpha, 0.0f, Vector2.Zero, 4f, SpriteEffects.None,
-                    (y * 64 + 6) / 10000f);
-                spriteBatch.Draw(_spriteBraces,
-                    Game1.GlobalToLocal(Game1.viewport,
-                        new Vector2(x * 64, (y - 1) * 64 + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0))),
-                    Game1.getSourceRectForStandardTileSheet(_spriteBraces, lidFrameIndex, 16, 32), Color.White * alpha,
-                    0.0f, Vector2.Zero, 4f, SpriteEffects.None, (y * 64 + 6) / 10000f);
+                var spriteBraceBottom = Game1.getSourceRectForStandardTileSheet(
+                    Game1.bigCraftableSpriteSheet,
+                    ParentSheetIndex + 12,
+                    16,
+                    32);
+                spriteBraceBottom.Y += 21;
+                spriteBraceBottom.Height = 11;
+                
+                // Draw Colorized Chest
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + ShakeOffset(-1, 2)),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex + 6, 16, 32),
+                    playerChoiceColor.Value * alpha,
+                    0.0f,
+                    Vector2.Zero,
+                    Game1.pixelZoom,
+                    SpriteEffects.None,
+                    layerDepth);
+                
+                // Draw Bottom-Half Braces
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + new Vector2(0,Game1.tileSize + 20)),
+                    spriteBraceBottom,
+                    Color.White * alpha,
+                    0.0f,
+                    Vector2.Zero,
+                    Game1.pixelZoom,
+                    SpriteEffects.None,
+                    layerDepth + 2E-05f);
+                
+                // Draw Top-Half Braces
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + ShakeOffset(-1, 2)),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, CurrentLidFrame + 12, 16, 32),
+                    Color.White * alpha,
+                    0.0f,
+                    Vector2.Zero,
+                    Game1.pixelZoom,
+                    SpriteEffects.None,
+                    layerDepth + 2E-05f);
+                
+                // Draw Colorized Lid
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    Game1.GlobalToLocal(Game1.viewport, globalPosition + ShakeOffset(-1, 2)),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, CurrentLidFrame + 6, 16, 32),
+                    playerChoiceColor.Value * alpha * alpha,
+                    0.0f,
+                    Vector2.Zero,
+                    Game1.pixelZoom,
+                    SpriteEffects.None,
+                    layerDepth + 1E-05f);
             }
         }
 
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, StackDrawType drawStackNumber, Color color, bool drawShadow)
         {
-            if (spriteBatch is null)
-                return;
-
             if (playerChoiceColor.Value.Equals(Color.Black))
             {
-                spriteBatch.Draw(_sprite, location + new Vector2(32f, 32f), Game1.getSourceRectForStandardTileSheet(_sprite, 0, 16, 32), color * transparency, 0.0f, new Vector2(8f, 16f), (float)(4.0 * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.0)), SpriteEffects.None, layerDepth);
+                // Draw Chest
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    location + new Vector2(32f, 32f),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex, 16, 32),
+                    color * transparency,
+                    0.0f,
+                    new Vector2(8f, 16f), 
+                    4f * (scaleSize < 0.2f ? scaleSize : scaleSize / 2f),
+                    SpriteEffects.None,
+                    layerDepth);
             }
             else
             {
-                spriteBatch.Draw(_spriteBW, location + new Vector2(32f, 32f), Game1.getSourceRectForStandardTileSheet(_spriteBW, 0, 16, 32), playerChoiceColor.Value * transparency, 0.0f, new Vector2(8f, 16f), (float)(4.0 * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.0)), SpriteEffects.None, layerDepth);
-                spriteBatch.Draw(_spriteBraces, location + new Vector2(32f, 32f), Game1.getSourceRectForStandardTileSheet(_spriteBraces, 0, 16, 32), color * transparency, 0.0f, new Vector2(8f, 16f), (float)(4.0 * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.0)), SpriteEffects.None, layerDepth);
+                // Draw Colorized Chest
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    location + new Vector2(32f, 32f),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex + 6, 16, 32),
+                    playerChoiceColor.Value * transparency,
+                    0.0f,
+                    new Vector2(8f, 16f),
+                    4f * (scaleSize < 0.2f ? scaleSize : scaleSize / 2f),
+                    SpriteEffects.None,
+                    layerDepth);
+
+                // Draw Braces
+                spriteBatch?.Draw(
+                    Game1.bigCraftableSpriteSheet,
+                    location + new Vector2(32f, 32f),
+                    Game1.getSourceRectForStandardTileSheet(Game1.bigCraftableSpriteSheet, ParentSheetIndex + 12, 16, 32),
+                    color * transparency,
+                    0.0f,
+                    new Vector2(8f, 16f),
+                    4f * (scaleSize < 0.2f ? scaleSize : scaleSize / 2f),
+                    SpriteEffects.None,
+                    layerDepth);
             }
             if (drawStackNumber == StackDrawType.Draw && maximumStackSize() > 1 && (scaleSize > 0.3 && Stack != int.MaxValue) && Stack > 1)
             {
                 Utility.drawTinyDigits(Stack, spriteBatch, location + new Vector2(64 - Utility.getWidthOfTinyDigitString(Stack, 3f * scaleSize) + 3f * scaleSize, (float)(64.0 - 18.0 * scaleSize + 2.0)), 3f * scaleSize, 1f, color);
             }
         }
+
+        private Vector2 ShakeOffset(int minValue, int maxValue) =>
+            shakeTimer > 0
+                ? new Vector2(Game1.random.Next(minValue, maxValue), 0)
+                : Vector2.Zero;
     }
 }
