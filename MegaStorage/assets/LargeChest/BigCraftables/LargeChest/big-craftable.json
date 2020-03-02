@@ -1,25 +1,25 @@
 ﻿{
-	"Name":  "Large Chest",
-	"Description":  "A large place to store your items.",
+	"Name": "Large Chest",
+	"Description": "A large place to store your items.",
 	"Recipe": {
-		"Ingredients":  [
+		"Ingredients": [
 			{
-				"Object":  388,
-				"Count":  100
+				"Object": 388,
+				"Count": 100
 			},
 			{
-				"Object":  334,
-				"Count":  5
+				"Object": 334,
+				"Count": 5
 			},
 			{
-				"Object":  335,
-				"Count":  5
+				"Object": 335,
+				"Count": 5
 			}
 		],
-		"IsDefault":  true
+		"IsDefault": true
 	},
-	"NameLocalization":
-	{
+	"ReserveExtraIndexCount": 16,
+	"NameLocalization": {
 		//"es": "", //Spanish
 		"ko": "큰 상자",
 		"de": "Große Kiste", //German
@@ -30,10 +30,9 @@
 		//"pt": "", //Portuguese
 		//"ru": "", //Russian
 		//"tr": "", //Turkish
-		"zh": "大箱子", //Chinese (Simplified)
+		"zh": "大箱子" //Chinese (Simplified)
 	},
-	"DescriptionLocalization":
-	{
+	"DescriptionLocalization": {
 		//"es": "", //Spanish
 		"ko": "물건을 보관할 수 있는 넓은 상자.",
 		"de": "Eine größere Kiste, um deine Gegenstände zu lagern.", //German
@@ -44,6 +43,6 @@
 		//"pt": "", //Portuguese
 		//"ru": "", //Russian
 		//"tr": "", //Turkish
-		"zh": "一个比默认箱子更大的大箱子，用于存放更多物品。", //Chinese (Simplified)
+		"zh": "一个比默认箱子更大的大箱子，用于存放更多物品。" //Chinese (Simplified)
 	}
 }
