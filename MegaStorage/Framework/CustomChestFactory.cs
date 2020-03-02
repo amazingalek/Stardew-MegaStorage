@@ -10,48 +10,29 @@ namespace MegaStorage.Framework
 {
     public static class CustomChestFactory
     {
-        private static List<CustomChest> _customChests;
-        public static List<CustomChest> CustomChests =>
-            _customChests ?? (_customChests = new List<CustomChest>
+        private static IDictionary<ChestType, int> _customChests;
+
+        public static IDictionary<ChestType, int> CustomChests =>
+            _customChests ??= new Dictionary<ChestType, int>
             {
-                new LargeChest(Vector2.Zero),
-                new MagicChest(Vector2.Zero),
-                new SuperMagicChest(Vector2.Zero)
-            });
+                {ChestType.LargeChest, MegaStorageMod.LargeChestId},
+                {ChestType.MagicChest, MegaStorageMod.MagicChestId},
+                {ChestType.SuperMagicChest, MegaStorageMod.SuperMagicChestId}
+            };
 
-        public static bool ShouldBeCustomChest(Item item)
-        {
-            if (!(item is SObject obj))
+        public static bool ShouldBeCustomChest(Item item) =>
+            item is SObject obj
+            && obj.bigCraftable.Value
+            && CustomChests.Any(x => x.Value == obj.ParentSheetIndex);
+
+        public static CustomChest Create(ChestType chestType, Vector2 tileLocation) =>
+            chestType switch
             {
-                return false;
-            }
-
-            return obj.bigCraftable.Value
-                   && CustomChests.Any(x => x.ParentSheetIndex == item.ParentSheetIndex);
-        }
-
-        public static CustomChest Create(int id) => Create(id, Vector2.Zero);
-        public static CustomChest Create(int id, Vector2 tileLocation)
-        {
-            var chestType = CustomChests.Single(x => x.ParentSheetIndex == id).ChestType;
-            return Create(chestType, tileLocation);
-        }
-
-        public static CustomChest Create(ChestType chestType) => Create(chestType, Vector2.Zero);
-        public static CustomChest Create(ChestType chestType, Vector2 tileLocation)
-        {
-            switch (chestType)
-            {
-                case ChestType.LargeChest:
-                    return new LargeChest(tileLocation);
-                case ChestType.MagicChest:
-                    return new MagicChest(tileLocation);
-                case ChestType.SuperMagicChest:
-                    return new SuperMagicChest(tileLocation);
-                default:
-                    throw new InvalidOperationException("Invalid ChestType");
-            }
-        }
+                ChestType.LargeChest => new LargeChest(tileLocation),
+                ChestType.MagicChest => new MagicChest(tileLocation),
+                ChestType.SuperMagicChest => new SuperMagicChest(tileLocation),
+                _ => throw new InvalidOperationException("Invalid ChestType")
+            };
 
     }
 }
