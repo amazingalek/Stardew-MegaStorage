@@ -3,31 +3,28 @@ using SObject = StardewValley.Object;
 
 namespace MegaStorage.Framework.Models
 {
+    public class CustomChestConfig
+    {
+        public bool EnableChest { get; set; }
+        public bool EnableCategories { get; set; }
+    }
+
     public class ModConfig
     {
         public CustomChestConfig LargeChest { get; set; } = new CustomChestConfig
         {
             EnableChest = true,
-            EnableCategories = false,
-            SpritePath = "LargeChest.png",
-            SpriteBWPath = "LargeChestBW.png",
-            SpriteBracesPath = "LargeChestBraces.png"
+            EnableCategories = false
         };
         public CustomChestConfig MagicChest { get; set; } = new CustomChestConfig
         {
             EnableChest = true,
-            EnableCategories = true,
-            SpritePath = "MagicChest.png",
-            SpriteBWPath = "MagicChestBW.png",
-            SpriteBracesPath = "MagicChestBraces.png"
+            EnableCategories = true
         };
         public CustomChestConfig SuperMagicChest { get; set; } = new CustomChestConfig
         {
             EnableChest = true,
-            EnableCategories = true,
-            SpritePath = "SuperMagicChest.png",
-            SpriteBWPath = "SuperMagicChestBW.png",
-            SpriteBracesPath = "SuperMagicChestBraces.png"
+            EnableCategories = true
         };
         public IDictionary<string, IList<int>> Categories { get; set; } = new Dictionary<string, IList<int>>()
         {
