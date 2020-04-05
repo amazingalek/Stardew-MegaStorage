@@ -1,105 +1,101 @@
-﻿using System.Linq;
-using MegaStorage.Mapping;
-using MegaStorage.Models;
-using StardewModdingAPI;
+﻿using MegaStorage.Framework;
+using MegaStorage.Framework.Models;
+using MegaStorage.Framework.Persistence;
+using Microsoft.Xna.Framework;
 using StardewModdingAPI.Events;
 using StardewValley;
+using System;
+using System.Linq;
 
 namespace MegaStorage
 {
-    public class ItemPatcher
+    internal static class ItemPatcher
     {
-        private readonly IModHelper _modHelper;
-        private readonly IMonitor _monitor;
-
-        public ItemPatcher(IModHelper modHelper, IMonitor monitor)
+        public static void Start()
         {
-            _modHelper = modHelper;
-            _monitor = monitor;
+            MegaStorageMod.ModHelper.Events.Player.InventoryChanged += OnInventoryChanged;
+            MegaStorageMod.ModHelper.Events.World.ChestInventoryChanged += OnChestInventoryChanged;
+            MegaStorageMod.ModHelper.Events.World.DebrisListChanged += OnDebrisListChanged;
+            MegaStorageMod.ModHelper.Events.World.ObjectListChanged += OnObjectListChanged;
         }
 
-        public void Start()
+        private static void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
         {
-            _modHelper.Events.Player.InventoryChanged += OnInventoryChanged;
-            _modHelper.Events.World.ChestInventoryChanged += OnChestInventoryChanged;
-            _modHelper.Events.World.ObjectListChanged += OnObjectListChanged;
-            _modHelper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
-        }
-
-        private void OnSaveLoaded(object sender, SaveLoadedEventArgs e)
-        {
-            foreach (var customChest in CustomChestFactory.CustomChests)
-            {
-                Register(customChest);
-            }
-        }
-
-        private void Register(CustomChest customChest)
-        {
-            _monitor.VerboseLog($"Registering {customChest.Config.Name} ({customChest.Config.Id})");
-            Game1.bigCraftablesInformation[customChest.Config.Id] = customChest.BigCraftableInfo;
-            CraftingRecipe.craftingRecipes[customChest.Config.Name] = customChest.RecipeString;
-            Game1.player.craftingRecipes[customChest.Config.Name] = 0;
-        }
-
-        private void OnInventoryChanged(object sender, InventoryChangedEventArgs e)
-        {
-            _monitor.VerboseLog("OnInventoryChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged");
             if (!e.IsLocalPlayer || e.Added.Count() != 1)
                 return;
 
             var addedItem = e.Added.Single();
-            if (addedItem is CustomChest)
+            if (!(addedItem is CustomChest customChest))
                 return;
 
-            if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
-                return;
-
-            _monitor.VerboseLog("OnInventoryChanged: converting");
-
+            MegaStorageMod.ModMonitor.VerboseLog("OnInventoryChanged: converting");
             var index = Game1.player.Items.IndexOf(addedItem);
-            Game1.player.Items[index] = addedItem.ToCustomChest();
+            Game1.player.Items[index] = customChest.ToObject();
         }
 
-        private void OnChestInventoryChanged(object sender, ChestInventoryChangedEventArgs e)
+        private static void OnChestInventoryChanged(object sender, ChestInventoryChangedEventArgs e)
         {
-            _monitor.VerboseLog("OnChestInventoryChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged");
             if (e.Added.Count() != 1)
                 return;
 
             var addedItem = e.Added.Single();
-            if (addedItem is CustomChest)
+            if (!(addedItem is CustomChest customChest))
                 return;
 
-            if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
-                return;
-
-            _monitor.VerboseLog("OnChestInventoryChanged: converting");
-
-            var index = Game1.player.Items.IndexOf(addedItem);
-            Game1.player.Items[index] = addedItem.ToCustomChest();
+            MegaStorageMod.ModMonitor.VerboseLog("OnChestInventoryChanged: converting");
+            var index = e.Chest.items.IndexOf(addedItem);
+            e.Chest.items[index] = customChest.ToObject();
         }
 
-        private void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
+        private static void OnDebrisListChanged(object sender, DebrisListChangedEventArgs e)
         {
-            _monitor.VerboseLog("OnObjectListChanged");
+            MegaStorageMod.ModMonitor.VerboseLog("OnDebrisListChanged");
             if (e.Added.Count() != 1)
                 return;
 
-            var addedItemPosition = e.Added.Single();
-            var addedItem = addedItemPosition.Value;
-            if (addedItem is CustomChest)
+            var debris = e.Added.Single();
+            if (!(debris.item is CustomChest customChest))
                 return;
 
-            if (!CustomChestFactory.ShouldBeCustomChest(addedItem))
-                return;
-
-            _monitor.VerboseLog("OnObjectListChanged: converting");
-
-            var position = addedItemPosition.Key;
-            var item = e.Location.objects[position];
-            e.Location.objects[position] = item.ToCustomChest();
+            MegaStorageMod.ModMonitor.VerboseLog("OnDebrisListChanged: converting");
+            debris.item = customChest.ToObject();
         }
 
+        private static void OnObjectListChanged(object sender, ObjectListChangedEventArgs e)
+        {
+            MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged");
+
+            if (e.Added.Count() != 1 && e.Removed.Count() != 1)
+                return;
+
+            var itemPosition = e.Added.Count() == 1
+                ? e.Added.Single()
+                : e.Removed.Single();
+
+            var pos = itemPosition.Key;
+            var item = itemPosition.Value;
+            var key = new Tuple<GameLocation, Vector2>(e.Location, pos);
+
+            if (e.Added.Count() == 1
+                && !(item is CustomChest)
+                && CustomChestFactory.ShouldBeCustomChest(item))
+            {
+                MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: converting");
+                var customChest = item.ToCustomChest(pos);
+                e.Location.objects[pos] = customChest;
+                if (!StateManager.PlacedChests.ContainsKey(key))
+                    StateManager.PlacedChests.Add(key, customChest);
+                else
+                    StateManager.PlacedChests[key] = customChest;
+            }
+            else if (e.Removed.Count() == 1 && item is CustomChest)
+            {
+                MegaStorageMod.ModMonitor.VerboseLog("OnObjectListChanged: untrack");
+                if (StateManager.PlacedChests.ContainsKey(key))
+                    StateManager.PlacedChests.Remove(new Tuple<GameLocation, Vector2>(e.Location, pos));
+            }
+        }
     }
 }
